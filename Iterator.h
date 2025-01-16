@@ -13,19 +13,36 @@ class Iterator {
 public:
     virtual ~Iterator() = default;
 
-    // Check if there is a next element
+    /**
+     * Process: Checks if there is a next element in the collection.
+     * Precondition: None.
+     * Postcondition: Returns true if there are more elements, false otherwise.
+     */
     virtual bool hasNext() const = 0;
 
-    // Get the next element
+    /**
+     * Process: Retrieves the next element in the collection.
+     * Precondition: The collection must have a next element.
+     * Postcondition: Returns the next element and advances the iterator.
+     */
     virtual T next() = 0;
 };
 
+/**
+ * Iterable Interface
+ * Defines a collection that can provide an iterator.
+ */
 template <typename T>
 class Iterable {
 public:
     virtual ~Iterable() = default;
 
-    // Return an iterator for the collection
+    /**
+     * Process: Creates an iterator for the collection.
+     * Precondition: None.
+     * Postcondition: Returns a new iterator for the collection.
+     */
     virtual Iterator<T>* createIterator() const = 0;
 };
+
 
