@@ -62,9 +62,15 @@ void Map<K, V>::insert(const K& key, const V& value) {
  */
 template <typename K, typename V>
 bool Map<K, V>::contains(const K& key) const {
-    return find(key) != nullptr;
+    for (auto iterator = data.createIterator(); iterator->hasNext();) {
+        Pair* pair = iterator->next();
+        if (pair->key == key) {
+            delete iterator;
+            return true;
+        }
+    }
+    return false;
 }
-
 
 /**
  * Get Method
@@ -74,32 +80,14 @@ bool Map<K, V>::contains(const K& key) const {
  */
 template <typename K, typename V>
 V Map<K, V>::get(const K& key) const {
-    Pair* pair = find(key);
-    if (pair) {
-        return pair->value;
+    for (auto iterator = data.createIterator(); iterator->hasNext();) {
+        Pair* pair = iterator->next();
+        if (pair->key == key) {
+            delete iterator;
+            return pair->value;
+        }
     }
     throw std::runtime_error("Key not found");
-}
-
-
-/**
- * Remove Method
- * Process: Removes the key-value pair with the specified key from the map.
- * Precondition: A key of type K must be provided.
- * Postcondition: The key-value pair is removed if it exists, and the corresponding memory is deallocated.
- */
-template <typename K, typename V>
-void Map<K, V>::remove(const K& key) {
-    auto it = data.begin();
-    while (it != data.end()) {
-        if ((*it)->key == key) {
-            delete* it;              // Free the memory of the Pair.
-            it = data.erase(it);     // Erase the node and move the iterator forward.
-        }
-        else {
-            ++it;
-        }
-    }
 }
 
 
@@ -111,12 +99,10 @@ void Map<K, V>::remove(const K& key) {
  */
 template <typename K, typename V>
 void Map<K, V>::clear() {
-    auto it = data.begin();
-    while (it != data.end()) {
-        delete* it; // Free the memory of the Pair.
-        ++it;
+    for (auto iterator = data.createIterator(); iterator->hasNext();) {
+        delete iterator->next();
     }
-    data.clear(); // Clear the underlying list.
+    data.clear();
 }
 
 
@@ -127,94 +113,41 @@ void Map<K, V>::clear() {
  * Postcondition: An Iterator object is created that starts at the provided position.
  */
 template <typename K, typename V>
-Map<K, V>::Iterator::Iterator(typename List<Pair*>::Iterator iter) : it(iter) {}
-
-
-/**
- * Iterator Not Equal Operator
- * Process: Compares two iterators for inequality.
- * Precondition: Both iterators must be initialized.
- * Postcondition: Returns true if the iterators point to different positions, false otherwise.
- */
-template <typename K, typename V>
-bool Map<K, V>::Iterator::operator!=(const Iterator& other) const {
-    return it != other.it;
+Iterator<typename Map<K, V>::Pair*>* Map<K, V>::createIterator() const {
+    return new MapIterator(data.createIterator());
 }
 
 
 /**
- * Iterator Dereference Operator
- * Process: Accesses the current Pair object pointed to by the iterator.
- * Precondition: The iterator must point to a valid position.
- * Postcondition: Returns a reference to the Pair object.
+ * MapIterator Constructor
+ * Wraps a List iterator.
  */
 template <typename K, typename V>
-typename Map<K, V>::Pair* Map<K, V>::Iterator::operator*() const {
-    return *it;
-}
-
+Map<K, V>::MapIterator::MapIterator(Iterator<Pair*>* iterator) : listIterator(iterator) {}
 
 /**
- * Iterator Arrow Operator
- * Process: Provides pointer-like access to the current Pair object.
- * Precondition: The iterator must point to a valid position.
- * Postcondition: Returns a pointer to the Pair object.
+ * MapIterator Destructor
+ * Deletes the internal iterator.
  */
 template <typename K, typename V>
-typename Map<K, V>::Pair* Map<K, V>::Iterator::operator->() const {
-    return *it;
+Map<K, V>::MapIterator::~MapIterator() {
+    delete listIterator;
 }
 
-
 /**
- * Iterator Increment Operator
- * Process: Moves the iterator to the next position in the list.
- * Precondition: The iterator must point to a valid position.
- * Postcondition: The iterator now points to the next position or to the end of the list.
+ * Has Next Method
+ * Checks if there are more elements in the map.
  */
 template <typename K, typename V>
-typename Map<K, V>::Iterator& Map<K, V>::Iterator::operator++() {
-    ++it;
-    return *this;
+bool Map<K, V>::MapIterator::hasNext() const {
+    return listIterator->hasNext();
 }
 
-
 /**
- * Begin Method
- * Process: Returns an iterator pointing to the first Pair in the map.
- * Precondition: None.
- * Postcondition: An iterator pointing to the first element is returned.
+ * Next Method
+ * Returns the next key-value pair in the map.
  */
 template <typename K, typename V>
-typename Map<K, V>::Iterator Map<K, V>::begin() const {
-    return Iterator(data.begin());
-}
-
-
-/**
- * End Method
- * Process: Returns an iterator pointing to the end of the map.
- * Precondition: None.
- * Postcondition: An iterator pointing past the last element is returned.
- */
-template <typename K, typename V>
-typename Map<K, V>::Iterator Map<K, V>::end() const {
-    return Iterator(data.end());
-}
-
-
-/**
- * Find Method
- * Process: Searches for a key in the map and returns the corresponding Pair if found.
- * Precondition: A key of type K must be provided.
- * Postcondition: Returns a pointer to the Pair if the key is found, or nullptr if not found.
- */
-template <typename K, typename V>
-typename Map<K, V>::Pair* Map<K, V>::find(const K& key) const {
-    for (auto it = data.begin(); it != data.end(); ++it) {
-        if ((*it)->key == key) {
-            return *it;
-        }
-    }
-    return nullptr;
+typename Map<K, V>::Pair* Map<K, V>::MapIterator::next() {
+    return listIterator->next();
 }

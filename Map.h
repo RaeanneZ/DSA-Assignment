@@ -6,11 +6,12 @@
 * Group: 1
 */
 
-#ifndef MAP_H
-#define MAP_H
+#pragma once
 
 #include "List.h"
-#include <stdexcept> // For std::runtime_error
+#include "Iterator.h"
+
+#include <stdexcept>
 
 template <typename K, typename V>
 class Map {
@@ -18,10 +19,10 @@ private:
     struct Pair {
         K key;
         V value;
-        Pair(K key, V value);
+        Pair(K key, V value) : key(key), value(value) {}
     };
 
-    List<Pair*> data; // List to store key-value pairs
+    List<Pair*> data;
 
 public:
     Map();
@@ -30,28 +31,19 @@ public:
     void insert(const K& key, const V& value);
     bool contains(const K& key) const;
     V get(const K& key) const;
-    void remove(const K& key);
     void clear();
 
-    class Iterator {
+    Iterator<Pair*>* createIterator() const;
+
+    class MapIterator : public Iterator<Pair*> {
     private:
-        typename List<Pair*>::Iterator it;
+        Iterator<Pair*>* listIterator;
 
     public:
-        Iterator(typename List<Pair*>::Iterator iter);
-        bool operator!=(const Iterator& other) const;
-        Pair* operator*() const;
-        Pair* operator->() const;
-        Iterator& operator++();
+        MapIterator(Iterator<Pair*>* iterator);
+        ~MapIterator();
+        bool hasNext() const override;
+        Pair* next() override;
     };
-
-    Iterator begin() const;
-    Iterator end() const;
-
-private:
-    Pair* find(const K& key) const;
 };
-
-#include "Map.cpp" // Include the template implementation
-#endif // MAP_H
 
