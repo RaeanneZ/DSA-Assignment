@@ -64,46 +64,6 @@ void List<T>::add(const T& value) {
 
 
 /**
- * Find Method
- * Process: Traverses the list to find the first element that matches the condition specified by the `compare` function.
- * Precondition: A valid `compare` function must be provided. It should accept a `const T&` and return a boolean.
- * Postcondition: Returns a pointer to the first matching element if found, or nullptr if no match is found.
- */
-template <typename T>
-T* List<T>::find(bool (*compare)(const T&)) {
-    Node* temp = head;
-    while (temp) {
-        if (compare(temp->data)) {
-            return &temp->data;
-        }
-        temp = temp->next;
-    }
-    return nullptr;
-}
-
-
-/**
- * Sort Method
- * Process: Sorts the list in ascending order by default or uses a custom comparison function if provided.
- * Precondition: The `compare` function (if provided) should accept two `const T&` values and return a boolean indicating order.
- * Postcondition: The list is sorted, and the relative order of elements is updated based on the sorting criteria.
- */
-template <typename T>
-void List<T>::sort(bool (*compare)(const T&, const T&)) {
-    if (!head || !head->next) return;
-    for (Node* i = head; i; i = i->next) {
-        for (Node* j = i->next; j; j = j->next) {
-            if ((compare && compare(j->data, i->data)) || (!compare && j->data < i->data)) {
-                T temp = i->data;
-                i->data = j->data;
-                j->data = temp;
-            }
-        }
-    }
-}
-
-
-/**
  * Clear Method
  * Process: Deletes all nodes in the list and frees dynamically allocated memory.
  * Precondition: None.
@@ -111,13 +71,14 @@ void List<T>::sort(bool (*compare)(const T&, const T&)) {
  */
 template <typename T>
 void List<T>::clear() {
-    Node* temp = head;
-    while (temp) {
-        Node* next = temp->next;
-        delete temp;
-        temp = next;
+    Node* current = head;
+    while (current) {
+        Node* next = current->next;
+        delete current;
+        current = next;
     }
     head = nullptr;
+    size = 0;
 }
 
 
@@ -128,79 +89,27 @@ void List<T>::clear() {
  * Postcondition: An Iterator object is created that starts at the provided node.
  */
 template <typename T>
-List<T>::Iterator::Iterator(Node* node) : current(node) {}
-
-
-/**
- * Iterator Not Equal Operator
- * Process: Compares two iterators for inequality based on their current positions.
- * Precondition: Both iterators must be initialized.
- * Postcondition: Returns true if the iterators point to different nodes, false otherwise.
- */
-template <typename T>
-bool List<T>::Iterator::operator!=(const Iterator& other) const {
-    return current != other.current;
+Iterator<T>* List<T>::createIterator() const {
+    return new ListIterator(head);
 }
 
 
-/**
- * Iterator Dereference Operator
- * Process: Accesses the data at the current node.
- * Precondition: The iterator must point to a valid node.
- * Postcondition: Returns a reference to the data stored at the current node.
- */
 template <typename T>
-T& List<T>::Iterator::operator*() const {
-    return current->data;
+bool List<T>::ListIterator::hasNext() const {
+    return current != nullptr;
 }
 
-
 /**
- * Iterator Arrow Operator
- * Process: Provides access to the data at the current node via pointer semantics.
- * Precondition: The iterator must point to a valid node.
- * Postcondition: Returns a pointer to the data stored at the current node.
+ * Next Method
+ * Returns the next element in the list.
  */
 template <typename T>
-T* List<T>::Iterator::operator->() const {
-    return &current->data;
-}
-
-
-/**
- * Iterator Increment Operator
- * Process: Moves the iterator to the next node in the list.
- * Precondition: The iterator must point to a valid node.
- * Postcondition: The iterator now points to the next node, or nullptr if the end of the list is reached.
- */
-template <typename T>
-typename List<T>::Iterator& List<T>::Iterator::operator++() {
-    if (current) {
-        current = current->next;
+T List<T>::ListIterator::next() {
+    if (!current) {
+        throw std::out_of_range("No more elements");
     }
-    return *this;
+    T value = current->data;
+    current = current->next;
+    return value;
 }
 
-
-/**
- * Begin Method
- * Process: Returns an iterator pointing to the first node in the list.
- * Precondition: None.
- * Postcondition: An iterator pointing to the head of the list is returned.
- */
-template <typename T>
-typename List<T>::Iterator List<T>::begin() const {
-    return Iterator(head);
-}
-
-
-/**
- * End Method
- * Process: Returns an iterator pointing to the end of the list (nullptr).
- * Precondition: None.
- * Postcondition: An iterator pointing to nullptr is returned.
- */
-template <typename T>
-typename List<T>::Iterator List<T>::end() const {
-    return Iterator(nullptr);
-}

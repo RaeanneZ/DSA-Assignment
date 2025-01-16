@@ -7,20 +7,17 @@
 */
 
 #pragma once
-#ifndef LIST_H
-#define LIST_H
 
-#include <iostream>
-using namespace std;
+#include "Iterator.h"
+#include <stdexcept>
 
 template <typename T>
-class List
-{
+class List {
 private:
     struct Node {
         T data;
         Node* next;
-        Node(T value);
+        Node(T value) : data(value), next(nullptr) {}
     };
 
     Node* head;
@@ -31,25 +28,16 @@ public:
     ~List();
 
     void add(const T& value);
-    T* find(bool (*compare)(const T&));
-    void sort(bool (*compare)(const T&, const T&) = nullptr);
     void clear();
+    Iterator<T>* createIterator() const;
 
-    class Iterator {
+    class ListIterator : public Iterator<T> {
     private:
         Node* current;
 
     public:
-        Iterator(Node* node);
-        bool operator!=(const Iterator& other) const;
-        T& operator*() const;
-        T* operator->() const;
-        Iterator& operator++();
+        ListIterator(Node* start);
+        bool hasNext() const override;
+        T next() override;
     };
-
-    Iterator begin() const;
-    Iterator end() const;
 };
-
-#include "List.cpp" // Include implementation
-#endif // LIST_H
