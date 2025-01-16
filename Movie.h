@@ -17,7 +17,7 @@ private:
     string title;
     string plot;
     int releaseYear;
-    List<string> actors; // Actors in the movie
+    List<Actor> actors; // Actors in the movie
 
 public:
     Movie(string title, string plot, int releaseYear);
