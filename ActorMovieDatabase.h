@@ -17,32 +17,26 @@ using namespace std;
 class ActorMovieDatabase
 {
 private:
-    Map<string, Actor*> actors; // Dictionary for actors by name
-    Map<string, Movie*> movies; // Dictionary for movies by title
+    Map<string, Actor*> actorMap; // Maps actor names to Actor objects
+    Map<string, Movie*> movieMap; // Maps movie titles to Movie objects
 
 public:
-    // Add a new actor
-    void addActor(string name, int birthYear);
-
-    // Add a new movie
-    void addMovie(string title, string plot, int releaseYear);
-
-    // Associate an actor with a movie
-    void addActorToMovie(string actorName, string movieTitle);
-
-    // Display actors by age range
-    void displayActorsByAge(int minAge, int maxAge, int currentYear);
-
-    // Display recent movies
-    void displayRecentMovies(int years, int currentYear);
-
-    // Display all movies of an actor
-    void displayMoviesByActor(string actorName);
-
-    // Display all actors in a movie
-    void displayActorsByMovie(string movieTitle);
-
-    // Cleanup resources
+    ActorMovieDatabase();
     ~ActorMovieDatabase();
+
+    void addActor(const string& name, int birthYear);
+    void addMovie(const string& title, const string& plot, int releaseYear);
+    void associateActorWithMovie(const string& actorName, const string& movieTitle);
+
+    Actor* findActor(const string& name) const;
+    Movie* findMovie(const string& title) const;
+
+    void displayActors() const;
+    void displayMovies() const;
+
+    void sortActorsByName();
+    void sortMoviesByReleaseYear();
+
+    void clearDatabase();
 };
 

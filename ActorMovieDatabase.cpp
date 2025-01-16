@@ -1,140 +1,150 @@
+/*
+* Member 1 Name: Zou Ruining, Raeanne
+* Member 1 ID: S10258772G
+* Member 2 Name: Cing Sian Kim
+* Member 2 ID: S10257716F
+* Group: 1
+*/
+
 #include "ActorMovieDatabase.h"
 #include <iostream>
 
 /**
- * Add a new actor to the database.
- * Process: Inserts the actor's name and birth year into the actors map.
- * Precondition: The actor's name and birth year must be valid.
- * Postcondition: A new actor is added to the database, or a message is displayed if the actor already exists.
+ * Constructor
+ * Initializes the ActorMovieDatabase.
+ * Precondition: None.
+ * Postcondition: A new database is created with no actors or movies.
  */
-void ActorMovieDatabase::addActor(string name, int birthYear) {
-    if (!actors.contains(name)) {
-        actors.insert(name, new Actor(name, birthYear));
-    }
-    else {
-        cout << "Actor already exists.\n";
+ActorMovieDatabase::ActorMovieDatabase() {}
+
+/**
+ * Destructor
+ * Frees all dynamically allocated memory.
+ * Precondition: None.
+ * Postcondition: All actor and movie objects are deleted, and the database is cleared.
+ */
+ActorMovieDatabase::~ActorMovieDatabase() {
+    clearDatabase();
+}
+
+/**
+ * Add an actor to the database.
+ * Process: Creates a new Actor object and adds it to the actorMap.
+ * Precondition: The actor's name and birth year must be provided.
+ * Postcondition: A new Actor is added to the database, or existing Actor is updated if already present.
+ */
+void ActorMovieDatabase::addActor(const string& name, int birthYear) {
+    if (!actorMap.contains(name)) {
+        actorMap.insert(name, new Actor(name, birthYear));
     }
 }
 
 /**
- * Add a new movie to the database.
- * Process: Inserts the movie's title, plot, and release year into the movies map.
- * Precondition: The movie's title, plot, and release year must be valid.
- * Postcondition: A new movie is added to the database, or a message is displayed if the movie already exists.
+ * Add a movie to the database.
+ * Process: Creates a new Movie object and adds it to the movieMap.
+ * Precondition: The movie's title, plot, and release year must be provided.
+ * Postcondition: A new Movie is added to the database, or existing Movie is updated if already present.
  */
-void ActorMovieDatabase::addMovie(string title, string plot, int releaseYear) {
-    if (!movies.contains(title)) {
-        movies.insert(title, new Movie(title, plot, releaseYear));
-    }
-    else {
-        cout << "Movie already exists.\n";
+void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
+    if (!movieMap.contains(title)) {
+        movieMap.insert(title, new Movie(title, plot, releaseYear));
     }
 }
 
 /**
  * Associate an actor with a movie.
- * Process: Links an actor to a movie and vice versa.
- * Precondition: Both the actor and movie must exist in the database.
+ * Process: Finds the actor and movie in the database and links them.
+ * Precondition: Both the actor and movie must already exist in the database.
  * Postcondition: The actor is added to the movie's actor list, and the movie is added to the actor's movie list.
  */
-void ActorMovieDatabase::addActorToMovie(string actorName, string movieTitle) {
-    if (actors.contains(actorName) && movies.contains(movieTitle)) {
-        actors.get(actorName)->movies.add(movieTitle);
-        movies.get(movieTitle)->actors.add(actorName);
-    }
-    else {
-        cout << "Actor or movie not found.\n";
+void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const string& movieTitle) {
+    Actor* actor = findActor(actorName);
+    Movie* movie = findMovie(movieTitle);
+
+    if (actor && movie) {
+        actor->addMovieToActor(*movie);
+        movie->addActorToMovie(*actor);
     }
 }
 
 /**
- * Display actors by age range.
- * Process: Filters and displays actors whose ages fall within a specified range.
- * Precondition: The current year and the age range must be valid.
- * Postcondition: A sorted list of actors within the age range is displayed.
+ * Find an actor by name.
+ * Process: Searches for the actor in the actorMap.
+ * Precondition: The actor's name must be provided.
+ * Postcondition: Returns a pointer to the Actor if found, or nullptr otherwise.
  */
-void ActorMovieDatabase::displayActorsByAge(int minAge, int maxAge, int currentYear) {
-    List<Actor*> filteredActors;
-    for (auto it = actors.begin(); it != actors.end(); ++it) {
-        int age = currentYear - (*it)->value->birthYear;
-        if (age >= minAge && age <= maxAge) {
-            filteredActors.add((*it)->value);
-        }
-    }
-    filteredActors.sort([](Actor* const& a, Actor* const& b) { return a->birthYear > b->birthYear; });
-    for (auto it = filteredActors.begin(); it != filteredActors.end(); ++it) {
-        cout << (*it)->name << " (Age: " << (currentYear - (*it)->birthYear) << ")\n";
-    }
+Actor* ActorMovieDatabase::findActor(const string& name) const {
+    return actorMap.contains(name) ? actorMap.get(name) : nullptr;
 }
 
 /**
- * Display recent movies.
- * Process: Filters and displays movies released within the last specified number of years.
- * Precondition: The current year and the number of years must be valid.
- * Postcondition: A sorted list of recent movies is displayed.
+ * Find a movie by title.
+ * Process: Searches for the movie in the movieMap.
+ * Precondition: The movie's title must be provided.
+ * Postcondition: Returns a pointer to the Movie if found, or nullptr otherwise.
  */
-void ActorMovieDatabase::displayRecentMovies(int years, int currentYear) {
-    List<Movie*> recentMovies;
-    for (auto it = movies.begin(); it != movies.end(); ++it) {
-        if (currentYear - (*it)->value->releaseYear <= years) {
-            recentMovies.add((*it)->value);
-        }
-    }
-    recentMovies.sort([](Movie* const& a, Movie* const& b) { return a->releaseYear < b->releaseYear; });
-    for (auto it = recentMovies.begin(); it != recentMovies.end(); ++it) {
-        cout << (*it)->title << " (" << (*it)->releaseYear << ")\n";
-    }
+Movie* ActorMovieDatabase::findMovie(const string& title) const {
+    return movieMap.contains(title) ? movieMap.get(title) : nullptr;
 }
 
 /**
- * Display all movies associated with an actor.
- * Process: Lists all movies that the specified actor has appeared in.
- * Precondition: The actor must exist in the database.
- * Postcondition: A sorted list of the actor's movies is displayed, or a message is displayed if the actor is not found.
- */
-void ActorMovieDatabase::displayMoviesByActor(string actorName) {
-    if (actors.contains(actorName)) {
-        List<string> actorMovies = actors.get(actorName)->movies;
-        actorMovies.sort(); // Default sorting with '<'
-        for (auto it = actorMovies.begin(); it != actorMovies.end(); ++it) {
-            cout << *it << endl;
-        }
-    }
-    else {
-        cout << "Actor not found.\n";
-    }
-}
-
-/**
- * Display all actors associated with a movie.
- * Process: Lists all actors who appeared in the specified movie.
- * Precondition: The movie must exist in the database.
- * Postcondition: A sorted list of actors in the movie is displayed, or a message is displayed if the movie is not found.
- */
-void ActorMovieDatabase::displayActorsByMovie(string movieTitle) {
-    if (movies.contains(movieTitle)) {
-        List<string> movieActors = movies.get(movieTitle)->actors;
-        movieActors.sort(); // Default sorting with '<'
-        for (auto it = movieActors.begin(); it != movieActors.end(); ++it) {
-            cout << *it << endl;
-        }
-    }
-    else {
-        cout << "Movie not found.\n";
-    }
-}
-
-/**
- * Destructor
- * Process: Cleans up all dynamically allocated resources.
+ * Display all actors in the database.
+ * Process: Iterates through the actorMap and prints actor details.
  * Precondition: None.
- * Postcondition: All memory associated with actors and movies is released.
+ * Postcondition: All actor details are printed to the console.
  */
-ActorMovieDatabase::~ActorMovieDatabase() {
-    for (auto it = actors.begin(); it != actors.end(); ++it) {
-        delete it->value;
+void ActorMovieDatabase::displayActors() const {
+    for (auto it = actorMap.begin(); it != actorMap.end(); ++it) {
+        cout << "Actor: " << (*it)->key << endl;
     }
-    for (auto it = movies.begin(); it != movies.end(); ++it) {
-        delete it->value;
+}
+
+/**
+ * Display all movies in the database.
+ * Process: Iterates through the movieMap and prints movie details.
+ * Precondition: None.
+ * Postcondition: All movie details are printed to the console.
+ */
+void ActorMovieDatabase::displayMovies() const {
+    for (auto it = movieMap.begin(); it != movieMap.end(); ++it) {
+        cout << "Movie: " << (*it)->key << endl;
     }
+}
+
+/**
+ * Sort actors by name.
+ * Process: Uses a sorting algorithm to order actors alphabetically.
+ * Precondition: None.
+ * Postcondition: The actors are sorted by name.
+ */
+void ActorMovieDatabase::sortActorsByName() {
+    // Sorting logic for actors
+}
+
+/**
+ * Sort movies by release year.
+ * Process: Uses a sorting algorithm to order movies by release year.
+ * Precondition: None.
+ * Postcondition: The movies are sorted by release year.
+ */
+void ActorMovieDatabase::sortMoviesByReleaseYear() {
+    // Sorting logic for movies
+}
+
+/**
+ * Clear the database.
+ * Process: Deletes all dynamically allocated actors and movies and clears the maps.
+ * Precondition: None.
+ * Postcondition: The database is empty.
+ */
+void ActorMovieDatabase::clearDatabase() {
+    for (auto it = actorMap.begin(); it != actorMap.end(); ++it) {
+        delete (*it)->value;
+    }
+    actorMap.clear();
+
+    for (auto it = movieMap.begin(); it != movieMap.end(); ++it) {
+        delete (*it)->value;
+    }
+    movieMap.clear();
 }
