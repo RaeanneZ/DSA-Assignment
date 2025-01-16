@@ -7,41 +7,90 @@
 */
 
 #include "Movie.h"
+#include <iostream>
+using namespace std;
 
-Movie::Movie(string title, string plot, int releaseYear) : title(title), plot(plot), releaseYear(releaseYear) {}
+/**
+ * Constructor
+ * Initializes a Movie with a title, plot, and release year.
+ */
+Movie::Movie(const std::string& title, const std::string& plot, int releaseYear) : title(title), plot(plot), releaseYear(releaseYear) {}
 
-string Movie::getTitle() {
-	return title;
+/**
+ * Get Title Method
+ * Returns the movie's title.
+ */
+std::string Movie::getTitle() const {
+    return title;
 }
 
-void Movie::setTitle(string title) {
-	this->title = title;
+/**
+ * Set Title Method
+ * Updates the movie's title.
+ */
+void Movie::setTitle(const std::string& title) {
+    this->title = title;
 }
 
-string Movie::getPlot() {
-	return plot;
+/**
+ * Get Plot Method
+ * Returns the movie's plot.
+ */
+std::string Movie::getPlot() const {
+    return plot;
 }
 
-void Movie::setPlot(string plot) {
-	this->plot = plot;
+/**
+ * Set Plot Method
+ * Updates the movie's plot.
+ */
+void Movie::setPlot(const std::string& plot) {
+    this->plot = plot;
 }
 
-int Movie::getReleaseYear() {
-	return releaseYear;
+/**
+ * Get Release Year Method
+ * Returns the movie's release year.
+ */
+int Movie::getReleaseYear() const {
+    return releaseYear;
 }
 
+/**
+ * Set Release Year Method
+ * Updates the movie's release year.
+ */
 void Movie::setReleaseYear(int year) {
-	this->releaseYear = year;
+    releaseYear = year;
 }
 
-void Movie::addActorToMovie(Actor actor) {
-	actors.add(actor);
+/**
+ * Add Actor to Movie Method
+ * Adds an actor to the movie's list of actors.
+ */
+void Movie::addActorToMovie(Actor* actor) {
+    actors.add(actor);
 }
 
+/**
+ * Sort Actors Method
+ * Sorts the movie's actors alphabetically by name.
+ */
 void Movie::sortActors() {
-	// This needs to have multiple sorting algorithms
+    actors.sort([](Actor* a, Actor* b) -> bool {
+        return a->getName() < b->getName();
+        });
 }
 
-void Movie::displayActors() {
-	
+/**
+ * Display Actors Method
+ * Prints the movie's actors to the console.
+ */
+void Movie::displayActors() const {
+    auto iterator = actors.createIterator();
+    while (iterator->hasNext()) {
+        Actor* actor = iterator->next();
+        cout << "Actor: " << actor->getName() << " (" << actor->getBirthYear() << ")" << endl;
+    }
+    delete iterator;
 }

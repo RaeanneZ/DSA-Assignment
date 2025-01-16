@@ -7,6 +7,8 @@
 */
 
 #include "List.h"
+#include <stdexcept>
+using namespace std;
 
 /**
  * Node Constructor
@@ -81,6 +83,27 @@ void List<T>::clear() {
     size = 0;
 }
 
+/**
+ * Sort Method
+ * Sorts the list using a custom comparator.
+ */
+template <typename T>
+void List<T>::sort(function<bool(const T&, const T&)> comparator) {
+    if (!head || !head->next) return; // Empty or single-element list
+
+    for (Node* i = head; i != nullptr; i = i->next) {
+        for (Node* j = i->next; j != nullptr; j = j->next) {
+            if (comparator(j->data, i->data)) {
+                std::swap(i->data, j->data);
+            }
+        }
+    }
+}
+
+template <typename T>
+Iterator<T>* List<T>::createIterator() const {
+    return new ListIterator(head);
+}
 
 /**
  * Iterator Constructor
@@ -89,10 +112,7 @@ void List<T>::clear() {
  * Postcondition: An Iterator object is created that starts at the provided node.
  */
 template <typename T>
-Iterator<T>* List<T>::createIterator() const {
-    return new ListIterator(head);
-}
-
+List<T>::ListIterator::ListIterator(Node* start) : current(start) {}
 
 template <typename T>
 bool List<T>::ListIterator::hasNext() const {

@@ -10,6 +10,7 @@
 
 #include "Iterator.h"
 #include <stdexcept>
+using namespace std;
 
 template <typename T>
 class List {
@@ -29,6 +30,7 @@ public:
 
     void add(const T& value);
     void clear();
+    void sort(function<bool(const T&, const T&)> comparator);
     Iterator<T>* createIterator() const;
 
     class ListIterator : public Iterator<T> {

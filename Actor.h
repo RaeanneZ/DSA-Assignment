@@ -11,24 +11,26 @@
 #include "List.h"
 #include "Movie.h"
 
+using namespace std;
+
 class Actor
 {
 private:
     string name;
     int birthYear;
-    List<string> movies; // Movies the actor starred in
+    List<Movie*> movies; // Movies the actor starred in
 
 public:
-    Actor(string name, int birthYear);
+    Actor(string& name, int birthYear);
 
-    string getName();
-    void setName(string name);
+    string getName() const;
+    void setName(const string& name);
 
-    int getBirthYear();
+    int getBirthYear() const;
     void setBirthYear(int year);
 
-    void addMovieToActor(Movie movie);
+    void addMovieToActor(Movie* movie);
     void sortMovies();
-    void displayMovies();
+    void displayMovies() const;
 };
 

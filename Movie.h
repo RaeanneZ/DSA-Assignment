@@ -11,27 +11,30 @@
 #include "List.h"
 #include "Actor.h"
 
+using namespace std;
+
 class Movie
 {
 private:
     string title;
     string plot;
     int releaseYear;
-    List<Actor> actors; // Actors in the movie
+    List<Actor*> actors; // Actors in the movie
 
 public:
-    Movie(string title, string plot, int releaseYear);
-    string getTitle();
-    void setTitle(string title);
+    Movie(const string& title, const string& plot, int releaseYear);
 
-    string getPlot();
-    void setPlot(string plot);
+    string getTitle() const;
+    void setTitle(const std::string& title);
 
-    int getReleaseYear();
+    string getPlot() const;
+    void setPlot(const std::string& plot);
+
+    int getReleaseYear() const;
     void setReleaseYear(int year);
 
-    void addActorToMovie(Actor actor);
+    void addActorToMovie(Actor* actor);
     void sortActors();
-    void displayActors();
+    void displayActors() const;
 };
 
