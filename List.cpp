@@ -17,8 +17,8 @@ using namespace std;
  * Precondition: A value of type T must be provided.
  * Postcondition: A new Node object is created, and its `data` is set to the provided value, while `next` is initialized to nullptr.
  */
-template <typename T>
-List<T>::Node::Node(T value) : data(value), next(nullptr) {}
+//template <typename T>
+//List<T>::Node::Node(T value) : data(value), next(nullptr) {}
 
 
 /**

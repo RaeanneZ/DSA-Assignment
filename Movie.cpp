@@ -14,13 +14,13 @@ using namespace std;
  * Constructor
  * Initializes a Movie with a title, plot, and release year.
  */
-Movie::Movie(const std::string& title, const std::string& plot, int releaseYear) : title(title), plot(plot), releaseYear(releaseYear) {}
+Movie::Movie(const string& title, const string& plot, int releaseYear) : title(title), plot(plot), releaseYear(releaseYear) {}
 
 /**
  * Get Title Method
  * Returns the movie's title.
  */
-std::string Movie::getTitle() const {
+string Movie::getTitle() const {
     return title;
 }
 
@@ -28,7 +28,7 @@ std::string Movie::getTitle() const {
  * Set Title Method
  * Updates the movie's title.
  */
-void Movie::setTitle(const std::string& title) {
+void Movie::setTitle(const string& title) {
     this->title = title;
 }
 
@@ -36,7 +36,7 @@ void Movie::setTitle(const std::string& title) {
  * Get Plot Method
  * Returns the movie's plot.
  */
-std::string Movie::getPlot() const {
+string Movie::getPlot() const {
     return plot;
 }
 
@@ -44,7 +44,7 @@ std::string Movie::getPlot() const {
  * Set Plot Method
  * Updates the movie's plot.
  */
-void Movie::setPlot(const std::string& plot) {
+void Movie::setPlot(const string& plot) {
     this->plot = plot;
 }
 

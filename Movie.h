@@ -12,6 +12,7 @@
 #include "Actor.h"
 
 using namespace std;
+class Actor;
 
 class Movie
 {

@@ -12,6 +12,7 @@
 #include "Movie.h"
 
 using namespace std;
+class Movie;
 
 class Actor
 {
@@ -21,7 +22,7 @@ private:
     List<Movie*> movies; // Movies the actor starred in
 
 public:
-    Actor(string& name, int birthYear);
+    Actor(const string& name, int birthYear);
 
     string getName() const;
     void setName(const string& name);

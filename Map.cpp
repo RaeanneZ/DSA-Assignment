@@ -7,6 +7,8 @@
 */
 
 #include "Map.h"
+#include <iostream>
+using namespace std;
 
 /**
  * Pair Constructor
@@ -14,8 +16,8 @@
  * Precondition: A key of type K and a value of type V must be provided.
  * Postcondition: A Pair object is created with the given key and value.
  */
-template <typename K, typename V>
-Map<K, V>::Pair::Pair(K key, V value) : key(key), value(value) {}
+//template <typename K, typename V>
+//Map<K, V>::Pair::Pair(K key, V value) : key(key), value(value) {}
 
 
 /**
