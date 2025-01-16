@@ -9,6 +9,7 @@
 #pragma once
 #include <string>
 #include "List.h"
+#include "Actor.h"
 
 class Movie
 {
@@ -19,6 +20,18 @@ private:
     List<string> actors; // Actors in the movie
 
 public:
-    Movie(string title, string plot, int releaseYear) : title(title), plot(plot), releaseYear(releaseYear) {}
+    Movie(string title, string plot, int releaseYear);
+    string getTitle();
+    void setTitle(string title);
+
+    string getPlot();
+    void setPlot(string plot);
+
+    int getReleaseYear();
+    void setReleaseYear(int year);
+
+    void addActorToMovie(Actor actor);
+    void sortActors();
+    void displayActors();
 };
 

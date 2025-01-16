@@ -9,6 +9,7 @@
 #pragma once
 #include <string>
 #include "List.h"
+#include "Movie.h"
 
 class Actor
 {
@@ -18,6 +19,16 @@ private:
     List<string> movies; // Movies the actor starred in
 
 public:
-    Actor(string name, int birthYear) : name(name), birthYear(birthYear) {}
+    Actor(string name, int birthYear);
+
+    string getName();
+    void setName(string name);
+
+    int getBirthYear();
+    void setBirthYear(int year);
+
+    void addMovieToActor(Movie movie);
+    void sortMovies();
+    void displayMovies();
 };
 
