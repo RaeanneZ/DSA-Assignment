@@ -7,36 +7,32 @@
 */
 
 #pragma once
-#include <string>
-#include "Map.h"
+
 #include "Actor.h"
 #include "Movie.h"
+#include "Map.h"
+#include <string>
 
-using namespace std;
-
-class ActorMovieDatabase
-{
+class ActorMovieDatabase {
 private:
-    Map<string, Actor*> actorMap; // Maps actor names to Actor objects
-    Map<string, Movie*> movieMap; // Maps movie titles to Movie objects
+    Map<std::string, Actor*> actorMap; // Maps actor names to Actor objects
+    Map<std::string, Movie*> movieMap; // Maps movie titles to Movie objects
 
 public:
     ActorMovieDatabase();
     ~ActorMovieDatabase();
 
-    void addActor(const string& name, int birthYear);
-    void addMovie(const string& title, const string& plot, int releaseYear);
-    void associateActorWithMovie(const string& actorName, const string& movieTitle);
+    void addActor(const std::string& name, int birthYear);
+    void addMovie(const std::string& title, const std::string& plot, int releaseYear);
+    void associateActorWithMovie(const std::string& actorName, const std::string& movieTitle);
 
-    Actor* findActor(const string& name) const;
-    Movie* findMovie(const string& title) const;
+    Actor* findActor(const std::string& name) const;
+    Movie* findMovie(const std::string& title) const;
 
     void displayActors() const;
     void displayMovies() const;
 
-    void sortActorsByName();
-    void sortMoviesByReleaseYear();
-
     void clearDatabase();
 };
+
 
