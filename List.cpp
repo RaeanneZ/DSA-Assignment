@@ -8,6 +8,7 @@
 
 #include "List.h"
 #include <stdexcept>
+#include <functional>
 using namespace std;
 
 /**

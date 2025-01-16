@@ -10,6 +10,7 @@
 
 #include "Iterator.h"
 #include <stdexcept>
+#include <functional>
 using namespace std;
 
 template <typename T>
