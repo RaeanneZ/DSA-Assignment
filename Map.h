@@ -10,7 +10,6 @@
 
 #include "List.h"
 #include "Iterator.h"
-
 #include <stdexcept>
 
 template <typename K, typename V>
@@ -25,25 +24,70 @@ private:
     List<Pair*> data;
 
 public:
-    Map();
-    ~Map();
+    Map() {}
+    ~Map() { clear(); }
 
-    void insert(const K& key, const V& value);
-    bool contains(const K& key) const;
-    V get(const K& key) const;
-    void clear();
+    void insert(const K& key, const V& value) {
+        if (contains(key)) {
+            throw invalid_argument("Duplicate key");
+        }
+        data.add(new Pair(key, value));
+    }
 
-    Iterator<Pair*>* createIterator() const;
+    bool contains(const K& key) const {
+        auto it = data.createIterator();
+        while (it->hasNext()) {
+            Pair* pair = it->next();
+            if (pair->key == key) {
+                delete it;
+                return true;
+            }
+        }
+        delete it;
+        return false;
+    }
+
+    V get(const K& key) const {
+        auto it = data.createIterator();
+        while (it->hasNext()) {
+            Pair* pair = it->next();
+            if (pair->key == key) {
+                V value = pair->value;
+                delete it;
+                return value;
+            }
+        }
+        delete it;
+        throw invalid_argument("Key not found");
+    }
+
+    void clear() {
+        auto it = data.createIterator();
+        while (it->hasNext()) {
+            delete it->next();
+        }
+        delete it;
+        data.clear();
+    }
 
     class MapIterator : public Iterator<Pair*> {
     private:
         Iterator<Pair*>* listIterator;
 
     public:
-        MapIterator(Iterator<Pair*>* iterator);
-        ~MapIterator();
-        bool hasNext() const override;
-        Pair* next() override;
-    };
-};
+        MapIterator(Iterator<Pair*>* iterator) : listIterator(iterator) {}
+        ~MapIterator() { delete listIterator; }
 
+        bool hasNext() const override {
+            return listIterator->hasNext();
+        }
+
+        Pair* next() override {
+            return listIterator->next();
+        }
+    };
+
+    Iterator<Pair*>* createIterator() const {
+        return new MapIterator(data.createIterator());
+    }
+};
