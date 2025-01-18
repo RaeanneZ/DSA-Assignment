@@ -64,6 +64,10 @@ void Movie::setReleaseYear(int year) {
     releaseYear = year;
 }
 
+List<Actor*> Movie::getActors() const {
+    return actors;
+}
+
 /**
  * Add Actor to Movie Method
  * Adds an actor to the movie's list of actors.

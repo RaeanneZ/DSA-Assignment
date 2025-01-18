@@ -8,6 +8,7 @@
 
 #include "ActorMovieDatabase.h"
 #include <iostream>
+#include <ctime>
 using namespace std;
 
 /**
@@ -106,6 +107,118 @@ void ActorMovieDatabase::displayActors() const {
     }
     delete it;
 }
+
+
+/**
+ * Display actors within a specified age range
+ * Process: Iterates through actorMap, add actors within age range to a list, sorts the list and displays it
+ * Precondition: `x` and `y` must be valid integers where `x <= y` and actorMap must be populated with valid data, including each actor's birth year.
+ * Postcondition: Outputs all actors within the specified age range in ascending order of age.
+ */
+void ActorMovieDatabase::displayActorsByAgeRange(int x, int y) const {
+    int currentYear = std::time(nullptr) / (60 * 60 * 24 * 365.25) + 1970; // Approximate current year
+
+    List<Actor*> actorsInRange;
+    auto it = actorMap.createIterator();
+    while (it->hasNext()) {
+        Actor* actor = it->next()->value;
+        int age = currentYear - actor->getBirthYear();
+        if (age >= x && age <= y) {
+            actorsInRange.add(actor);
+        }
+    }
+    delete it;
+
+    // Sort actorsInRange by age
+    for (auto i = actorsInRange.createIterator(); i->hasNext();) {
+        Actor* a = i->next();
+        for (auto j = actorsInRange.createIterator(); j->hasNext();) {
+            Actor* b = j->next();
+            if ((currentYear - a->getBirthYear()) < (currentYear - b->getBirthYear())) {
+                swap(a, b); // Swap actors to sort in ascending order
+            }
+        }
+    }
+
+    // Display sorted actors
+    cout << "Actors aged between " << x << " and " << y << ":\n";
+    for (auto it = actorsInRange.createIterator(); it->hasNext();) {
+        Actor* actor = it->next();
+        cout << actor->getName() << " (Age: " << currentYear - actor->getBirthYear() << ")\n";
+    }
+}
+
+/**
+ * Display Known Actors
+ * Process: Find actor specificed, iterates through all movies in the database to check if the actor starred in them and identifies 
+            all actors that are directly or indirectly connected (one level deep) to the given actor. It then displays all actors 
+            that the given actor knows.
+ * Precondition: `actorName` must be a valid string representing the name of an actor,`actorMap` and `movieMap` must be populated with 
+                  valid data.
+ * Postcondition: Outputs all actors that are directly or indirectly connected (one movie level deep) to the given actor.
+ */
+void ActorMovieDatabase::displayKnownActors(const string& actorName) const {
+    Actor* targetActor = findActor(actorName);
+    if (!targetActor) {
+        cout << "Actor not found.\n";
+        return;
+    }
+
+    List<Actor*> knownActors; // List to store known actors
+
+    // Traverse all movies
+    auto movieIterator = movieMap.createIterator();
+    while (movieIterator->hasNext()) {
+        Movie* movie = movieIterator->next()->value;
+
+        // Check if the targetActor starred in this movie
+        auto actorIterator = movie->getActors().createIterator();
+        bool targetInMovie = false;
+        while (actorIterator->hasNext()) {
+            if (actorIterator->next() == targetActor) {
+                targetInMovie = true;
+                break;
+            }
+        }
+        delete actorIterator;
+
+        // If targetActor starred in this movie, add other actors to knownActors
+        if (targetInMovie) {
+            auto coActorIterator = movie->getActors().createIterator();
+            while (coActorIterator->hasNext()) {
+                Actor* coActor = coActorIterator->next();
+                if (coActor != targetActor) {
+                    // Check for duplicates in knownActors
+                    bool isDuplicate = false;
+                    auto knownIt = knownActors.createIterator();
+                    while (knownIt->hasNext()) {
+                        if (knownIt->next() == coActor) {
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+                    delete knownIt;
+
+                    if (!isDuplicate) {
+                        knownActors.add(coActor);
+                    }
+                }
+            }
+            delete coActorIterator;
+        }
+    }
+    delete movieIterator;
+
+    // Display known actors
+    cout << "Actors known by " << actorName << ":\n";
+    auto knownIt = knownActors.createIterator();
+    while (knownIt->hasNext()) {
+        Actor* actor = knownIt->next();
+        cout << actor->getName() << "\n";
+    }
+    delete knownIt;
+}
+
 
 
 /**

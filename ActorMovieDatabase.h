@@ -30,6 +30,8 @@ public:
     Movie* findMovie(const std::string& title) const;
 
     void displayActors() const;
+    void displayActorsByAgeRange(int x, int y) const;
+    void displayKnownActors(const std::string& actorName) const;
     void displayMovies() const;
 
     void clearDatabase();
