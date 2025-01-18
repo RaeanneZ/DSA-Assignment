@@ -183,7 +183,7 @@ void userMenu(ActorMovieDatabase& db) {
             db.displayActors();
             break;
         case 2:
-            db.displayMovies();
+            db.displayMoviesInPast3Years();
             break;
         case 3:
             /* Put Function Here */

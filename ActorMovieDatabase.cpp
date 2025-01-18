@@ -8,6 +8,9 @@
 
 #include "ActorMovieDatabase.h"
 #include <iostream>
+#include <ctime>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 /**
@@ -123,6 +126,48 @@ void ActorMovieDatabase::displayMovies() const {
     delete it;
 }
 
+/**
+ * Display movies made within the past 3 years (in ascending order of year) 
+ * Process: Iterates through the actorMap and prints actor details.
+ * Precondition: None.
+ * Postcondition: All actor details are printed to the console.
+ * Done by: Cing Sian Kim (S10257716F)
+ */
+void ActorMovieDatabase::displayMoviesInPast3Years() {
+
+    // Approximate current year
+    int currentYear = time(nullptr) / (60 * 60 * 24 * 365.25) + 1970;
+
+    // Vector to store recent movies
+    vector<Movie*> recentMovies;
+
+    // Iterate through the movieMap
+    auto it = movieMap.createIterator();
+    while (it->hasNext()) {
+        Movie* movie = it->next()->value;
+        if (currentYear - movie->getReleaseYear() <= 3) {
+            recentMovies.push_back(movie);
+        }
+    }
+    delete it;
+
+    // Sort the recent movies by release year in ascending order
+    sort(recentMovies.begin(), recentMovies.end(), [](Movie* a, Movie* b) {
+        return a->getReleaseYear() < b->getReleaseYear();
+        });
+
+    // Display the recent movies
+    if (recentMovies.empty()) {
+        cout << "No movies made within the past 3 years." << endl;
+    }
+    else {
+        cout << "Movies made within the past 3 years (in ascending order of year):\n";
+        for (const auto& movie : recentMovies) {
+            cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")" << endl;
+        }
+    }
+
+}
 
 /**
  * Clear the database.

@@ -32,6 +32,8 @@ public:
     void displayActors() const;
     void displayMovies() const;
 
+    void displayMoviesInPast3Years();
+
     void clearDatabase();
 };
 
