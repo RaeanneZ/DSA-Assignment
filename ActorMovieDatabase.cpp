@@ -170,38 +170,40 @@ void ActorMovieDatabase::displayKnownActors(const string& actorName) const {
     auto movieIterator = movieMap.createIterator();
     while (movieIterator->hasNext()) {
         Movie* movie = movieIterator->next()->value;
+        if (!movie) continue; // Validate movie pointer
 
         // Check if the targetActor starred in this movie
         auto actorIterator = movie->getActors().createIterator();
         bool targetInMovie = false;
         while (actorIterator->hasNext()) {
-            if (actorIterator->next() == targetActor) {
+            Actor* actor = actorIterator->next();
+            if (actor == targetActor) {
                 targetInMovie = true;
                 break;
             }
         }
         delete actorIterator;
 
-        // If targetActor starred in this movie, add other actors to knownActors
+        // If targetActor starred in this movie, add co-actors
         if (targetInMovie) {
             auto coActorIterator = movie->getActors().createIterator();
             while (coActorIterator->hasNext()) {
                 Actor* coActor = coActorIterator->next();
-                if (coActor != targetActor) {
-                    // Check for duplicates in knownActors
-                    bool isDuplicate = false;
-                    auto knownIt = knownActors.createIterator();
-                    while (knownIt->hasNext()) {
-                        if (knownIt->next() == coActor) {
-                            isDuplicate = true;
-                            break;
-                        }
-                    }
-                    delete knownIt;
+                if (!coActor || coActor == targetActor) continue;
 
-                    if (!isDuplicate) {
-                        knownActors.add(coActor);
+                // Check if coActor is already in knownActors
+                bool isDuplicate = false;
+                auto knownIt = knownActors.createIterator();
+                while (knownIt->hasNext()) {
+                    if (knownIt->next() == coActor) {
+                        isDuplicate = true;
+                        break;
                     }
+                }
+                delete knownIt;
+
+                if (!isDuplicate) {
+                    knownActors.add(coActor);
                 }
             }
             delete coActorIterator;
@@ -214,7 +216,9 @@ void ActorMovieDatabase::displayKnownActors(const string& actorName) const {
     auto knownIt = knownActors.createIterator();
     while (knownIt->hasNext()) {
         Actor* actor = knownIt->next();
-        cout << actor->getName() << "\n";
+        if (actor) { // Validate actor pointer
+            cout << actor->getName() << "\n";
+        }
     }
     delete knownIt;
 }

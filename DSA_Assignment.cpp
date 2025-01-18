@@ -178,9 +178,15 @@ void userMenu(ActorMovieDatabase& db) {
         cout << "Enter your choice: ";
         cin >> choice;
 
+        string name;
         switch (choice) {
         case 1:
-            db.displayActors();
+            int minAge, maxAge;
+            cout << "Please enter minimum age: ";
+            cin >> minAge;
+            cout << "Please enter maximum age: ";
+            cin >> maxAge;
+            db.displayActorsByAgeRange(minAge, maxAge);
             break;
         case 2:
             db.displayMovies();
@@ -193,6 +199,10 @@ void userMenu(ActorMovieDatabase& db) {
             break;
         case 5:
             /* Put Function Here */
+            cout << "Enter actor name: ";
+            cin.ignore();
+            getline(cin, name);
+            db.displayKnownActors(name);
             break;
         case 0:
             cout << "Logging out..." << endl;
