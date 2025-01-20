@@ -110,6 +110,78 @@ void ActorMovieDatabase::displayActors() const {
     delete it;
 }
 
+/**
+ * Update actor details
+ * Process: Iterates through the actorMap and get actor details.
+ * Precondition: Actor name.
+ * Postcondition: All actor details are updated.
+ */
+void ActorMovieDatabase::updateActorDetails(const string& actorName) {
+    Actor* actor = findActor(actorName);
+    if (actor == nullptr) {
+        cout << "Actor not found." << endl;
+        return;
+    }
+
+    cout << "Updating details for: " << actor->getName() << endl;
+
+    string newName;
+    cout << "Enter new name (or press Enter to keep current: " << actor->getName() << "): ";
+    getline(cin, newName);
+    if (!newName.empty()) {
+        actor->setName(newName);
+    }
+
+    int newBirthYear;
+    cout << "Enter new birth year (or press 0 to keep current: " << actor->getBirthYear() << "): ";
+    cin >> newBirthYear;
+    if (newBirthYear > 0) {
+        actor->setBirthYear(newBirthYear);
+    }
+
+    cout << "Actor details updated successfully!" << endl;
+}
+
+/**
+ * Update movie details
+ * Process: Iterates through the movieMap and get movie details.
+ * Precondition: Movie title
+ * Postcondition: All movie details are updated.
+ */
+void ActorMovieDatabase::updateMovieDetails(const string& movieTitle) {
+    Movie* movie = findMovie(movieTitle);
+    if (movie == nullptr) {
+        cout << "Movie not found." << endl;
+        return;
+    }
+
+    cout << "Updating details for: " << movie->getTitle() << endl;
+
+    string newTitle;
+    cout << "Enter new title (or press Enter to keep current: " << movie->getTitle() << "): ";
+    cin.ignore(); // Clear the input buffer
+    getline(cin, newTitle);
+    if (!newTitle.empty()) {
+        movie->setTitle(newTitle);
+    }
+
+    string newPlot;
+    cout << "Enter new plot (or press Enter to keep current): ";
+    getline(cin, newPlot);
+    if (!newPlot.empty()) {
+        movie->setPlot(newPlot);
+    }
+
+    int newReleaseYear;
+    cout << "Enter new release year (or press 0 to keep current: " << movie->getReleaseYear() << "): ";
+    cin >> newReleaseYear;
+    if (newReleaseYear > 0) {
+        movie->setReleaseYear(newReleaseYear);
+    }
+
+    cout << "Movie details updated successfully!" << endl;
+}
+
 
 /**
  * Display all movies in the database.

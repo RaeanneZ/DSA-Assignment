@@ -32,6 +32,9 @@ public:
     void displayActors() const;
     void displayMovies() const;
 
+    void updateActorDetails(const string& actorName);
+    void updateMovieDetails(const string& movieTitle);
+
     void displayMoviesInPast3Years();
     void displayMoviesByActor(const std::string& actorName) const;
     void displayActorsByMovie(const string& movieTitle) const;

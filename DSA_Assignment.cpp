@@ -141,21 +141,24 @@ void adminMenu(ActorMovieDatabase& db) {
             db.addMovie(title, plot, year);
             cout << "Movie added successfully." << endl;
             break;
-        case 3:
-            cout << "Enter actor name: ";
+        case 4: {
+            string actorName;
             cin.ignore();
-            getline(cin, name);
-            cout << "Enter movie title: ";
-            getline(cin, title);
-            db.associateActorWithMovie(name, title);
-            cout << "Actor and movie associated successfully." << endl;
+            db.displayActors();
+            cout << "Enter actor name to update: ";
+            getline(cin, actorName);
+            db.updateActorDetails(actorName);
             break;
-        case 4:
-            /* Put Your Method Here */
+        }
+        case 5: {
+            string movieTitle;
+            cin.ignore();
+            db.displayMovies();
+            cout << "Enter movie title to update: ";
+            getline(cin, movieTitle);
+            db.updateMovieDetails(movieTitle);
             break;
-        case 5:
-            /* Put Your Method Here */
-            break;
+        }
         case 0:
             cout << "Logging out..." << endl;
             break;
@@ -195,7 +198,6 @@ void userMenu(ActorMovieDatabase& db) {
             break;
         }
         case 4: {
-
             string movieTitle;
             cin.ignore();
             db.displayMovies();
