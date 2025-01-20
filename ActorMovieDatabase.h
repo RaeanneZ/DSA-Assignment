@@ -33,6 +33,8 @@ public:
     void displayMovies() const;
 
     void displayMoviesInPast3Years();
+    void displayMoviesByActor(const std::string& actorName) const;
+    void displayActorsByMovie(const string& movieTitle) const;
 
     void clearDatabase();
 };

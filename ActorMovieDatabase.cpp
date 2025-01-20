@@ -128,10 +128,9 @@ void ActorMovieDatabase::displayMovies() const {
 
 /**
  * Display movies made within the past 3 years (in ascending order of year) 
- * Process: Iterates through the actorMap and prints actor details.
+ * Process: Iterates through the movieMap and prints actor details.
  * Precondition: None.
- * Postcondition: All actor details are printed to the console.
- * Done by: Cing Sian Kim (S10257716F)
+ * Postcondition: Movie name and release year are printed to the console.
  */
 void ActorMovieDatabase::displayMoviesInPast3Years() {
 
@@ -166,7 +165,51 @@ void ActorMovieDatabase::displayMoviesInPast3Years() {
             cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")" << endl;
         }
     }
+}
 
+/**
+ * Display all movies an actor starred in (in alphabetical order)
+ * Process: Searches for the actor in the actorMap and sorts all the movies the actor starred in.
+ * Precondition: Actor name.
+ * Postcondition: Movie name and release year are printed to the console.
+ */
+void ActorMovieDatabase::displayMoviesByActor(const string& actorName) const {
+
+    // Find the actor in the database
+    Actor* actor = findActor(actorName);
+    if (!actor) {
+        cout << "Actor \"" << actorName << "\" not found in the database." << endl;
+        return;
+    }
+
+    // Sort the movies the actor starred in
+    const_cast<Actor*>(actor)->sortMovies();
+
+    // Display movies
+    cout << "Movies featuring \"" << actorName << "\":\n";
+    actor->displayMovies();
+}
+
+/**
+ * Display all the actors in a particular movie (in alphabetical order)
+ * Process: Find the movie and sort all actors accordingly
+ * Precondition: Movie name.
+ * Postcondition: Actor names are printed to the console.
+ */
+void ActorMovieDatabase::displayActorsByMovie(const string& movieTitle) const {
+    // Find the movie in the database
+    Movie* movie = findMovie(movieTitle);
+    if (!movie) {
+        cout << "Movie \"" << movieTitle << "\" not found in the database." << endl;
+        return;
+    }
+
+    // Sort the actors in the movie
+    movie->sortActors();
+
+    // Display the actors
+    cout << "Actors in \"" << movieTitle << "\":\n";
+    movie->displayActors();
 }
 
 /**

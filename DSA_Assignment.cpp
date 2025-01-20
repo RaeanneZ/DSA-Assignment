@@ -185,12 +185,25 @@ void userMenu(ActorMovieDatabase& db) {
         case 2:
             db.displayMoviesInPast3Years();
             break;
-        case 3:
-            /* Put Function Here */
+        case 3: {
+            string actorName;
+            cin.ignore();
+            db.displayActors();
+            cout << "Enter actor name: ";
+            getline(cin, actorName);
+            db.displayMoviesByActor(actorName);
             break;
-        case 4:
-            /* Put Function Here */
+        }
+        case 4: {
+
+            string movieTitle;
+            cin.ignore();
+            db.displayMovies();
+            cout << "Enter movie title: ";
+            getline(cin, movieTitle);
+            db.displayActorsByMovie(movieTitle);
             break;
+        }
         case 5:
             /* Put Function Here */
             break;
