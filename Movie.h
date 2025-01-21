@@ -34,7 +34,8 @@ public:
     int getReleaseYear() const;
     void setReleaseYear(int year);
 
-    List<Actor*> getActors() const;
+    //const List<Actor*>& getActors() const;
+    const List<Actor*> getActors() const;
 
     void addActorToMovie(Actor* actor);
     void sortActors();

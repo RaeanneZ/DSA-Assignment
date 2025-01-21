@@ -7,6 +7,9 @@
 */
 
 #include "ActorMovieDatabase.h"
+#include "List.h"
+#include "Actor.h"
+#include "Movie.h"
 #include <iostream>
 #include <ctime>
 using namespace std;
@@ -36,8 +39,19 @@ ActorMovieDatabase::~ActorMovieDatabase() {
  * Postcondition: A new Actor is added to the database, or existing Actor is updated if already present.
  */
 void ActorMovieDatabase::addActor(const string& name, int birthYear) {
+
+    if (name.empty() || birthYear <= 0) {
+        cout << "Error: Invalid actor data." << endl;
+        return;
+    }
+    Actor* newActor = new Actor(name, birthYear);
+    if (!newActor) {
+        cout << "Error : Failed to allocate memory for actor." << endl;
+        return;
+    }
+
     if (!actorMap.contains(name)) {
-        actorMap.insert(name, new Actor(name, birthYear));
+        actorMap.insert(name, newActor);
     }
 }
 
@@ -49,8 +63,13 @@ void ActorMovieDatabase::addActor(const string& name, int birthYear) {
  * Postcondition: A new Movie is added to the database, or existing Movie is updated if already present.
  */
 void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
+
+    //DEBUG STATEMENT
+    cout << "ActorMovieDatabase::Adding Movie: " << title << " (" << releaseYear << ")\n";
+
+    Movie* movie = new Movie(title, plot, releaseYear);
     if (!movieMap.contains(title)) {
-        movieMap.insert(title, new Movie(title, plot, releaseYear));
+        movieMap.insert(title, movie);
     }
 }
 
@@ -62,12 +81,19 @@ void ActorMovieDatabase::addMovie(const string& title, const string& plot, int r
  * Postcondition: The actor is added to the movie's actor list, and the movie is added to the actor's movie list.
  */
 void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const string& movieTitle) {
+
     Actor* actor = findActor(actorName);
     Movie* movie = findMovie(movieTitle);
-    if (actor && movie) {
-        actor->addMovieToActor(movie);
-        movie->addActorToMovie(actor);
+
+    if (!actor || !movie) {
+        cerr << "Error: Cannot associate \"" << actorName << "\" with \"" << movieTitle
+            << "\". Actor or Movie not found.\n";
+        return;
     }
+ 
+    actor->addMovieToActor(movie);
+    movie->addActorToMovie(actor);
+    
 }
 
 
@@ -78,7 +104,20 @@ void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const 
  * Postcondition: Returns a pointer to the Actor if found, or nullptr otherwise.
  */
 Actor* ActorMovieDatabase::findActor(const string& name) const {
-    return actorMap.contains(name) ? actorMap.get(name) : nullptr;
+    // Check if the actor exists in the map
+    if (!actorMap.contains(name)) {
+        std::cerr << "Error: Actor \"" << name << "\" not found in actorMap.\n";
+        return nullptr;
+    }
+
+    // Retrieve the actor from the map
+    Actor* actor = actorMap.get(name);
+    if (!actor) {
+        std::cerr << "Error: Retrieved actor for \"" << name << "\" is nullptr.\n";
+        return nullptr;
+    }
+
+    return actor;
 }
 
 
@@ -100,10 +139,12 @@ Movie* ActorMovieDatabase::findMovie(const string& title) const {
  * Postcondition: All actor details are printed to the console.
  */
 void ActorMovieDatabase::displayActors() const {
+   
     auto it = actorMap.createIterator();
     while (it->hasNext()) {
         Actor* actor = it->next()->value;
         cout << "Actor: " << actor->getName() << endl;
+        actor->displayMovies();
     }
     delete it;
 }
@@ -158,65 +199,112 @@ void ActorMovieDatabase::displayActorsByAgeRange(int x, int y) const {
  * Postcondition: Outputs all actors that are directly or indirectly connected (one movie level deep) to the given actor.
  */
 void ActorMovieDatabase::displayKnownActors(const string& actorName) const {
+
     Actor* targetActor = findActor(actorName);
     if (!targetActor) {
         cout << "Actor not found.\n";
         return;
     }
+    cout << "Actor name is: " << targetActor->getName() << endl;
 
-    List<Actor*> knownActors; // List to store known actors
+    List<Actor*> knownActors;
 
-    // Traverse all movies
-    auto movieIterator = movieMap.createIterator();
+    // Get all movies associated with the target actor
+    List<Movie*> movieList = targetActor->getMovies();
+    auto movieIterator = movieList.createIterator();
+
+    // Add all direct co-actors to knownActors
     while (movieIterator->hasNext()) {
-        Movie* movie = movieIterator->next()->value;
-        if (!movie) continue; // Validate movie pointer
+        Movie* movie = movieIterator->next();
+        if (!movie) continue;
 
-        // Check if the targetActor starred in this movie
-        auto actorIterator = movie->getActors().createIterator();
-        bool targetInMovie = false;
+        //cout << "Checking movie: " << movie->getTitle() << endl;
+
+        List<Actor*> actorList = movie->getActors();
+        //cout << "Actors are: ";
+        movie->displayActors();
+        auto actorIterator = actorList.createIterator();
+
         while (actorIterator->hasNext()) {
-            Actor* actor = actorIterator->next();
-            if (actor == targetActor) {
-                targetInMovie = true;
-                break;
+            Actor* coActor = actorIterator->next();
+            if (!coActor || coActor == targetActor) continue;
+
+            // Ensure coActor is unique in knownActors
+            bool isDuplicate = false;
+            auto knownIt = knownActors.createIterator();
+            while (knownIt->hasNext()) {
+                if (knownIt->next() == coActor) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            delete knownIt;
+
+            if (!isDuplicate) {
+                //cout << "Adding co-actor: " << coActor->getName() << " to knownActors.\n";
+                knownActors.add(coActor);
             }
         }
         delete actorIterator;
-
-        // If targetActor starred in this movie, add co-actors
-        if (targetInMovie) {
-            auto coActorIterator = movie->getActors().createIterator();
-            while (coActorIterator->hasNext()) {
-                Actor* coActor = coActorIterator->next();
-                if (!coActor || coActor == targetActor) continue;
-
-                // Check if coActor is already in knownActors
-                bool isDuplicate = false;
-                auto knownIt = knownActors.createIterator();
-                while (knownIt->hasNext()) {
-                    if (knownIt->next() == coActor) {
-                        isDuplicate = true;
-                        break;
-                    }
-                }
-                delete knownIt;
-
-                if (!isDuplicate) {
-                    knownActors.add(coActor);
-                }
-            }
-            delete coActorIterator;
-        }
     }
     delete movieIterator;
 
-    // Display known actors
+    // Find indirect relations
+    bool addedNewActor;
+    do {
+        addedNewActor = false;
+
+        // Iterate through known actors to find indirect relations
+        auto knownActorIterator = knownActors.createIterator();
+        while (knownActorIterator->hasNext()) {
+            Actor* knownActor = knownActorIterator->next();
+            if (!knownActor) continue;
+          
+            // Find the movies that knownActor knows
+            List<Movie*> knownActorMovies = knownActor->getMovies();
+            auto knownActorMovieIt = knownActorMovies.createIterator();
+
+            while (knownActorMovieIt->hasNext()) {
+                Movie* movie = knownActorMovieIt->next();
+                if (!movie) continue;
+
+                // Iterate through the actors in the movie that knownActor knows
+                List<Actor*> coActors = movie->getActors();
+                auto coActorIt = coActors.createIterator();
+
+                while (coActorIt->hasNext()) {
+                    Actor* coActor = coActorIt->next();
+                    if (!coActor || coActor == targetActor || coActor == knownActor) continue;
+
+                    // Check if coActor is already in knownActors
+                    bool isDuplicate = false;
+                    auto checkIt = knownActors.createIterator();
+                    while (checkIt->hasNext()) {
+                        if (checkIt->next() == coActor) {
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+                    delete checkIt;
+
+                    if (!isDuplicate) {
+                        knownActors.add(coActor);
+                        addedNewActor = true; // Mark that a new actor was added
+                    }
+                }
+                delete coActorIt;
+            }
+            delete knownActorMovieIt;
+        }
+        delete knownActorIterator;
+    } while (addedNewActor);
+
+    // Display all known actors
     cout << "Actors known by " << actorName << ":\n";
     auto knownIt = knownActors.createIterator();
     while (knownIt->hasNext()) {
         Actor* actor = knownIt->next();
-        if (actor) { // Validate actor pointer
+        if (actor) {
             cout << actor->getName() << "\n";
         }
     }
@@ -236,6 +324,7 @@ void ActorMovieDatabase::displayMovies() const {
     while (it->hasNext()) {
         Movie* movie = it->next()->value;
         cout << "Movie: " << movie->getTitle() << endl;
+        movie->displayActors();
     }
     delete it;
 }

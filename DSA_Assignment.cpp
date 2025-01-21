@@ -37,6 +37,11 @@ bool readAllCSV(ActorMovieDatabase& db) {
         name = name.substr(1, name.size() - 2); // Remove quotes
         getline(ss, birth, ',');
 
+
+        //DEBUG STATEMENT
+        cout << "Actor Added: ID=" << id << ", Name=" << name << ", BirthYear=" << birth << endl;
+
+
         db.addActor(name, stoi(birth));
 
         // Insert into map
@@ -62,6 +67,10 @@ bool readAllCSV(ActorMovieDatabase& db) {
         getline(ss, title, ',');
         title = title.substr(1, title.size() - 2); // Remove quotes
         getline(ss, year, ',');
+
+
+        //DEBUG STATEMENT
+        cout << "Movie Added: ID=" << id << ", Title=" << title << ", Year=" << year << endl;
 
         db.addMovie(title, "", stoi(year));
 
@@ -91,6 +100,11 @@ bool readAllCSV(ActorMovieDatabase& db) {
             string actorName = actorIdToName.get(person_id);
             string movieTitle = movieIdToTitle.get(movie_id);
 
+            Actor* actor = db.findActor(actorName); // Validate existence
+            if (!actor) {
+                cerr << "Error: Actor \"" << actorName << "\" not found.\n";
+                continue;
+            }
             // Associate actor with movie in the database
             db.associateActorWithMovie(actorName, movieTitle);
         }
@@ -189,7 +203,7 @@ void userMenu(ActorMovieDatabase& db) {
             db.displayActorsByAgeRange(minAge, maxAge);
             break;
         case 2:
-            db.displayMovies();
+            /*db.displayMovies();*/
             break;
         case 3:
             /* Put Function Here */

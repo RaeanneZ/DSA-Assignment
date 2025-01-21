@@ -64,8 +64,9 @@ void Movie::setReleaseYear(int year) {
     releaseYear = year;
 }
 
-List<Actor*> Movie::getActors() const {
-    return actors;
+//const List<Actor*>& Movie::getActors() const {
+const List<Actor*> Movie::getActors() const {
+    return actors; // This now returns a deep copy, thanks to the updated List copy constructor
 }
 
 /**
@@ -73,6 +74,14 @@ List<Actor*> Movie::getActors() const {
  * Adds an actor to the movie's list of actors.
  */
 void Movie::addActorToMovie(Actor* actor) {
+    //Validate actor before adding to movie
+    if (!actor) {
+        cerr << "Error: Attempted to add null actor to movie \"" << title << "\".\n";
+        return;
+    }
+
+    //cout << "Adding actor \"" << actor->getName() << "\" to movie \"" << title << "\".\n";
+
     actors.add(actor);
 }
 
@@ -91,9 +100,15 @@ void Movie::sortActors() {
  * Prints the movie's actors to the console.
  */
 void Movie::displayActors() const {
+    if (actors.isEmpty()) {
+        cout << "No actors for this movie" << endl;
+        return;
+    }
+
     auto iterator = actors.createIterator();
     while (iterator->hasNext()) {
         Actor* actor = iterator->next();
+        //cout << "Movie::printActors -" << actor << endl;
         cout << "Actor: " << actor->getName() << " (" << actor->getBirthYear() << ")" << endl;
     }
     delete iterator;
