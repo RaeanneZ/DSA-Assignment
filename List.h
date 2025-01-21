@@ -29,7 +29,7 @@ private:
 public:
     List() : head(nullptr), size(0) {}
     
-    // Copy constructor for dee[ copy
+    // Copy constructor for deep copy
     List(const List& other) : head(nullptr), size(0) {
         Node* current = other.head;
         while (current) {
@@ -67,9 +67,6 @@ public:
             temp->next = newNode;
         }
         size++;
-
-        //DEBUG STATEMENT
-        cout << "Added value: " << value << " | New size: " << size << endl;
     }
 
     void clear() {
@@ -138,7 +135,7 @@ public:
 
     Iterator<T>* createIterator() const {
         if (!head) {
-            cout << "Iterator created for an empty list" << endl;
+            /*cout << "Iterator created for an empty list" << endl;*/
         }
 
         return new ListIterator(head);

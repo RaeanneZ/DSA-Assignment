@@ -25,7 +25,7 @@ bool readAllCSV(ActorMovieDatabase& db) {
         return false;
     }
 
-    std::string line;
+    string line;
     getline(actorsFile, line); // Skip the header
 
     while (getline(actorsFile, line)) {
@@ -36,10 +36,6 @@ bool readAllCSV(ActorMovieDatabase& db) {
         getline(ss, name, ',');
         name = name.substr(1, name.size() - 2); // Remove quotes
         getline(ss, birth, ',');
-
-
-        //DEBUG STATEMENT
-        cout << "Actor Added: ID=" << id << ", Name=" << name << ", BirthYear=" << birth << endl;
 
 
         db.addActor(name, stoi(birth));
@@ -67,10 +63,6 @@ bool readAllCSV(ActorMovieDatabase& db) {
         getline(ss, title, ',');
         title = title.substr(1, title.size() - 2); // Remove quotes
         getline(ss, year, ',');
-
-
-        //DEBUG STATEMENT
-        cout << "Movie Added: ID=" << id << ", Title=" << title << ", Year=" << year << endl;
 
         db.addMovie(title, "", stoi(year));
 
