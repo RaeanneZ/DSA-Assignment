@@ -35,6 +35,10 @@ public:
     void displayActors() const;
     void displayActorsByAgeRange(int x, int y) const;
     void displayKnownActors(const string& actorName) const;
+    void findIndirectRelations(Actor* targetActor, List<Actor*>& knownActors) const;
+    bool addUniqueActor(List<Actor*>& knownActors, Actor* actor) const;
+    void displayActorList(const List<Actor*>& actorList) const;
+    void addDirectCoActors(Actor* targetActor, List<Actor*>& knownActors) const;
     void displayMovies() const;
 
     void clearDatabase();

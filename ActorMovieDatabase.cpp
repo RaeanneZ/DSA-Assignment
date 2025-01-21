@@ -196,7 +196,6 @@ void ActorMovieDatabase::displayActorsByAgeRange(int x, int y) const {
  * Postcondition: Outputs all actors that are directly or indirectly connected (one movie level deep) to the given actor.
  */
 void ActorMovieDatabase::displayKnownActors(const string& actorName) const {
-
     Actor* targetActor = findActor(actorName);
     if (!targetActor) {
         cout << "Actor not found.\n";
@@ -206,106 +205,128 @@ void ActorMovieDatabase::displayKnownActors(const string& actorName) const {
 
     List<Actor*> knownActors;
 
-    // Get all movies associated with the target actor
+    // Add direct co-actors of the target actor
+    addDirectCoActors(targetActor, knownActors);
+
+    // Find indirect relations iteratively
+    findIndirectRelations(targetActor, knownActors);
+
+    // Display all known actors
+    cout << "Actors known by " << actorName << ":\n";
+    displayActorList(knownActors);
+}
+
+
+/**
+ * Helper function to add direct co-actors of an actor to the knownActors list
+ * Process: Iterates through all movies associated with the target actor, and for each movie, retrieves the list of co-actors and adds 
+            them to the `knownActors` list.
+ * Precondition: `targetActor` must be a valid `Actor` object with a non-empty list of associated movies and `knownActors` must be initialized
+ * Postcondition: All direct co-actors of the target actor are added to the `knownActors` list with no duplicates
+ */
+void ActorMovieDatabase::addDirectCoActors(Actor* targetActor, List<Actor*>& knownActors) const {
     List<Movie*> movieList = targetActor->getMovies();
     auto movieIterator = movieList.createIterator();
 
-    // Add all direct co-actors to knownActors
     while (movieIterator->hasNext()) {
         Movie* movie = movieIterator->next();
         if (!movie) continue;
 
-        //cout << "Checking movie: " << movie->getTitle() << endl;
-
         List<Actor*> actorList = movie->getActors();
-        //cout << "Actors are: ";
-        movie->displayActors();
         auto actorIterator = actorList.createIterator();
 
         while (actorIterator->hasNext()) {
             Actor* coActor = actorIterator->next();
             if (!coActor || coActor == targetActor) continue;
 
-            // Ensure coActor is unique in knownActors
-            bool isDuplicate = false;
-            auto knownIt = knownActors.createIterator();
-            while (knownIt->hasNext()) {
-                if (knownIt->next() == coActor) {
-                    isDuplicate = true;
-                    break;
-                }
-            }
-            delete knownIt;
-
-            if (!isDuplicate) {
-                //cout << "Adding co-actor: " << coActor->getName() << " to knownActors.\n";
-                knownActors.add(coActor);
-            }
+            addUniqueActor(knownActors, coActor);
         }
         delete actorIterator;
     }
     delete movieIterator;
+}
 
-    // Find indirect relations
+
+/**
+ * Helper function to find indirect relations for a target actor
+ * Process: Iteratively finds indirect relations of the target actor by retrieving associated movies each actor in the `knownActors` list.
+            Then Checks each movie's list of actors and adds any new actors not already in the `knownActors` list.
+ * Precondition: `targetActor` must be a valid `Actor` object and `knownActors` must already contain the target actor's direct co-actors (done by `addDirectCoActors`).
+ * Postcondition: `knownActors` list contains all actors directly or indirectly related to the target actor.
+ */
+void ActorMovieDatabase::findIndirectRelations(Actor* targetActor, List<Actor*>& knownActors) const {
     bool addedNewActor;
     do {
         addedNewActor = false;
 
-        // Iterate through known actors to find indirect relations
         auto knownActorIterator = knownActors.createIterator();
         while (knownActorIterator->hasNext()) {
             Actor* knownActor = knownActorIterator->next();
             if (!knownActor) continue;
-          
-            // Find the movies that knownActor knows
-            List<Movie*> knownActorMovies = knownActor->getMovies();
-            auto knownActorMovieIt = knownActorMovies.createIterator();
 
-            while (knownActorMovieIt->hasNext()) {
-                Movie* movie = knownActorMovieIt->next();
+            List<Movie*> knownActorMovies = knownActor->getMovies();
+            auto movieIterator = knownActorMovies.createIterator();
+
+            while (movieIterator->hasNext()) {
+                Movie* movie = movieIterator->next();
                 if (!movie) continue;
 
-                // Iterate through the actors in the movie that knownActor knows
                 List<Actor*> coActors = movie->getActors();
-                auto coActorIt = coActors.createIterator();
+                auto coActorIterator = coActors.createIterator();
 
-                while (coActorIt->hasNext()) {
-                    Actor* coActor = coActorIt->next();
+                while (coActorIterator->hasNext()) {
+                    Actor* coActor = coActorIterator->next();
                     if (!coActor || coActor == targetActor || coActor == knownActor) continue;
 
-                    // Check if coActor is already in knownActors
-                    bool isDuplicate = false;
-                    auto checkIt = knownActors.createIterator();
-                    while (checkIt->hasNext()) {
-                        if (checkIt->next() == coActor) {
-                            isDuplicate = true;
-                            break;
-                        }
-                    }
-                    delete checkIt;
-
-                    if (!isDuplicate) {
-                        knownActors.add(coActor);
-                        addedNewActor = true; // Mark that a new actor was added
+                    if (addUniqueActor(knownActors, coActor)) {
+                        addedNewActor = true;
                     }
                 }
-                delete coActorIt;
+                delete coActorIterator;
             }
-            delete knownActorMovieIt;
+            delete movieIterator;
         }
         delete knownActorIterator;
     } while (addedNewActor);
+}
 
-    // Display all known actors
-    cout << "Actors known by " << actorName << ":\n";
-    auto knownIt = knownActors.createIterator();
-    while (knownIt->hasNext()) {
-        Actor* actor = knownIt->next();
+
+/**
+ * Helper function to add an actor to the list if it's not already present
+ * Process: Checks if the given actor is already in the `knownActors` list and if the actor is not present, adds the actor to the list.
+ * Precondition: `actor` must be a valid `Actor` object and `knownActors` must be initialized
+ * Postcondition: If the actor was not already in the list, it is added to `knownActors`. Returns `true` if the actor was added, `false` otherwise.
+ */
+bool ActorMovieDatabase::addUniqueActor(List<Actor*>& knownActors, Actor* actor) const {
+    auto iterator = knownActors.createIterator();
+    while (iterator->hasNext()) {
+        if (iterator->next() == actor) {
+            delete iterator;
+            return false; // Actor already exists in the list
+        }
+    }
+    delete iterator;
+
+    knownActors.add(actor);
+    return true; // New actor added
+}
+
+
+/**
+ * Helper function to display all actors in a list
+ * Process: Iterates through the given list of actors and prints their names to the console.\
+ * Precondition: `actorList` must be a valid `List<Actor*>` object and each actor in the list must be a valid `Actor` object with a valid name.
+ * Postcondition: Outputs the names of all actors in the given list to the console.
+ */
+void ActorMovieDatabase::displayActorList(const List<Actor*>& actorList) const {
+    auto iterator = actorList.createIterator();
+    while (iterator->hasNext()) {
+        Actor* actor = iterator->next();
         if (actor) {
             cout << actor->getName() << "\n";
         }
     }
-    delete knownIt;
+    delete iterator;
 }
 
 
