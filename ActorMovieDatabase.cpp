@@ -37,11 +37,10 @@ ActorMovieDatabase::~ActorMovieDatabase() {
  * Precondition: The actor's name and birth year must be provided.
  * Postcondition: A new Actor is added to the database, or existing Actor is updated if already present.
  */
-void ActorMovieDatabase::addActor(const string& name, int birthYear) {
-    if (!actorMap.contains(name)) {
-        actorMap.insert(name, new Actor(name, birthYear));
-    }
-}
+//void ActorMovieDatabase::addActor(const string& name, int birthYear) {
+//    Actor* newActor = new Actor(name, birthYear);
+//    actorMap[newActor->id] = newActor;
+//}
 
 
 /**
@@ -50,12 +49,11 @@ void ActorMovieDatabase::addActor(const string& name, int birthYear) {
  * Precondition: The movie's title, plot, and release year must be provided.
  * Postcondition: A new Movie is added to the database, or existing Movie is updated if already present.
  */
-void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
-    if (!movieMap.contains(title)) {
-        movieMap.insert(title, new Movie(title, plot, releaseYear));
-    }
-}
-
+//void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
+//    if (!movieMap.contains(title)) {
+//        movieMap.insert(title, new Movie(title, plot, releaseYear));
+//    }
+//}
 
 /**
  * Associate an actor with a movie.
@@ -69,6 +67,26 @@ void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const 
     if (actor && movie) {
         actor->addMovieToActor(movie);
         movie->addActorToMovie(actor);
+    }
+}
+
+void ActorMovieDatabase::addActorById(const int& id, const string& name, int birthYear) {
+    Actor* newActor = new Actor(id, name, birthYear);
+    actorMap[newActor->id] = newActor;
+}
+
+void ActorMovieDatabase::addMovieById(const int& id, const string& title, const string& plot, int releaseYear) {
+    movieMap[id] = Movie(id, title, plot, releaseYear);
+}
+
+void ActorMovieDatabase::associateActorWithMovieById(const string& actorId, const string& movieId) {
+    if (actorMap.contains(actorId) && movieMap.contains(movieId)) {
+        // Example association logic (depends on your design)
+        cout << "Associating Actor ID: " << actorId
+            << " with Movie ID: " << movieId << endl;
+    }
+    else {
+        cerr << "Error: Actor ID or Movie ID not found.\n";
     }
 }
 

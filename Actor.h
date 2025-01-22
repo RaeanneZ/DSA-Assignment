@@ -17,12 +17,19 @@ class Movie;
 class Actor
 {
 private:
+    int id;
     string name;
     int birthYear;
     List<Movie*> movies; // Movies the actor starred in
 
+    static int nextId;
+
 public:
-    Actor(const string& name, int birthYear);
+
+    Actor(const int& id, const string& name, int birthYear);
+
+    int getId() const;
+    void setId(const int& newId);
 
     string getName() const;
     void setName(const string& name);

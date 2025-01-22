@@ -22,9 +22,13 @@ public:
     ActorMovieDatabase();
     ~ActorMovieDatabase();
 
-    void addActor(const std::string& name, int birthYear);
-    void addMovie(const std::string& title, const std::string& plot, int releaseYear);
+    //void addActor(int id, const std::string& name, int birthYear);
+    //void addMovie(const std::string& title, const std::string& plot, int releaseYear);
     void associateActorWithMovie(const std::string& actorName, const std::string& movieTitle);
+
+    void addActorById(const int& id, const string& name, int birthYear);
+    void addMovieById(const int& id, const string& title, const string& plot, int releaseYear);
+    void associateActorWithMovieById(const string& actorId, const string& movieId);
 
     Actor* findActor(const std::string& name) const;
     Movie* findMovie(const std::string& title) const;

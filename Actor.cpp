@@ -14,9 +14,24 @@ using namespace std;
  * Constructor
  * Initializes an Actor with a name and birth year.
  */
-Actor::Actor(const string& name, int birthYear) {
-    this->name = name;
-    this->birthYear = birthYear;
+Actor::Actor(const int& id, const string& name, int birthYear)
+    : id(id), name(name), birthYear(birthYear) {
+}
+
+/**
+ * Get ID Method
+ * Returns the actor's ID.
+ */
+int Actor::getId() const {
+    return id;
+}
+
+/**
+ * Set Name Method
+ * Updates the actor's ID.
+ */
+void Actor::setId(const int& id) {
+    this->id = id;
 }
 
 /**

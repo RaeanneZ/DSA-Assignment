@@ -13,10 +13,12 @@
 #include "ActorMovieDatabase.h"
 using namespace std;
 
-bool readAllCSV(ActorMovieDatabase& db) {
+int Actor::nextId = 100;
+int Movie::nextId = 90000;
 
-    Map<string, string> actorIdToName;   // Maps actor ID to actor name
-    Map<string, string> movieIdToTitle; // Maps movie ID to movie title
+bool readAllCSV(ActorMovieDatabase& db) {
+    Map<string, Actor*> actorIdToName;   // Maps actor ID to actor name
+    Map<string, Movie*> movieIdToTitle; // Maps movie ID to movie title
 
     // Reading actors.csv
     ifstream actorsFile("actors.csv");
@@ -25,7 +27,7 @@ bool readAllCSV(ActorMovieDatabase& db) {
         return false;
     }
 
-    std::string line;
+    string line;
     getline(actorsFile, line); // Skip the header
 
     while (getline(actorsFile, line)) {
@@ -37,10 +39,12 @@ bool readAllCSV(ActorMovieDatabase& db) {
         name = name.substr(1, name.size() - 2); // Remove quotes
         getline(ss, birth, ',');
 
-        db.addActor(name, stoi(birth));
+        // Add to the database using ID
+        db.addActorById(id, name, stoi(birth));
+        Actor* currentActor = db.findActor(name);
 
         // Insert into map
-        actorIdToName.insert(id, name);
+        actorIdToName.insert(id, currentActor);
     }
 
     actorsFile.close();
@@ -63,10 +67,12 @@ bool readAllCSV(ActorMovieDatabase& db) {
         title = title.substr(1, title.size() - 2); // Remove quotes
         getline(ss, year, ',');
 
-        db.addMovie(title, "", stoi(year));
+        // Add to the database using ID
+        db.addMovieById(id, title, "", stoi(year));
+        Movie* currentMovie = db.findMovie(title);
 
         // Insert into map
-        movieIdToTitle.insert(id, title);
+        movieIdToTitle.insert(id, currentMovie);
     }
 
     moviesFile.close();
@@ -78,21 +84,18 @@ bool readAllCSV(ActorMovieDatabase& db) {
         return false;
     }
 
-    string line1;
-    getline(castFile, line1); // Skip header
+    getline(castFile, line); // Skip header
 
-    while (getline(castFile, line1)) {
-        istringstream ss(line1);
+    while (getline(castFile, line)) {
+        istringstream ss(line);
         string person_id, movie_id;
         getline(ss, person_id, ',');
         getline(ss, movie_id, ',');
 
+        // Validate IDs exist in the maps
         if (actorIdToName.contains(person_id) && movieIdToTitle.contains(movie_id)) {
-            string actorName = actorIdToName.get(person_id);
-            string movieTitle = movieIdToTitle.get(movie_id);
-
-            // Associate actor with movie in the database
-            db.associateActorWithMovie(actorName, movieTitle);
+            // Use IDs to associate actor and movie in the database
+            db.associateActorWithMovieById(person_id, movie_id);
         }
         else {
             cerr << "Error: Could not resolve ID " << person_id << " or " << movie_id << "\n";
@@ -103,6 +106,7 @@ bool readAllCSV(ActorMovieDatabase& db) {
     cout << "\nFinished reading all CSV files.\n";
     return true;
 }
+
 
 
 void adminMenu(ActorMovieDatabase& db) {
@@ -127,7 +131,7 @@ void adminMenu(ActorMovieDatabase& db) {
             getline(cin, name);
             cout << "Enter actor birth year: ";
             cin >> year;
-            db.addActor(name, year);
+            //db.addActor(name, year);
             cout << "Actor added successfully." << endl;
             break;
         case 2:
@@ -141,6 +145,14 @@ void adminMenu(ActorMovieDatabase& db) {
             db.addMovie(title, plot, year);
             cout << "Movie added successfully." << endl;
             break;
+        case 3:
+            cout << "Enter actor name: ";
+            cin.ignore();
+            getline(cin, name);
+            cout << "Enter movie title: ";
+            getline(cin, title);
+            db.associateActorWithMovie(name, title);
+            cout << "Actor and movie associated successfully." << endl;
         case 4: {
             string actorName;
             cin.ignore();

@@ -14,7 +14,25 @@ using namespace std;
  * Constructor
  * Initializes a Movie with a title, plot, and release year.
  */
-Movie::Movie(const string& title, const string& plot, int releaseYear) : title(title), plot(plot), releaseYear(releaseYear) {}
+Movie::Movie(const int& id, const string& title, const string& plot, int releaseYear)
+    : id(id), title(title), plot(plot), releaseYear(releaseYear) {
+}
+
+/**
+ * Get ID Method
+ * Returns the movie's ID.
+ */
+int Movie::getId() const {
+    return id;
+}
+
+/**
+ * Set Name Method
+ * Updates the movie's ID.
+ */
+void Movie::setId(const int& id) {
+    this->id = id;
+}
 
 /**
  * Get Title Method
