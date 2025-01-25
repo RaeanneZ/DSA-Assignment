@@ -25,7 +25,7 @@ bool readAllCSV(ActorMovieDatabase& db) {
         return false;
     }
 
-    std::string line;
+    string line;
     getline(actorsFile, line); // Skip the header
 
     while (getline(actorsFile, line)) {
@@ -36,6 +36,7 @@ bool readAllCSV(ActorMovieDatabase& db) {
         getline(ss, name, ',');
         name = name.substr(1, name.size() - 2); // Remove quotes
         getline(ss, birth, ',');
+
 
         db.addActor(name, stoi(birth));
 
@@ -91,6 +92,11 @@ bool readAllCSV(ActorMovieDatabase& db) {
             string actorName = actorIdToName.get(person_id);
             string movieTitle = movieIdToTitle.get(movie_id);
 
+            Actor* actor = db.findActor(actorName); // Validate existence
+            if (!actor) {
+                cerr << "Error: Actor \"" << actorName << "\" not found.\n";
+                continue;
+            }
             // Associate actor with movie in the database
             db.associateActorWithMovie(actorName, movieTitle);
         }
@@ -178,12 +184,18 @@ void userMenu(ActorMovieDatabase& db) {
         cout << "Enter your choice: ";
         cin >> choice;
 
+        string name;
         switch (choice) {
         case 1:
-            db.displayActors();
+            int minAge, maxAge;
+            cout << "Please enter minimum age: ";
+            cin >> minAge;
+            cout << "Please enter maximum age: ";
+            cin >> maxAge;
+            db.displayActorsByAgeRange(minAge, maxAge);
             break;
         case 2:
-            db.displayMovies();
+            /*db.displayMovies();*/
             break;
         case 3:
             /* Put Function Here */
@@ -193,6 +205,10 @@ void userMenu(ActorMovieDatabase& db) {
             break;
         case 5:
             /* Put Function Here */
+            cout << "Enter actor name: ";
+            cin.ignore();
+            getline(cin, name);
+            db.displayKnownActors(name);
             break;
         case 0:
             cout << "Logging out..." << endl;

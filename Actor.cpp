@@ -51,6 +51,10 @@ void Actor::setBirthYear(int year) {
     birthYear = year;
 }
 
+List<Movie*> Actor::getMovies() const {
+    return movies;
+}
+
 /**
  * Add Movie to Actor Method
  * Adds a movie title to the actor's list of movies.
@@ -74,6 +78,12 @@ void Actor::sortMovies() {
  * Prints the actor's movies to the console.
  */
 void Actor::displayMovies() const {
+
+    if (movies.isEmpty()) {
+        cout << "No Movies found" << endl;
+        return;
+    }
+
     auto iterator = movies.createIterator();
     while (iterator->hasNext()) {
         Movie* movie = iterator->next();

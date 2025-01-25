@@ -30,6 +30,8 @@ public:
     int getBirthYear() const;
     void setBirthYear(int year);
 
+    List<Movie*> getMovies() const;
+
     void addMovieToActor(Movie* movie);
     void sortMovies();
     void displayMovies() const;
