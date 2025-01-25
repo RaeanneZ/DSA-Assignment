@@ -88,6 +88,13 @@ void ActorMovieDatabase::associateActorWithMovieById(const string& actorId, cons
     else {
         cerr << "Error: Actor ID or Movie ID not found.\n";
     }
+<<<<<<< Updated upstream
+=======
+
+    actor->addMovieToActor(movie);
+    movie->addActorToMovie(actor);
+
+>>>>>>> Stashed changes
 }
 
 
@@ -120,6 +127,10 @@ Movie* ActorMovieDatabase::findMovie(const string& title) const {
  * Postcondition: All actor details are printed to the console.
  */
 void ActorMovieDatabase::displayActors() const {
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     auto it = actorMap.createIterator();
     while (it->hasNext()) {
         Actor* actor = it->next()->value;
@@ -134,20 +145,109 @@ void ActorMovieDatabase::displayActors() const {
  * Precondition: Actor name.
  * Postcondition: All actor details are updated.
  */
+<<<<<<< Updated upstream
 void ActorMovieDatabase::updateActorDetails(const string& actorName) {
     Actor* actor = findActor(actorName);
     if (actor == nullptr) {
         cout << "Actor not found." << endl;
+=======
+void ActorMovieDatabase::displayActorsByAgeRange(int x, int y) const {
+    int currentYear = std::time(nullptr) / (60 * 60 * 24 * 365.25) + 1970; // Approximate current year
+
+    List<Actor*> actorsInRange;
+    auto it = actorMap.createIterator();
+    while (it->hasNext()) {
+        Actor* actor = it->next()->value;
+        int age = currentYear - actor->getBirthYear();
+        if (age >= x && age <= y) {
+            actorsInRange.add(actor);
+        }
+    }
+    delete it;
+
+    // Sort actorsInRange by age
+    for (auto i = actorsInRange.createIterator(); i->hasNext();) {
+        Actor* a = i->next();
+        for (auto j = actorsInRange.createIterator(); j->hasNext();) {
+            Actor* b = j->next();
+            if ((currentYear - a->getBirthYear()) < (currentYear - b->getBirthYear())) {
+                swap(a, b); // Swap actors to sort in ascending order
+            }
+        }
+    }
+
+    // Display sorted actors
+    cout << "Actors aged between " << x << " and " << y << ":\n";
+    for (auto it = actorsInRange.createIterator(); it->hasNext();) {
+        Actor* actor = it->next();
+        cout << actor->getName() << " (Age: " << currentYear - actor->getBirthYear() << ")\n";
+    }
+}
+
+/**
+ * Display Known Actors
+ * Process: Find actor specificed, iterates through all movies in the database to check if the actor starred in them and identifies
+            all actors that are directly or indirectly connected (one level deep) to the given actor. It then displays all actors
+            that the given actor knows.
+ * Precondition: `actorName` must be a valid string representing the name of an actor,`actorMap` and `movieMap` must be populated with
+                  valid data.
+ * Postcondition: Outputs all actors that are directly or indirectly connected (one movie level deep) to the given actor.
+ */
+void ActorMovieDatabase::displayKnownActors(const string& actorName) const {
+    Actor* targetActor = findActor(actorName);
+    if (!targetActor) {
+        cout << "Actor not found.\n";
+>>>>>>> Stashed changes
         return;
     }
 
     cout << "Updating details for: " << actor->getName() << endl;
 
+<<<<<<< Updated upstream
     string newName;
     cout << "Enter new name (or press Enter to keep current: " << actor->getName() << "): ";
     getline(cin, newName);
     if (!newName.empty()) {
         actor->setName(newName);
+=======
+    // Add direct co-actors of the target actor
+    addDirectCoActors(targetActor, knownActors);
+
+    // Find indirect relations iteratively
+    findIndirectRelations(targetActor, knownActors);
+
+    // Display all known actors
+    cout << "Actors known by " << actorName << ":\n";
+    displayActorList(knownActors);
+}
+
+
+/**
+ * Helper function to add direct co-actors of an actor to the knownActors list
+ * Process: Iterates through all movies associated with the target actor, and for each movie, retrieves the list of co-actors and adds
+            them to the `knownActors` list.
+ * Precondition: `targetActor` must be a valid `Actor` object with a non-empty list of associated movies and `knownActors` must be initialized
+ * Postcondition: All direct co-actors of the target actor are added to the `knownActors` list with no duplicates
+ */
+void ActorMovieDatabase::addDirectCoActors(Actor* targetActor, List<Actor*>& knownActors) const {
+    List<Movie*> movieList = targetActor->getMovies();
+    auto movieIterator = movieList.createIterator();
+
+    while (movieIterator->hasNext()) {
+        Movie* movie = movieIterator->next();
+        if (!movie) continue;
+
+        List<Actor*> actorList = movie->getActors();
+        auto actorIterator = actorList.createIterator();
+
+        while (actorIterator->hasNext()) {
+            Actor* coActor = actorIterator->next();
+            if (!coActor || coActor == targetActor) continue;
+
+            addUniqueActor(knownActors, coActor);
+        }
+        delete actorIterator;
+>>>>>>> Stashed changes
     }
 
     int newBirthYear;
@@ -323,4 +423,3 @@ void ActorMovieDatabase::clearDatabase() {
     delete movieIt;
     movieMap.clear();
 }
-
