@@ -12,38 +12,34 @@
 #include "Movie.h"
 #include "Map.h"
 #include <string>
+#include <iostream>
+
+using namespace std;
 
 class ActorMovieDatabase {
 private:
-    Map<std::string, Actor*> actorMap; // Maps actor names to Actor objects
-    Map<std::string, Movie*> movieMap; // Maps movie titles to Movie objects
+    Map<string, Actor*> actorMap; // Maps actor names to Actor objects
+    Map<string, Movie*> movieMap; // Maps movie titles to Movie objects
 
 public:
     ActorMovieDatabase();
     ~ActorMovieDatabase();
 
-    //void addActor(int id, const std::string& name, int birthYear);
-    //void addMovie(const std::string& title, const std::string& plot, int releaseYear);
-    void associateActorWithMovie(const std::string& actorName, const std::string& movieTitle);
+    void addActor(const string& name, int birthYear);
+    void addMovie(const string& title, const string& plot, int releaseYear);
+    void associateActorWithMovie(const string& actorName, const string& movieTitle);
 
-    void addActorById(const int& id, const string& name, int birthYear);
-    void addMovieById(const int& id, const string& title, const string& plot, int releaseYear);
-    void associateActorWithMovieById(const string& actorId, const string& movieId);
-
-    Actor* findActor(const std::string& name) const;
-    Movie* findMovie(const std::string& title) const;
+    Actor* findActor(const string& name) const;
+    Movie* findMovie(const string& title) const;
 
     void displayActors() const;
+    void displayActorsByAgeRange(int x, int y) const;
+    void displayKnownActors(const string& actorName) const;
+    void findIndirectRelations(Actor* targetActor, List<Actor*>& knownActors) const;
+    bool addUniqueActor(List<Actor*>& knownActors, Actor* actor) const;
+    void displayActorList(const List<Actor*>& actorList) const;
+    void addDirectCoActors(Actor* targetActor, List<Actor*>& knownActors) const;
     void displayMovies() const;
-
-    void updateActorDetails(const string& actorName);
-    void updateMovieDetails(const string& movieTitle);
-
-    void displayMoviesInPast3Years();
-    void displayMoviesByActor(const std::string& actorName) const;
-    void displayActorsByMovie(const string& movieTitle) const;
 
     void clearDatabase();
 };
-
-

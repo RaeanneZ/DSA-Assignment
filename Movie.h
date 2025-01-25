@@ -17,19 +17,13 @@ class Actor;
 class Movie
 {
 private:
-    int id;
     string title;
     string plot;
     int releaseYear;
     List<Actor*> actors; // Actors in the movie
 
-    static int nextId;
-
 public:
-    Movie(const int& id, const string& title, const string& plot, int releaseYear);
-
-    int getId() const;
-    void setId(const int& id);
+    Movie(const string& title, const string& plot, int releaseYear);
 
     string getTitle() const;
     void setTitle(const std::string& title);
@@ -40,8 +34,10 @@ public:
     int getReleaseYear() const;
     void setReleaseYear(int year);
 
+    //const List<Actor*>& getActors() const;
+    const List<Actor*> getActors() const;
+
     void addActorToMovie(Actor* actor);
     void sortActors();
     void displayActors() const;
 };
-

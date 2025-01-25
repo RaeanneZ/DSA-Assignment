@@ -39,9 +39,8 @@ bool readAllCSV(ActorMovieDatabase& db) {
         name = name.substr(1, name.size() - 2); // Remove quotes
         getline(ss, birth, ',');
 
-        // Add to the database using ID
-        db.addActorById(id, name, stoi(birth));
-        Actor* currentActor = db.findActor(name);
+
+        db.addActor(name, stoi(birth));
 
         // Insert into map
         actorIdToName.insert(id, currentActor);
@@ -94,8 +93,16 @@ bool readAllCSV(ActorMovieDatabase& db) {
 
         // Validate IDs exist in the maps
         if (actorIdToName.contains(person_id) && movieIdToTitle.contains(movie_id)) {
-            // Use IDs to associate actor and movie in the database
-            db.associateActorWithMovieById(person_id, movie_id);
+            string actorName = actorIdToName.get(person_id);
+            string movieTitle = movieIdToTitle.get(movie_id);
+
+            Actor* actor = db.findActor(actorName); // Validate existence
+            if (!actor) {
+                cerr << "Error: Actor \"" << actorName << "\" not found.\n";
+                continue;
+            }
+            // Associate actor with movie in the database
+            db.associateActorWithMovie(actorName, movieTitle);
         }
         else {
             cerr << "Error: Could not resolve ID " << person_id << " or " << movie_id << "\n";
@@ -193,12 +200,18 @@ void userMenu(ActorMovieDatabase& db) {
         cout << "Enter your choice: ";
         cin >> choice;
 
+        string name;
         switch (choice) {
         case 1:
-            db.displayActors();
+            int minAge, maxAge;
+            cout << "Please enter minimum age: ";
+            cin >> minAge;
+            cout << "Please enter maximum age: ";
+            cin >> maxAge;
+            db.displayActorsByAgeRange(minAge, maxAge);
             break;
         case 2:
-            db.displayMoviesInPast3Years();
+            /*db.displayMovies();*/
             break;
         case 3: {
             string actorName;
@@ -220,6 +233,10 @@ void userMenu(ActorMovieDatabase& db) {
         }
         case 5:
             /* Put Function Here */
+            cout << "Enter actor name: ";
+            cin.ignore();
+            getline(cin, name);
+            db.displayKnownActors(name);
             break;
         case 0:
             cout << "Logging out..." << endl;

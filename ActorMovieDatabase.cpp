@@ -7,10 +7,11 @@
 */
 
 #include "ActorMovieDatabase.h"
+#include "List.h"
+#include "Actor.h"
+#include "Movie.h"
 #include <iostream>
 #include <ctime>
-#include <vector>
-#include <algorithm>
 using namespace std;
 
 /**
@@ -37,10 +38,22 @@ ActorMovieDatabase::~ActorMovieDatabase() {
  * Precondition: The actor's name and birth year must be provided.
  * Postcondition: A new Actor is added to the database, or existing Actor is updated if already present.
  */
-//void ActorMovieDatabase::addActor(const string& name, int birthYear) {
-//    Actor* newActor = new Actor(name, birthYear);
-//    actorMap[newActor->id] = newActor;
-//}
+void ActorMovieDatabase::addActor(const string& name, int birthYear) {
+
+    if (name.empty() || birthYear <= 0) {
+        cout << "Error: Invalid actor data." << endl;
+        return;
+    }
+    Actor* newActor = new Actor(name, birthYear);
+    if (!newActor) {
+        cout << "Error : Failed to allocate memory for actor." << endl;
+        return;
+    }
+
+    if (!actorMap.contains(name)) {
+        actorMap.insert(name, newActor);
+    }
+}
 
 
 /**
@@ -49,11 +62,14 @@ ActorMovieDatabase::~ActorMovieDatabase() {
  * Precondition: The movie's title, plot, and release year must be provided.
  * Postcondition: A new Movie is added to the database, or existing Movie is updated if already present.
  */
-//void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
-//    if (!movieMap.contains(title)) {
-//        movieMap.insert(title, new Movie(title, plot, releaseYear));
-//    }
-//}
+void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
+
+    Movie* movie = new Movie(title, plot, releaseYear);
+    if (!movieMap.contains(title)) {
+        movieMap.insert(title, movie);
+    }
+}
+
 
 /**
  * Associate an actor with a movie.
@@ -62,39 +78,19 @@ ActorMovieDatabase::~ActorMovieDatabase() {
  * Postcondition: The actor is added to the movie's actor list, and the movie is added to the actor's movie list.
  */
 void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const string& movieTitle) {
+
     Actor* actor = findActor(actorName);
     Movie* movie = findMovie(movieTitle);
-    if (actor && movie) {
-        actor->addMovieToActor(movie);
-        movie->addActorToMovie(actor);
-    }
-}
 
-void ActorMovieDatabase::addActorById(const int& id, const string& name, int birthYear) {
-    Actor* newActor = new Actor(id, name, birthYear);
-    actorMap[newActor->id] = newActor;
-}
-
-void ActorMovieDatabase::addMovieById(const int& id, const string& title, const string& plot, int releaseYear) {
-    movieMap[id] = Movie(id, title, plot, releaseYear);
-}
-
-void ActorMovieDatabase::associateActorWithMovieById(const string& actorId, const string& movieId) {
-    if (actorMap.contains(actorId) && movieMap.contains(movieId)) {
-        // Example association logic (depends on your design)
-        cout << "Associating Actor ID: " << actorId
-            << " with Movie ID: " << movieId << endl;
+    if (!actor || !movie) {
+        cerr << "Error: Cannot associate \"" << actorName << "\" with \"" << movieTitle
+            << "\". Actor or Movie not found.\n";
+        return;
     }
-    else {
-        cerr << "Error: Actor ID or Movie ID not found.\n";
-    }
-<<<<<<< Updated upstream
-=======
 
     actor->addMovieToActor(movie);
     movie->addActorToMovie(actor);
 
->>>>>>> Stashed changes
 }
 
 
@@ -105,7 +101,20 @@ void ActorMovieDatabase::associateActorWithMovieById(const string& actorId, cons
  * Postcondition: Returns a pointer to the Actor if found, or nullptr otherwise.
  */
 Actor* ActorMovieDatabase::findActor(const string& name) const {
-    return actorMap.contains(name) ? actorMap.get(name) : nullptr;
+    // Check if the actor exists in the map
+    if (!actorMap.contains(name)) {
+        std::cerr << "Error: Actor \"" << name << "\" not found in actorMap.\n";
+        return nullptr;
+    }
+
+    // Retrieve the actor from the map
+    Actor* actor = actorMap.get(name);
+    if (!actor) {
+        std::cerr << "Error: Retrieved actor for \"" << name << "\" is nullptr.\n";
+        return nullptr;
+    }
+
+    return actor;
 }
 
 
@@ -127,30 +136,23 @@ Movie* ActorMovieDatabase::findMovie(const string& title) const {
  * Postcondition: All actor details are printed to the console.
  */
 void ActorMovieDatabase::displayActors() const {
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
     auto it = actorMap.createIterator();
     while (it->hasNext()) {
         Actor* actor = it->next()->value;
         cout << "Actor: " << actor->getName() << endl;
+        actor->displayMovies();
     }
     delete it;
 }
 
+
 /**
- * Update actor details
- * Process: Iterates through the actorMap and get actor details.
- * Precondition: Actor name.
- * Postcondition: All actor details are updated.
+ * Display actors within a specified age range
+ * Process: Iterates through actorMap, add actors within age range to a list, sorts the list and displays it
+ * Precondition: `x` and `y` must be valid integers where `x <= y` and actorMap must be populated with valid data, including each actor's birth year.
+ * Postcondition: Outputs all actors within the specified age range in ascending order of age.
  */
-<<<<<<< Updated upstream
-void ActorMovieDatabase::updateActorDetails(const string& actorName) {
-    Actor* actor = findActor(actorName);
-    if (actor == nullptr) {
-        cout << "Actor not found." << endl;
-=======
 void ActorMovieDatabase::displayActorsByAgeRange(int x, int y) const {
     int currentYear = std::time(nullptr) / (60 * 60 * 24 * 365.25) + 1970; // Approximate current year
 
@@ -197,19 +199,12 @@ void ActorMovieDatabase::displayKnownActors(const string& actorName) const {
     Actor* targetActor = findActor(actorName);
     if (!targetActor) {
         cout << "Actor not found.\n";
->>>>>>> Stashed changes
         return;
     }
+    cout << "Actor name is: " << targetActor->getName() << endl;
 
-    cout << "Updating details for: " << actor->getName() << endl;
+    List<Actor*> knownActors;
 
-<<<<<<< Updated upstream
-    string newName;
-    cout << "Enter new name (or press Enter to keep current: " << actor->getName() << "): ";
-    getline(cin, newName);
-    if (!newName.empty()) {
-        actor->setName(newName);
-=======
     // Add direct co-actors of the target actor
     addDirectCoActors(targetActor, knownActors);
 
@@ -247,58 +242,93 @@ void ActorMovieDatabase::addDirectCoActors(Actor* targetActor, List<Actor*>& kno
             addUniqueActor(knownActors, coActor);
         }
         delete actorIterator;
->>>>>>> Stashed changes
     }
-
-    int newBirthYear;
-    cout << "Enter new birth year (or press 0 to keep current: " << actor->getBirthYear() << "): ";
-    cin >> newBirthYear;
-    if (newBirthYear > 0) {
-        actor->setBirthYear(newBirthYear);
-    }
-
-    cout << "Actor details updated successfully!" << endl;
+    delete movieIterator;
 }
+
 
 /**
- * Update movie details
- * Process: Iterates through the movieMap and get movie details.
- * Precondition: Movie title
- * Postcondition: All movie details are updated.
+ * Helper function to find indirect relations for a target actor
+ * Process: Iteratively finds indirect relations of the target actor by retrieving associated movies each actor in the `knownActors` list.
+            Then Checks each movie's list of actors and adds any new actors not already in the `knownActors` list.
+ * Precondition: `targetActor` must be a valid `Actor` object and `knownActors` must already contain the target actor's direct co-actors (done by `addDirectCoActors`).
+ * Postcondition: `knownActors` list contains all actors directly or indirectly related to the target actor.
  */
-void ActorMovieDatabase::updateMovieDetails(const string& movieTitle) {
-    Movie* movie = findMovie(movieTitle);
-    if (movie == nullptr) {
-        cout << "Movie not found." << endl;
-        return;
-    }
+void ActorMovieDatabase::findIndirectRelations(Actor* targetActor, List<Actor*>& knownActors) const {
+    bool addedNewActor;
+    do {
+        addedNewActor = false;
 
-    cout << "Updating details for: " << movie->getTitle() << endl;
+        auto knownActorIterator = knownActors.createIterator();
+        while (knownActorIterator->hasNext()) {
+            Actor* knownActor = knownActorIterator->next();
+            if (!knownActor) continue;
 
-    string newTitle;
-    cout << "Enter new title (or press Enter to keep current: " << movie->getTitle() << "): ";
-    cin.ignore(); // Clear the input buffer
-    getline(cin, newTitle);
-    if (!newTitle.empty()) {
-        movie->setTitle(newTitle);
-    }
+            List<Movie*> knownActorMovies = knownActor->getMovies();
+            auto movieIterator = knownActorMovies.createIterator();
 
-    string newPlot;
-    cout << "Enter new plot (or press Enter to keep current): ";
-    getline(cin, newPlot);
-    if (!newPlot.empty()) {
-        movie->setPlot(newPlot);
-    }
+            while (movieIterator->hasNext()) {
+                Movie* movie = movieIterator->next();
+                if (!movie) continue;
 
-    int newReleaseYear;
-    cout << "Enter new release year (or press 0 to keep current: " << movie->getReleaseYear() << "): ";
-    cin >> newReleaseYear;
-    if (newReleaseYear > 0) {
-        movie->setReleaseYear(newReleaseYear);
-    }
+                List<Actor*> coActors = movie->getActors();
+                auto coActorIterator = coActors.createIterator();
 
-    cout << "Movie details updated successfully!" << endl;
+                while (coActorIterator->hasNext()) {
+                    Actor* coActor = coActorIterator->next();
+                    if (!coActor || coActor == targetActor || coActor == knownActor) continue;
+
+                    if (addUniqueActor(knownActors, coActor)) {
+                        addedNewActor = true;
+                    }
+                }
+                delete coActorIterator;
+            }
+            delete movieIterator;
+        }
+        delete knownActorIterator;
+    } while (addedNewActor);
 }
+
+
+/**
+ * Helper function to add an actor to the list if it's not already present
+ * Process: Checks if the given actor is already in the `knownActors` list and if the actor is not present, adds the actor to the list.
+ * Precondition: `actor` must be a valid `Actor` object and `knownActors` must be initialized
+ * Postcondition: If the actor was not already in the list, it is added to `knownActors`. Returns `true` if the actor was added, `false` otherwise.
+ */
+bool ActorMovieDatabase::addUniqueActor(List<Actor*>& knownActors, Actor* actor) const {
+    auto iterator = knownActors.createIterator();
+    while (iterator->hasNext()) {
+        if (iterator->next() == actor) {
+            delete iterator;
+            return false; // Actor already exists in the list
+        }
+    }
+    delete iterator;
+
+    knownActors.add(actor);
+    return true; // New actor added
+}
+
+
+/**
+ * Helper function to display all actors in a list
+ * Process: Iterates through the given list of actors and prints their names to the console.\
+ * Precondition: `actorList` must be a valid `List<Actor*>` object and each actor in the list must be a valid `Actor` object with a valid name.
+ * Postcondition: Outputs the names of all actors in the given list to the console.
+ */
+void ActorMovieDatabase::displayActorList(const List<Actor*>& actorList) const {
+    auto iterator = actorList.createIterator();
+    while (iterator->hasNext()) {
+        Actor* actor = iterator->next();
+        if (actor) {
+            cout << actor->getName() << "\n";
+        }
+    }
+    delete iterator;
+}
+
 
 
 /**
@@ -312,95 +342,11 @@ void ActorMovieDatabase::displayMovies() const {
     while (it->hasNext()) {
         Movie* movie = it->next()->value;
         cout << "Movie: " << movie->getTitle() << endl;
+        movie->displayActors();
     }
     delete it;
 }
 
-/**
- * Display movies made within the past 3 years (in ascending order of year) 
- * Process: Iterates through the movieMap and prints actor details.
- * Precondition: None.
- * Postcondition: Movie name and release year are printed to the console.
- */
-void ActorMovieDatabase::displayMoviesInPast3Years() {
-
-    // Approximate current year
-    int currentYear = time(nullptr) / (60 * 60 * 24 * 365.25) + 1970;
-
-    // Vector to store recent movies
-    vector<Movie*> recentMovies;
-
-    // Iterate through the movieMap
-    auto it = movieMap.createIterator();
-    while (it->hasNext()) {
-        Movie* movie = it->next()->value;
-        if (currentYear - movie->getReleaseYear() <= 3) {
-            recentMovies.push_back(movie);
-        }
-    }
-    delete it;
-
-    // Sort the recent movies by release year in ascending order
-    sort(recentMovies.begin(), recentMovies.end(), [](Movie* a, Movie* b) {
-        return a->getReleaseYear() < b->getReleaseYear();
-        });
-
-    // Display the recent movies
-    if (recentMovies.empty()) {
-        cout << "No movies made within the past 3 years." << endl;
-    }
-    else {
-        cout << "Movies made within the past 3 years (in ascending order of year):\n";
-        for (const auto& movie : recentMovies) {
-            cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")" << endl;
-        }
-    }
-}
-
-/**
- * Display all movies an actor starred in (in alphabetical order)
- * Process: Searches for the actor in the actorMap and sorts all the movies the actor starred in.
- * Precondition: Actor name.
- * Postcondition: Movie name and release year are printed to the console.
- */
-void ActorMovieDatabase::displayMoviesByActor(const string& actorName) const {
-
-    // Find the actor in the database
-    Actor* actor = findActor(actorName);
-    if (!actor) {
-        cout << "Actor \"" << actorName << "\" not found in the database." << endl;
-        return;
-    }
-
-    // Sort the movies the actor starred in
-    const_cast<Actor*>(actor)->sortMovies();
-
-    // Display movies
-    cout << "Movies featuring \"" << actorName << "\":\n";
-    actor->displayMovies();
-}
-
-/**
- * Display all the actors in a particular movie (in alphabetical order)
- * Process: Find the movie and sort all actors accordingly
- * Precondition: Movie name.
- * Postcondition: Actor names are printed to the console.
- */
-void ActorMovieDatabase::displayActorsByMovie(const string& movieTitle) const {
-    // Find the movie in the database
-    Movie* movie = findMovie(movieTitle);
-    if (!movie) {
-        cout << "Movie \"" << movieTitle << "\" not found in the database." << endl;
-        return;
-    }
-
-    // Sort the actors in the movie
-    movie->sortActors();
-
-    // Display the actors
-    cout << "Actors in \"" << movieTitle << "\":\n";
-    movie->displayActors();
-}
 
 /**
  * Clear the database.

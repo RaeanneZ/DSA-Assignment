@@ -14,24 +14,9 @@ using namespace std;
  * Constructor
  * Initializes an Actor with a name and birth year.
  */
-Actor::Actor(const int& id, const string& name, int birthYear)
-    : id(id), name(name), birthYear(birthYear) {
-}
-
-/**
- * Get ID Method
- * Returns the actor's ID.
- */
-int Actor::getId() const {
-    return id;
-}
-
-/**
- * Set Name Method
- * Updates the actor's ID.
- */
-void Actor::setId(const int& id) {
-    this->id = id;
+Actor::Actor(const string& name, int birthYear) {
+    this->name = name;
+    this->birthYear = birthYear;
 }
 
 /**
@@ -66,6 +51,10 @@ void Actor::setBirthYear(int year) {
     birthYear = year;
 }
 
+List<Movie*> Actor::getMovies() const {
+    return movies;
+}
+
 /**
  * Add Movie to Actor Method
  * Adds a movie title to the actor's list of movies.
@@ -89,6 +78,12 @@ void Actor::sortMovies() {
  * Prints the actor's movies to the console.
  */
 void Actor::displayMovies() const {
+
+    if (movies.isEmpty()) {
+        cout << "No Movies found" << endl;
+        return;
+    }
+
     auto iterator = movies.createIterator();
     while (iterator->hasNext()) {
         Movie* movie = iterator->next();
