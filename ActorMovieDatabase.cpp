@@ -70,6 +70,144 @@ void ActorMovieDatabase::addMovie(const string& title, const string& plot, int r
     }
 }
 
+/**
+ * Updates the details of an actor.
+ * @param actorName The name of the actor to update.
+ * @param newName The new name for the actor.
+ * @param newBirthYear The new birth year for the actor.
+ * Process: Finds the actor in the database, updates their details, and ensures the changes propagate in related movies.
+ * Precondition: The actor must exist in the database.
+ * Postcondition: The actor's details are updated, and the references in related movies remain valid.
+ */
+void ActorMovieDatabase::updateActorDetails(const string& actorName, const string& newName, int newBirthYear) {
+    Actor* actor = findActor(actorName);
+    if (!actor) {
+        cout << "Actor not found.\n";
+        return;
+    }
+
+    actorMap.remove(actorName); // Remove old reference
+    actor->setName(newName);
+    if (newBirthYear > 0) {
+        actor->setBirthYear(newBirthYear);
+    }
+    actorMap.insert(newName, actor); // Reinsert with the updated name
+}
+
+/**
+ * Updates the details of a movie.
+ * @param movieTitle The title of the movie to update.
+ * @param newTitle The new title for the movie.
+ * @param newYear The new release year for the movie.
+ * Process: Finds the movie in the database, updates its details, and ensures references in related actors remain valid.
+ * Precondition: The movie must exist in the database.
+ * Postcondition: The movie's details are updated, and the references in related actors remain valid.
+ */
+void ActorMovieDatabase::updateMovieDetails(const string& movieTitle, const string& newTitle, int newYear) {
+    Movie* movie = findMovie(movieTitle);
+    if (!movie) {
+        cout << "Movie not found.\n";
+        return;
+    }
+
+    movieMap.remove(movieTitle); // Remove old reference
+    movie->setTitle(newTitle);
+    if (newYear > 0) {
+        movie->setReleaseYear(newYear);
+    }
+    movieMap.insert(newTitle, movie); // Reinsert with the updated title
+}
+
+/**
+ * Displays movies made within the past 3 years in ascending order.
+ * Process: Iterates through all movies, checks their release year, and displays those within the past 3 years.
+ * Precondition: The database must be populated with movies and the current year must be available.
+ * Postcondition: Movies from the past 3 years are displayed in ascending order of year.
+ */
+void ActorMovieDatabase::displayRecentMovies() const {
+    int currentYear = time(nullptr) / (60 * 60 * 24 * 365.25) + 1970; // Approximate current year
+
+    List<Movie*> recentMovies;
+    auto it = movieMap.createIterator();
+    while (it->hasNext()) {
+        Movie* movie = it->next()->value;
+        if (movie->getReleaseYear() >= currentYear - 3) {
+            recentMovies.add(movie);
+        }
+    }
+    delete it;
+
+    // Sort movies by release year
+    recentMovies.sort([](Movie* a, Movie* b) {
+        return a->getReleaseYear() < b->getReleaseYear();
+        });
+
+    cout << "Movies from the past 3 years:\n";
+    auto recentIt = recentMovies.createIterator();
+    while (recentIt->hasNext()) {
+        Movie* movie = recentIt->next();
+        cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")\n";
+    }
+    delete recentIt;
+}
+
+/**
+ * Displays all movies an actor starred in, sorted alphabetically.
+ * @param actorName The name of the actor.
+ * Process: Retrieves the movies associated with the actor and displays them in alphabetical order.
+ * Precondition: The actor must exist in the database.
+ * Postcondition: Movies the actor starred in are displayed alphabetically.
+ */
+void ActorMovieDatabase::displayMoviesForActor(const string& actorName) const {
+    Actor* actor = findActor(actorName);
+    if (!actor) {
+        cout << "Actor not found.\n";
+        return;
+    }
+
+    List<Movie*> movies = actor->getMovies();
+    movies.sort([](Movie* a, Movie* b) {
+        return a->getTitle() < b->getTitle();
+        });
+
+    cout << "Movies starring " << actor->getName() << ":\n";
+    auto movieIt = movies.createIterator();
+    while (movieIt->hasNext()) {
+        Movie* movie = movieIt->next();
+        cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")\n";
+    }
+    delete movieIt;
+}
+
+/**
+ * Displays all actors in a particular movie, sorted alphabetically.
+ * @param movieTitle The title of the movie.
+ * Process: Retrieves the actors associated with the movie and displays them in alphabetical order.
+ * Precondition: The movie must exist in the database.
+ * Postcondition: Actors in the movie are displayed alphabetically.
+ */
+void ActorMovieDatabase::displayActorsInMovie(const string& movieTitle) const {
+    Movie* movie = findMovie(movieTitle);
+    if (!movie) {
+        cout << "Movie not found.\n";
+        return;
+    }
+
+    List<Actor*> actors = movie->getActors();
+    actors.sort([](Actor* a, Actor* b) {
+        return a->getName() < b->getName();
+        });
+
+    cout << "Actors in \"" << movie->getTitle() << "\":\n";
+    auto actorIt = actors.createIterator();
+    while (actorIt->hasNext()) {
+        Actor* actor = actorIt->next();
+        cout << actor->getName() << " (" << actor->getBirthYear() << ")\n";
+    }
+    delete actorIt;
+}
+
+
 
 /**
  * Associate an actor with a movie.
