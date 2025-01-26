@@ -10,11 +10,18 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <limits>
 #include "ActorMovieDatabase.h"
 using namespace std;
 
-bool readAllCSV(ActorMovieDatabase& db) {
+// Function to clear input buffer and handle invalid inputs
+void clearInput() {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
 
+// Reads all CSV files into the database
+bool readAllCSV(ActorMovieDatabase& db) {
     Map<string, string> actorIdToName;   // Maps actor ID to actor name
     Map<string, string> movieIdToTitle; // Maps movie ID to movie title
 
@@ -34,16 +41,22 @@ bool readAllCSV(ActorMovieDatabase& db) {
 
         getline(ss, id, ',');
         getline(ss, name, ',');
-        name = name.substr(1, name.size() - 2); // Remove quotes
+        if (name.front() == '"' && name.back() == '"') {
+            name = name.substr(1, name.size() - 2); // Remove quotes
+        }
         getline(ss, birth, ',');
 
-
-        db.addActor(name, stoi(birth));
+        try {
+            db.addActor(name, stoi(birth));
+        }
+        catch (const exception& e) {
+            cerr << "Error adding actor: " << e.what() << endl;
+            continue;
+        }
 
         // Insert into map
         actorIdToName.insert(id, name);
     }
-
     actorsFile.close();
 
     // Reading movies.csv
@@ -61,15 +74,22 @@ bool readAllCSV(ActorMovieDatabase& db) {
 
         getline(ss, id, ',');
         getline(ss, title, ',');
-        title = title.substr(1, title.size() - 2); // Remove quotes
+        if (title.front() == '"' && title.back() == '"') {
+            title = title.substr(1, title.size() - 2); // Remove quotes
+        }
         getline(ss, year, ',');
 
-        db.addMovie(title, "", stoi(year));
+        try {
+            db.addMovie(title, "", stoi(year));
+        }
+        catch (const exception& e) {
+            cerr << "Error adding movie: " << e.what() << endl;
+            continue;
+        }
 
         // Insert into map
         movieIdToTitle.insert(id, title);
     }
-
     moviesFile.close();
 
     // Reading cast.csv
@@ -92,13 +112,12 @@ bool readAllCSV(ActorMovieDatabase& db) {
             string actorName = actorIdToName.get(person_id);
             string movieTitle = movieIdToTitle.get(movie_id);
 
-            Actor* actor = db.findActor(actorName); // Validate existence
-            if (!actor) {
-                cerr << "Error: Actor \"" << actorName << "\" not found.\n";
-                continue;
+            try {
+                db.associateActorWithMovie(actorName, movieTitle);
             }
-            // Associate actor with movie in the database
-            db.associateActorWithMovie(actorName, movieTitle);
+            catch (const exception& e) {
+                cerr << "Error associating actor and movie: " << e.what() << endl;
+            }
         }
         else {
             cerr << "Error: Could not resolve ID " << person_id << " or " << movie_id << "\n";
@@ -110,7 +129,7 @@ bool readAllCSV(ActorMovieDatabase& db) {
     return true;
 }
 
-
+// Admin menu with validation and improvements
 void adminMenu(ActorMovieDatabase& db) {
     int choice;
     do {
@@ -124,12 +143,18 @@ void adminMenu(ActorMovieDatabase& db) {
         cout << "Enter your choice: ";
         cin >> choice;
 
-        string name, title, plot;
-        int year;
+        if (cin.fail()) {
+            clearInput();
+            cout << "Invalid input. Please enter a valid choice.\n";
+            continue;
+        }
+
+        string name, title, plot, modifiedName;
+        int year, modifiedYear;
         switch (choice) {
         case 1:
             cout << "Enter actor name: ";
-            cin.ignore();
+            clearInput();
             getline(cin, name);
             cout << "Enter actor birth year: ";
             cin >> year;
@@ -138,7 +163,7 @@ void adminMenu(ActorMovieDatabase& db) {
             break;
         case 2:
             cout << "Enter movie title: ";
-            cin.ignore();
+            clearInput();
             getline(cin, title);
             cout << "Enter movie plot: ";
             getline(cin, plot);
@@ -149,7 +174,7 @@ void adminMenu(ActorMovieDatabase& db) {
             break;
         case 3:
             cout << "Enter actor name: ";
-            cin.ignore();
+            clearInput();
             getline(cin, name);
             cout << "Enter movie title: ";
             getline(cin, title);
@@ -157,20 +182,45 @@ void adminMenu(ActorMovieDatabase& db) {
             cout << "Actor and movie associated successfully." << endl;
             break;
         case 4:
-            /* Put Your Method Here */
+            db.displayActors();
+            cout << "Please enter the actor name you would like to modify: ";
+            clearInput();
+            getline(cin, name);
+
+            cout << "Please enter new name (Press Enter to skip): ";
+            getline(cin, modifiedName);
+
+            cout << "Please enter new birth year (Press 0 to skip): ";
+            cin >> modifiedYear;
+            clearInput(); // Clear buffer after numeric input
+
+            db.updateActorDetails(name, modifiedName.empty() ? name : modifiedName, modifiedYear);
+            cout << "Actor details updated successfully.\n";
             break;
         case 5:
-            /* Put Your Method Here */
+            db.displayMovies();
+            cout << "Please enter the movie title you would like to modify: ";
+            clearInput();
+            getline(cin, title);
+
+            cout << "Please enter new title (Press Enter to skip): ";
+            getline(cin, modifiedName);
+
+            cout << "Please enter new release year (Press 0 to skip): ";
+            cin >> modifiedYear;
+            db.updateMovieDetails(title, modifiedName.empty() ? title : modifiedName, modifiedYear);
+            cout << "Movie details updated successfully.\n";
             break;
         case 0:
-            cout << "Logging out..." << endl;
+            cout << "Logging out...\n";
             break;
         default:
-            cout << "Invalid choice. Please try again." << endl;
+            cout << "Invalid choice. Please try again.\n";
         }
     } while (choice != 0);
 }
 
+// User menu with validation and improvements
 void userMenu(ActorMovieDatabase& db) {
     int choice;
     do {
@@ -184,49 +234,63 @@ void userMenu(ActorMovieDatabase& db) {
         cout << "Enter your choice: ";
         cin >> choice;
 
+        if (cin.fail()) {
+            clearInput();
+            cout << "Invalid input. Please enter a valid choice.\n";
+            continue;
+        }
+
         string name;
         switch (choice) {
         case 1:
             int minAge, maxAge;
-            cout << "Please enter minimum age: ";
+            cout << "Enter minimum age: ";
             cin >> minAge;
-            cout << "Please enter maximum age: ";
+            cout << "Enter maximum age: ";
             cin >> maxAge;
             db.displayActorsByAgeRange(minAge, maxAge);
             break;
         case 2:
-            /*db.displayMovies();*/
+            db.displayRecentMovies();
             break;
         case 3:
-            /* Put Function Here */
+            db.displayActors();
+            cout << "Enter actor name: ";
+            clearInput();
+            getline(cin, name);
+            db.displayMoviesForActor(name);
             break;
         case 4:
-            /* Put Function Here */
+            db.displayMovies();
+            cout << "Enter movie title: ";
+            clearInput();
+            getline(cin, name);
+            db.displayActorsInMovie(name);
             break;
         case 5:
-            /* Put Function Here */
             cout << "Enter actor name: ";
-            cin.ignore();
+            clearInput();
             getline(cin, name);
             db.displayKnownActors(name);
             break;
         case 0:
-            cout << "Logging out..." << endl;
+            cout << "Logging out...\n";
             break;
         default:
-            cout << "Invalid choice. Please try again." << endl;
+            cout << "Invalid choice. Please try again.\n";
         }
     } while (choice != 0);
 }
 
-
-int main()
-{
+// Main function
+int main() {
     ActorMovieDatabase db;
     int roleChoice;
 
-    readAllCSV(db);
-
+    if (!readAllCSV(db)) {
+        cerr << "Error loading CSV files. Exiting program.\n";
+        return 1;
+    }
 
     do {
         cout << "\n=== Welcome to the Actor-Movie Database ===" << endl;
@@ -236,6 +300,12 @@ int main()
         cout << "Enter your choice: ";
         cin >> roleChoice;
 
+        if (cin.fail()) {
+            clearInput();
+            cout << "Invalid input. Please enter a valid choice.\n";
+            continue;
+        }
+
         switch (roleChoice) {
         case 1:
             adminMenu(db);
@@ -244,10 +314,10 @@ int main()
             userMenu(db);
             break;
         case 0:
-            cout << "Exiting program. Goodbye!" << endl;
+            cout << "Exiting program. Goodbye!\n";
             break;
         default:
-            cout << "Invalid choice. Please try again." << endl;
+            cout << "Invalid choice. Please try again.\n";
         }
     } while (roleChoice != 0);
 

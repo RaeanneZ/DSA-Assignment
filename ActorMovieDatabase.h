@@ -27,6 +27,11 @@ public:
 
     void addActor(const string& name, int birthYear);
     void addMovie(const string& title, const string& plot, int releaseYear);
+    void updateActorDetails(const string& actorName, const string& newName, int newBirthYear);
+    void updateMovieDetails(const string& movieTitle, const string& newTitle, int newYear);
+    void displayRecentMovies() const;
+    void displayMoviesForActor(const string& actorName) const;
+    void displayActorsInMovie(const string& movieTitle) const;
     void associateActorWithMovie(const string& actorName, const string& movieTitle);
 
     Actor* findActor(const string& name) const;
