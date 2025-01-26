@@ -8,6 +8,7 @@
 
 #include "ActorMovieDatabase.h"
 #include "List.h"
+#include "Graph.h"
 #include "Actor.h"
 #include "Movie.h"
 #include <iostream>
@@ -508,3 +509,79 @@ void ActorMovieDatabase::clearDatabase() {
     movieMap.clear();
 }
 
+
+
+
+// Advanced Features -------------------------------------------------------------------------------------------------------
+void ActorMovieDatabase::buildGraph() {
+    auto actorIt = actorMap.createIterator();
+    while (actorIt->hasNext()) {
+        Actor* actor = actorIt->next()->value;
+        List<Movie*> movies = actor->getMovies();
+        auto movieIt = movies.createIterator();
+        while (movieIt->hasNext()) {
+            Movie* movie = movieIt->next();
+            actorMovieGraph.addEdge(actor->getName(), movie->getTitle());
+        }
+        delete movieIt;
+    }
+    delete actorIt;
+}
+
+void ActorMovieDatabase::exploreConnections(const string& node) {
+    List<string>* connections = actorMovieGraph.getConnections(node);
+    if (connections) {
+        cout << "Connections for " << node << ":\n";
+        auto it = connections->createIterator();
+        while (it->hasNext()) {
+            cout << "- " << it->next() << endl;
+        }
+        delete it;
+    }
+    else {
+        cout << "No connections found for " << node << ".\n";
+    }
+}
+
+void ActorMovieDatabase::recommendMovies(const string& actorName) {
+    Actor* actor = findActor(actorName);
+    if (!actor) {
+        cout << "Actor not found.\n";
+        return;
+    }
+
+    List<Movie*> movies = actor->getMovies();
+    Map<string, int> movieFrequency;
+
+    auto movieIt = movies.createIterator();
+    while (movieIt->hasNext()) {
+        Movie* movie = movieIt->next();
+        List<Actor*> actors = movie->getActors();
+        auto actorIt = actors.createIterator();
+        while (actorIt->hasNext()) {
+            Actor* coActor = actorIt->next();
+            if (coActor != actor) {
+                List<Movie*> coActorMovies = coActor->getMovies();
+                auto coMovieIt = coActorMovies.createIterator();
+                while (coMovieIt->hasNext()) {
+                    string title = coMovieIt->next()->getTitle();
+                    if (!movieFrequency.contains(title)) {
+                        movieFrequency.insert(title, 0);
+                    }
+                    movieFrequency.get(title)++;
+                }
+                delete coMovieIt;
+            }
+        }
+        delete actorIt;
+    }
+    delete movieIt;
+
+    cout << "Recommended Movies:\n";
+    auto freqIt = movieFrequency.createIterator();
+    while (freqIt->hasNext()) {
+        auto pair = freqIt->next();
+        cout << pair->key << " (" << pair->value << " co-actor connections)\n";
+    }
+    delete freqIt;
+}
