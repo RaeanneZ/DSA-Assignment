@@ -69,6 +69,48 @@ public:
         size++;
     }
 
+    /**
+ * Removes the first occurrence of the specified value from the list.
+ * @param value The value to be removed.
+ * Process: Traverses the list, finds the node containing the value, and removes it.
+ * Precondition: The list must be initialized and the value should be comparable.
+ * Postcondition: If the value exists in the list, it is removed, and the list size is updated.
+ */
+    void remove(const T& value) {
+        if (!head) {
+            cout << "The list is empty. Nothing to remove.\n";
+            return;
+        }
+
+        // Special case: Removing the head of the list
+        if (head->data == value) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+            size--;
+            return;
+        }
+
+        // Traverse the list to find the node to remove
+        Node* current = head;
+        Node* previous = nullptr;
+
+        while (current) {
+            if (current->data == value) {
+                previous->next = current->next; // Skip the current node
+                delete current;
+                size--;
+                return;
+            }
+            previous = current;
+            current = current->next;
+        }
+
+        // If the value was not found
+        cout << "Value not found in the list.\n";
+    }
+
+
     void clear() {
         Node* current = head;
         while (current) {
@@ -108,6 +150,21 @@ public:
             current = current->next;
         }
         cout << endl;
+    }
+
+    // Accessor for head (needed for integration with other classes)
+    Node* getHead() const {
+        return head;
+    }
+
+    // Mutator for head (needed for integration with other classes)
+    void setHead(Node* newHead) {
+        head = newHead;
+    }
+
+    // Decrement size (needed for integration with other classes)
+    void decrementSize() {
+        size--;
     }
 
     class ListIterator : public Iterator<T> {
