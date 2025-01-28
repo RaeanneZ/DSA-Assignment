@@ -276,7 +276,7 @@ void userMenu(ActorMovieDatabase& db) {
             db.displayKnownActors(name);
             break;
         case 6:
-            cout << "Enter a node (Actor or Movie) to explore: ";
+            cout << "Enter an actor or movie to explore: ";
             clearInput();
             getline(cin, node);
             db.exploreConnections(node);
@@ -306,6 +306,8 @@ int main() {
         cerr << "Error loading CSV files. Exiting program.\n";
         return 1;
     }
+
+    db.buildGraph(); // Build graph for advanced feature
 
     do {
         cout << "\n=== Welcome to the Actor-Movie Database ===" << endl;
