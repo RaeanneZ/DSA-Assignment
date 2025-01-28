@@ -585,3 +585,59 @@ void ActorMovieDatabase::recommendMovies(const string& actorName) {
     }
     delete freqIt;
 }
+
+Graph& ActorMovieDatabase::getGraph() {
+    return actorMovieGraph;
+}
+
+void ActorMovieDatabase::displayMindMap(const string& startNode) {
+    List<string> visited; // Custom list to track visited nodes
+    cout << "Mind Map for \"" << startNode << "\":\n";
+    renderBranches(startNode, actorMovieGraph, visited, "", true); // Assume starting node is an actor
+    cout << endl;
+}
+// Helper function
+bool isVisited(const string& node, List<string>& visited) {
+    auto it = visited.createIterator();
+    while (it->hasNext()) {
+        if (it->next() == node) {
+            delete it;
+            return true; // Node already visited
+        }
+    }
+    delete it;
+    return false; // Node not found in visited list
+}
+void ActorMovieDatabase::renderBranches(const string& node, Graph& graph, List<string>& visited, const string& prefix, bool isActor) {
+    // Check if the node has already been visited
+    if (isVisited(node, visited)) {
+        return;
+    }
+    visited.add(node); // Mark the node as visited
+
+    // Print the current node with proper indentation
+    cout << prefix << (isActor ? "[Actor] " : "[Movie] ") << node << endl;
+
+    // Get connections for the current node
+    List<string>* connections = graph.getConnections(node);
+    if (!connections) return;
+
+    // Prepare for rendering children
+    auto it = connections->createIterator();
+    int count = 0;
+    int totalConnections = connections->getSize();
+    while (it->hasNext()) {
+        string connection = it->next();
+        bool isLast = (++count == totalConnections);
+
+        // Branch formatting
+        string newPrefix = prefix + (isLast ? "    " : "|   ");
+        string branch = isLast ? " |__ " : "|-- ";
+
+        // Recursive call
+        renderBranches(connection, graph, visited, prefix + branch, !isActor);
+    }
+    delete it;
+}
+
+

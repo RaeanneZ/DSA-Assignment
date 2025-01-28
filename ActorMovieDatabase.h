@@ -53,9 +53,12 @@ public:
 
 
     // Advanced Features ---------------------------------------------
+    Graph& getGraph();
     void buildGraph();
     void exploreConnections(const string& node);
     void recommendMovies(const string& actorName);
+    void displayMindMap(const string& startNode);
+    void renderBranches(const string& node, Graph& graph, List<string>& visited, const string& prefix, bool isActor);
 };
 
 
