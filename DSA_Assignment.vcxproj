@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="ActorMovieDatabase.cpp" />
+    <ClCompile Include="CSVReader.cpp" />
     <ClCompile Include="DSA_Assignment.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="Iterator.cpp" />
@@ -139,6 +140,7 @@
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorMovieDatabase.h" />
+    <ClInclude Include="CSVReader.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Iterator.h" />
     <ClInclude Include="List.h" />
