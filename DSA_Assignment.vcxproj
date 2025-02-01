@@ -130,6 +130,7 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="ActorMovieDatabase.cpp" />
     <ClCompile Include="DSA_Assignment.cpp" />
+    <ClCompile Include="Graph.cpp" />
     <ClCompile Include="Iterator.cpp" />
     <ClCompile Include="List.cpp" />
     <ClCompile Include="Map.cpp" />
@@ -138,6 +139,7 @@
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorMovieDatabase.h" />
+    <ClInclude Include="Graph.h" />
     <ClInclude Include="Iterator.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Map.h" />

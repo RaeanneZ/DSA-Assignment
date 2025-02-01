@@ -11,6 +11,7 @@
 #include "Actor.h"
 #include "Movie.h"
 #include "Map.h"
+#include "Graph.h"
 #include <string>
 #include <iostream>
 
@@ -20,6 +21,7 @@ class ActorMovieDatabase {
 private:
     Map<string, Actor*> actorMap; // Maps actor names to Actor objects
     Map<string, Movie*> movieMap; // Maps movie titles to Movie objects
+    Graph actorMovieGraph; // Graph for actor-movie relationships
 
 public:
     ActorMovieDatabase();
@@ -47,6 +49,16 @@ public:
     void displayMovies() const;
 
     void clearDatabase();
+
+
+
+    // Advanced Features ---------------------------------------------
+    Graph& getGraph();
+    void buildGraph();
+    void exploreConnections(const string& node);
+    void recommendMovies(const string& actorName);
+    void displayMindMap(const string& startNode);
+    void renderBranches(const string& node, Graph& graph, List<string>& visited, const string& prefix, bool isActor);
 };
 
 

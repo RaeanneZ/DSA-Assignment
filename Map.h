@@ -47,19 +47,32 @@ public:
         return false;
     }
 
-    V get(const K& key) const {
+    V& get(const K& key) { // Non-const version
         auto it = data.createIterator();
         while (it->hasNext()) {
             Pair* pair = it->next();
             if (pair->key == key) {
-                V value = pair->value;
                 delete it;
-                return value;
+                return pair->value; // Return by reference
             }
         }
         delete it;
-        throw invalid_argument("Key not found");
+        throw std::invalid_argument("Key not found");
     }
+
+    const V& get(const K& key) const { // Const version
+        auto it = data.createIterator();
+        while (it->hasNext()) {
+            Pair* pair = it->next();
+            if (pair->key == key) {
+                delete it;
+                return pair->value; // Return by reference
+            }
+        }
+        delete it;
+        throw std::invalid_argument("Key not found");
+    }
+
 
     /**
    * Removes the pair with the specified key from the map.

@@ -229,7 +229,9 @@ void userMenu(ActorMovieDatabase& db) {
         cout << "2. Display All Movies Within Past 3 Years" << endl;
         cout << "3. Display All Movies Actor Starred In" << endl;
         cout << "4. Display All Actors In Movie" << endl;
-        cout << "5. Display All Actors That Chosen Actor Knows" << endl;
+        cout << "5. Display Known Actors for Chosen Actor" << endl;
+        cout << "6. Advanced Feature: Explore Connections" << endl;
+        cout << "7. Get Movie Recommendations" << endl;
         cout << "0. Logout" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
@@ -240,7 +242,7 @@ void userMenu(ActorMovieDatabase& db) {
             continue;
         }
 
-        string name;
+        string name, node;
         switch (choice) {
         case 1:
             int minAge, maxAge;
@@ -273,6 +275,26 @@ void userMenu(ActorMovieDatabase& db) {
             getline(cin, name);
             db.displayKnownActors(name);
             break;
+        case 6:
+            cout << "Enter an actor or movie to explore: ";
+            clearInput();
+            getline(cin, node);
+            //db.exploreConnections(node);
+            cout << "\n" << endl;
+
+            if (db.getGraph().getConnections(node)) { // Check if the node exists
+                db.displayMindMap(node);
+            }
+            else {
+                cout << "Node \"" << node << "\" does not exist in the graph.\n";
+            }
+            break;
+        case 7:
+            cout << "Enter actor name for recommendations: ";
+            clearInput();
+            getline(cin, name);
+            db.recommendMovies(name);
+            break;
         case 0:
             cout << "Logging out...\n";
             break;
@@ -281,6 +303,7 @@ void userMenu(ActorMovieDatabase& db) {
         }
     } while (choice != 0);
 }
+
 
 // Main function
 int main() {
@@ -291,6 +314,8 @@ int main() {
         cerr << "Error loading CSV files. Exiting program.\n";
         return 1;
     }
+
+    db.buildGraph(); // Build graph for advanced feature
 
     do {
         cout << "\n=== Welcome to the Actor-Movie Database ===" << endl;

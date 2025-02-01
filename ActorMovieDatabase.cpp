@@ -8,6 +8,7 @@
 
 #include "ActorMovieDatabase.h"
 #include "List.h"
+#include "Graph.h"
 #include "Actor.h"
 #include "Movie.h"
 #include <iostream>
@@ -507,4 +508,136 @@ void ActorMovieDatabase::clearDatabase() {
     delete movieIt;
     movieMap.clear();
 }
+
+
+
+
+// Advanced Features -------------------------------------------------------------------------------------------------------
+void ActorMovieDatabase::buildGraph() {
+    auto actorIt = actorMap.createIterator();
+    while (actorIt->hasNext()) {
+        Actor* actor = actorIt->next()->value;
+        List<Movie*> movies = actor->getMovies();
+        auto movieIt = movies.createIterator();
+        while (movieIt->hasNext()) {
+            Movie* movie = movieIt->next();
+            actorMovieGraph.addEdge(actor->getName(), movie->getTitle());
+        }
+        delete movieIt;
+    }
+    delete actorIt;
+}
+
+void ActorMovieDatabase::exploreConnections(const string& node) {
+    List<string>* connections = actorMovieGraph.getConnections(node);
+    if (connections) {
+        cout << "Connections for " << node << ":\n";
+        auto it = connections->createIterator();
+        while (it->hasNext()) {
+            cout << "- " << it->next() << endl;
+        }
+        delete it;
+    }
+    else {
+        cout << "No connections found for " << node << ".\n";
+    }
+}
+
+void ActorMovieDatabase::recommendMovies(const string& actorName) {
+    Actor* actor = findActor(actorName);
+    if (!actor) {
+        cout << "Actor not found.\n";
+        return;
+    }
+
+    List<Movie*> movies = actor->getMovies();
+    Map<string, int> movieFrequency;
+
+    auto movieIt = movies.createIterator();
+    while (movieIt->hasNext()) {
+        Movie* movie = movieIt->next();
+        List<Actor*> actors = movie->getActors();
+        auto actorIt = actors.createIterator();
+        while (actorIt->hasNext()) {
+            Actor* coActor = actorIt->next();
+            if (coActor != actor) {
+                List<Movie*> coActorMovies = coActor->getMovies();
+                auto coMovieIt = coActorMovies.createIterator();
+                while (coMovieIt->hasNext()) {
+                    string title = coMovieIt->next()->getTitle();
+                    if (!movieFrequency.contains(title)) {
+                        movieFrequency.insert(title, 0);
+                    }
+                    movieFrequency.get(title)++;
+                }
+                delete coMovieIt;
+            }
+        }
+        delete actorIt;
+    }
+    delete movieIt;
+
+    cout << "Recommended Movies:\n";
+    auto freqIt = movieFrequency.createIterator();
+    while (freqIt->hasNext()) {
+        auto pair = freqIt->next();
+        cout << pair->key << " (" << pair->value << " co-actor connections)\n";
+    }
+    delete freqIt;
+}
+
+Graph& ActorMovieDatabase::getGraph() {
+    return actorMovieGraph;
+}
+
+void ActorMovieDatabase::displayMindMap(const string& startNode) {
+    List<string> visited; // Custom list to track visited nodes
+    cout << "Mind Map for \"" << startNode << "\":\n";
+    renderBranches(startNode, actorMovieGraph, visited, "", true); // Assume starting node is an actor
+    cout << endl;
+}
+// Helper function
+bool isVisited(const string& node, List<string>& visited) {
+    auto it = visited.createIterator();
+    while (it->hasNext()) {
+        if (it->next() == node) {
+            delete it;
+            return true; // Node already visited
+        }
+    }
+    delete it;
+    return false; // Node not found in visited list
+}
+void ActorMovieDatabase::renderBranches(const string& node, Graph& graph, List<string>& visited, const string& prefix, bool isActor) {
+    // Check if the node has already been visited
+    if (isVisited(node, visited)) {
+        return;
+    }
+    visited.add(node); // Mark the node as visited
+
+    // Print the current node with proper indentation
+    cout << prefix << (isActor ? "[Actor] " : "[Movie] ") << node << endl;
+
+    // Get connections for the current node
+    List<string>* connections = graph.getConnections(node);
+    if (!connections) return;
+
+    // Prepare for rendering children
+    auto it = connections->createIterator();
+    int count = 0;
+    int totalConnections = connections->getSize();
+    while (it->hasNext()) {
+        string connection = it->next();
+        bool isLast = (++count == totalConnections);
+
+        // Branch formatting
+        string newPrefix = prefix + (isLast ? "    " : "|   ");
+        string branch = isLast ? " |__ " : "|-- ";
+
+        // Recursive call
+        renderBranches(connection, graph, visited, prefix + branch, !isActor);
+    }
+    delete it;
+}
+
 
