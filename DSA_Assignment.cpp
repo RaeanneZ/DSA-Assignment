@@ -12,6 +12,7 @@
 #include <string>
 #include <limits>
 #include "ActorMovieDatabase.h"
+#include "CSVReader.h"
 using namespace std;
 
 // Function to clear input buffer and handle invalid inputs
@@ -231,7 +232,7 @@ void userMenu(ActorMovieDatabase& db) {
         cout << "4. Display All Actors In Movie" << endl;
         cout << "5. Display Known Actors for Chosen Actor" << endl;
         cout << "6. Advanced Feature: Explore Connections" << endl;
-        cout << "7. Get Movie Recommendations" << endl;
+        cout << "7. Advanced Feature: Get Movie Recommendations" << endl;
         cout << "0. Logout" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
@@ -310,7 +311,8 @@ int main() {
     ActorMovieDatabase db;
     int roleChoice;
 
-    if (!readAllCSV(db)) {
+    CSVReader csvReader(db);
+    if (!csvReader.loadCSVData()) {
         cerr << "Error loading CSV files. Exiting program.\n";
         return 1;
     }
