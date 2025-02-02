@@ -68,6 +68,9 @@
     <ClInclude Include="CSVReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SortingAlgorithms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\actors.csv" />
