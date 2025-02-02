@@ -146,6 +146,7 @@
     <ClInclude Include="List.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Movie.h" />
+    <ClInclude Include="SearchingAlgorithms.h" />
     <ClInclude Include="SortingAlgorithms.h" />
   </ItemGroup>
   <ItemGroup>
