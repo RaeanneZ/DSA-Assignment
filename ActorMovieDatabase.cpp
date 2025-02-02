@@ -242,14 +242,14 @@ void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const 
 Actor* ActorMovieDatabase::findActor(const string& name) const {
     // Check if the actor exists in the map
     if (!actorMap.contains(name)) {
-        std::cerr << "Error: Actor \"" << name << "\" not found in actorMap.\n";
+        cerr << "Error: Actor \"" << name << "\" not found in actorMap.\n";
         return nullptr;
     }
 
     // Retrieve the actor from the map
     Actor* actor = actorMap.get(name);
     if (!actor) {
-        std::cerr << "Error: Retrieved actor for \"" << name << "\" is nullptr.\n";
+        cerr << "Error: Retrieved actor for \"" << name << "\" is nullptr.\n";
         return nullptr;
     }
 
@@ -280,7 +280,7 @@ void ActorMovieDatabase::displayActors() const {
     while (it->hasNext()) {
         Actor* actor = it->next()->value;
         cout << "Actor: " << actor->getName() << endl;
-        actor->displayMovies();
+        //actor->displayMovies();
     }
     delete it;
 }
@@ -481,7 +481,7 @@ void ActorMovieDatabase::displayMovies() const {
     while (it->hasNext()) {
         Movie* movie = it->next()->value;
         cout << "Movie: " << movie->getTitle() << endl;
-        movie->displayActors();
+        //movie->displayActors();
     }
     delete it;
 }
