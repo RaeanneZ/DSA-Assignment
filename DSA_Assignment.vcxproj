@@ -140,14 +140,19 @@
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorMovieDatabase.h" />
+    <ClInclude Include="AVLTree.h" />
     <ClInclude Include="CSVReader.h" />
+    <ClInclude Include="Dictionary.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Iterator.h" />
+    <ClInclude Include="LinkedList.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Movie.h" />
+    <ClInclude Include="Queue.h" />
     <ClInclude Include="SearchingAlgorithms.h" />
     <ClInclude Include="SortingAlgorithms.h" />
+    <ClInclude Include="Tree.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\actors.csv" />
