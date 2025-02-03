@@ -51,7 +51,7 @@ void Actor::setBirthYear(int year) {
     birthYear = year;
 }
 
-List<Movie*> Actor::getMovies() const {
+DataStructure<Movie*> Actor::getMovies() const {
     return movies;
 }
 

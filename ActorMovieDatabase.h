@@ -12,6 +12,7 @@
 #include "Movie.h"
 #include "Map.h"
 #include "Graph.h"
+#include "Config.h"
 #include <string>
 #include <iostream>
 
@@ -19,8 +20,8 @@ using namespace std;
 
 class ActorMovieDatabase {
 private:
-    Map<string, Actor*> actorMap; // Maps actor names to Actor objects
-    Map<string, Movie*> movieMap; // Maps movie titles to Movie objects
+    DataStructure<Actor*> actorMap; // Maps actor names to Actor objects
+    DataStructure<Movie*> movieMap; // Maps movie titles to Movie objects
     Graph actorMovieGraph; // Graph for actor-movie relationships
 
 public:
@@ -38,6 +39,9 @@ public:
 
     Actor* findActor(const string& name) const;
     Movie* findMovie(const string& title) const;
+
+    DataStructure<Actor*>& getActors();
+    DataStructure<Movie*>& getMovies();
 
     void displayActors() const;
     void displayActorsByAgeRange(int x, int y) const;

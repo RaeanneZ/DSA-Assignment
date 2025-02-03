@@ -10,6 +10,7 @@
 #include <string>
 #include "List.h"
 #include "Actor.h"
+#include "Config.h"
 
 using namespace std;
 class Actor;
@@ -20,7 +21,7 @@ private:
     string title;
     string plot;
     int releaseYear;
-    List<Actor*> actors; // Actors in the movie
+    DataStructure<Actor*> actors; // Actors in the movie
 
 public:
     Movie(const string& title, const string& plot, int releaseYear);
@@ -35,7 +36,7 @@ public:
     void setReleaseYear(int year);
 
     //const List<Actor*>& getActors() const;
-    const List<Actor*> getActors() const;
+    const DataStructure<Actor*> getActors() const;
 
     void addActorToMovie(Actor* actor);
     void sortActors();

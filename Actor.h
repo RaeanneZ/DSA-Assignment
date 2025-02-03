@@ -10,6 +10,7 @@
 #include <string>
 #include "List.h"
 #include "Movie.h"
+#include "Config.h"
 
 using namespace std;
 class Movie;
@@ -19,7 +20,7 @@ class Actor
 private:
     string name;
     int birthYear;
-    List<Movie*> movies; // Movies the actor starred in
+    DataStructure<Movie*> movies; // Movies the actor starred in
 
 public:
     Actor(const string& name, int birthYear);
@@ -30,7 +31,7 @@ public:
     int getBirthYear() const;
     void setBirthYear(int year);
 
-    List<Movie*> getMovies() const;
+    DataStructure<Movie*> getMovies() const;
 
     void addMovieToActor(Movie* movie);
     void sortMovies();
