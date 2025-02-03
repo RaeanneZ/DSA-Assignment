@@ -512,7 +512,7 @@ void ActorMovieDatabase::clearDatabase() {
 
 
 
-// Advanced Features -------------------------------------------------------------------------------------------------------
+// Advanced Features (Raeanne) -------------------------------------------------------------------------------------------------------
 void ActorMovieDatabase::buildGraph() {
     auto actorIt = actorMap.createIterator();
     while (actorIt->hasNext()) {
@@ -640,4 +640,16 @@ void ActorMovieDatabase::renderBranches(const string& node, Graph& graph, List<s
     delete it;
 }
 
+// Advanced Features (Sian Kim) -------------------------------------------------------------------------------------------------------
+
+void ActorMovieDatabase::addUser(const string& username, const string& password) {
+    if (!userMap.contains(username)) {
+        User* newUser = new User(username, password);
+        userMap.insert(username, newUser);
+    }
+}
+
+User* ActorMovieDatabase::findUser(const string& username) const {
+    return userMap.contains(username) ? userMap.get(username) : nullptr;
+}
 

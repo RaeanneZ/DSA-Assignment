@@ -11,6 +11,7 @@
 #include "Actor.h"
 #include "Movie.h"
 #include "Map.h"
+#include "User.h"
 #include "Graph.h"
 #include <string>
 #include <iostream>
@@ -22,6 +23,7 @@ private:
     Map<string, Actor*> actorMap; // Maps actor names to Actor objects
     Map<string, Movie*> movieMap; // Maps movie titles to Movie objects
     Graph actorMovieGraph; // Graph for actor-movie relationships
+    Map<string, User*> userMap;  // Maps username to User
 
 public:
     ActorMovieDatabase();
@@ -52,13 +54,18 @@ public:
 
 
 
-    // Advanced Features ---------------------------------------------
+    // Advanced Features (Raeanne) ---------------------------------------------
     Graph& getGraph();
     void buildGraph();
     void exploreConnections(const string& node);
     void recommendMovies(const string& actorName);
     void displayMindMap(const string& startNode);
     void renderBranches(const string& node, Graph& graph, List<string>& visited, const string& prefix, bool isActor);
+
+    // Advanced Features (Sian Kim) ---------------------------------------------
+    void addUser(const string& username, const string& password);
+    User* findUser(const string& username) const;
+
 };
 
 

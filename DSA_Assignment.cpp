@@ -220,8 +220,44 @@ void adminMenu(ActorMovieDatabase& db) {
     } while (choice != 0);
 }
 
+// Advanced Features (Sian Kim) -------------------------------------------------------------------------------------------------------
+User* login(ActorMovieDatabase& db) {
+    string username, password;
+    cout << "Username: ";
+    cin >> username;
+    cout << "Password: ";
+    cin >> password;
+
+    User* user = db.findUser(username);
+    if (user && user->checkPassword(password)) {
+        cout << "Login successful!\n";
+        return user;
+    }
+    else {
+        cout << "Invalid credentials.\n";
+        return nullptr;
+    }
+}
+
+void registerUser(ActorMovieDatabase& db) {
+    string username, password;
+    cout << "Choose username: ";
+    cin >> username;
+    cout << "Choose password: ";
+    cin >> password;
+
+    if (!db.findUser(username)) {
+        db.addUser(username, password);
+        cout << "Registration successful!\n";
+    }
+    else {
+        cout << "Username already exists.\n";
+    }
+}
+
+
 // User menu with validation and improvements
-void userMenu(ActorMovieDatabase& db) {
+void userMenu(ActorMovieDatabase& db, User* loggedInUser) {
     int choice;
     do {
         cout << "\n=== User Menu ===" << endl;
@@ -231,7 +267,12 @@ void userMenu(ActorMovieDatabase& db) {
         cout << "4. Display All Actors In Movie" << endl;
         cout << "5. Display Known Actors for Chosen Actor" << endl;
         cout << "6. Advanced Feature: Explore Connections" << endl;
-        cout << "7. Get Movie Recommendations" << endl;
+        cout << "7. Advanced Feature: Get Movie Recommendations" << endl;
+        cout << "8. Advanced Feature: Add Actor to Favorites" << endl;
+        cout << "9. Advanced Feature: Add Movie to Favorites" << endl;
+        cout << "10. Advanced Feature: Remove Actor from Favorites" << endl;
+        cout << "11. Advanced Feature: Remove Movie from Favorites" << endl;
+        cout << "12. Advanced Feature: View My Favorites" << endl;
         cout << "0. Logout" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
@@ -241,6 +282,11 @@ void userMenu(ActorMovieDatabase& db) {
             cout << "Invalid input. Please enter a valid choice.\n";
             continue;
         }
+
+        // Advanced Features (Sian Kim) -------------------------------------------------------------------------------------------------------
+        string input;
+        Actor* actor;
+        Movie* movie;
 
         string name, node;
         switch (choice) {
@@ -295,6 +341,51 @@ void userMenu(ActorMovieDatabase& db) {
             getline(cin, name);
             db.recommendMovies(name);
             break;
+        case 8:
+            db.displayActors();
+            cout << "Enter actor name: ";
+            clearInput();
+            getline(cin, input);
+            actor = db.findActor(input);
+            if (actor) {
+                loggedInUser->addFavoriteActor(actor);
+                cout << "Added to favorites!\n";
+            }
+            else {
+                cout << "Actor not found.\n";
+            }
+            break;
+        case 9:
+            db.displayMovies();
+            cout << "Enter movie title: ";
+            clearInput();
+            getline(cin, input);
+            movie = db.findMovie(input);
+            if (movie) {
+                loggedInUser->addFavoriteMovie(movie);
+                cout << "Added to favorites!\n";
+            }
+            else {
+                cout << "Movie not found.\n";
+            }
+            break;
+        case 10:
+            cout << "Enter actor name to remove: ";
+            clearInput();
+            getline(cin, input);
+            loggedInUser->removeFavoriteActor(input);
+            cout << "Actor removed from favorites (if existed).\n";
+            break;
+        case 11: 
+            cout << "Enter movie title to remove: ";
+            clearInput();
+            getline(cin, input);
+            loggedInUser->removeFavoriteMovie(input);
+            cout << "Movie removed from favorites (if existed).\n";
+            break;
+        case 12:
+            loggedInUser->displayFavorites();
+            break;
         case 0:
             cout << "Logging out...\n";
             break;
@@ -321,6 +412,7 @@ int main() {
         cout << "\n=== Welcome to the Actor-Movie Database ===" << endl;
         cout << "1. Login as Admin" << endl;
         cout << "2. Login as User" << endl;
+        cout << "3. Register" << endl;
         cout << "0. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> roleChoice;
@@ -335,8 +427,13 @@ int main() {
         case 1:
             adminMenu(db);
             break;
-        case 2:
-            userMenu(db);
+        case 2: {
+            User* user = login(db);
+            if (user) userMenu(db, user);
+            break;
+        }
+        case 3:
+            registerUser(db);
             break;
         case 0:
             cout << "Exiting program. Goodbye!\n";
