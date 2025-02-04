@@ -7,82 +7,208 @@
 */
 
 #include "ActorMovieDatabase.h"
-#include "List.h"
-#include "Graph.h"
-#include "Actor.h"
-#include "Movie.h"
+#include "Config.h"  // Enables switching between data structures and algorithms
+#include "SortingAlgorithms.h"
+#include "SearchingAlgorithms.h"
 #include <iostream>
-#include <ctime>
+#include <chrono>
+
 using namespace std;
 
-void ActorMovieDatabase::addActor(const std::string& name, int birthYear) {
+
+/**
+ * Constructor
+ * Initializes the database with configurable data structures.
+ */
+ActorMovieDatabase::ActorMovieDatabase() {
+    actors = new Config::ActorContainer();
+    movies = new Config::MovieContainer();
+}
+
+/**
+ * Destructor
+ * Cleans up allocated memory for data structures.
+ */
+ActorMovieDatabase::~ActorMovieDatabase() {
+    delete actors;
+    delete movies;
+}
+
+/**
+ * Adds an actor to the database.
+ * Process:
+ * - Checks if the actor exists using search.
+ * - If not, inserts it into the selected data structure.
+ * Precondition: Name should be non-empty, birth year should be valid.
+ * Postcondition: The actor is stored in the database.
+ */
+void ActorMovieDatabase::addActor(const string& name, int birthYear) {
+    auto start = chrono::high_resolution_clock::now();
+
+    if (SearchingAlgorithms::contains(*actors, name)) {
+        cout << "Actor already exists.\n";
+        return;
+    }
+
     Actor* newActor = new Actor(name, birthYear);
-    actorStorage.add(newActor);
+    actors->insert(name, newActor);
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Actor added in " << chrono::duration<double>(end - start).count() << " seconds\n";
 }
 
-void ActorMovieDatabase::addMovie(const std::string& title, const std::string& plot, int releaseYear) {
+/**
+ * Adds a movie to the database.
+ * Process:
+ * - Checks if the movie exists using search.
+ * - If not, inserts it into the selected data structure.
+ * Precondition: Title should be non-empty, release year should be valid.
+ * Postcondition: The movie is stored in the database.
+ */
+void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
+    auto start = chrono::high_resolution_clock::now();
+
+    if (SearchingAlgorithms::contains(*movies, title)) {
+        cout << "Movie already exists.\n";
+        return;
+    }
+
     Movie* newMovie = new Movie(title, plot, releaseYear);
-    movieStorage.add(newMovie);
+    movies->insert(title, newMovie);
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Movie added in " << chrono::duration<double>(end - start).count() << " seconds\n";
 }
 
-void ActorMovieDatabase::associateActorWithMovie(const std::string& actorName, const std::string& movieTitle) {
-    Actor* actor = nullptr;
-    Movie* movie = nullptr;
+/**
+ * Associates an actor with a movie.
+ * Process:
+ * - Retrieves both objects from data structures.
+ * - Establishes a bidirectional relationship.
+ * Precondition: Actor and movie must exist.
+ * Postcondition: The actor and movie are linked.
+ */
+void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const string& movieTitle) {
+    auto start = chrono::high_resolution_clock::now();
 
-    auto actorIt = actorStorage.createIterator();
-    while (actorIt->hasNext()) {
-        Actor* current = actorIt->next();
-        if (current->getName() == actorName) {
-            actor = current;
-            break;
-        }
-    }
-    delete actorIt;
+    Actor* actor = actors->get(actorName);
+    Movie* movie = movies->get(movieTitle);
 
-    auto movieIt = movieStorage.createIterator();
-    while (movieIt->hasNext()) {
-        Movie* current = movieIt->next();
-        if (current->getTitle() == movieTitle) {
-            movie = current;
-            break;
-        }
+    if (!actor || !movie) {
+        cout << "Error: Actor or movie not found.\n";
+        return;
     }
-    delete movieIt;
 
-    if (actor && movie) {
-        actor->addMovieToActor(movie);
-        movie->addActorToMovie(actor);
-    }
+    actor->addMovieToActor(movie);
+    movie->addActorToMovie(actor);
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Association added in " << chrono::duration<double>(end - start).count() << " seconds\n";
 }
 
-void ActorMovieDatabase::searchActor(const std::string& name) {
-#if SEARCH_ALGORITHM == SEQUENTIAL_SEARCH
-    auto it = actorStorage.createIterator();
-    while (it->hasNext()) {
-        Actor* actor = it->next();
-        if (actor->getName() == name) {
-            std::cout << "Found: " << actor->getName() << std::endl;
-            return;
-        }
+/**
+ * Displays all actors sorted by name.
+ * Uses the selected sorting algorithm.
+ */
+void ActorMovieDatabase::displayActors() {
+    auto start = chrono::high_resolution_clock::now();
+
+    SortingAlgorithms::sort(*actors, [](Actor* a, Actor* b) {
+        return a->getName() < b->getName();
+        });
+
+    for (auto actor : *actors) {
+        cout << actor->getName() << " (" << actor->getBirthYear() << ")\n";
     }
-    delete it;
-#elif SEARCH_ALGORITHM == BINARY_SEARCH
-    // Assuming actors are sorted
-    Actor* result = SearchingAlgorithms::binarySearch(actorStorage, name);
-    if (result) {
-        std::cout << "Found: " << result->getName() << std::endl;
-    }
-#endif
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Actors displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
 }
 
-void ActorMovieDatabase::sortActors() {
-#if SORT_ALGORITHM == QUICK_SORT
-    SortingAlgorithms::quickSort(actorStorage);
-#elif SORT_ALGORITHM == MERGE_SORT
-    SortingAlgorithms::mergeSort(actorStorage);
-#elif SORT_ALGORITHM == BUBBLE_SORT
-    SortingAlgorithms::bubbleSort(actorStorage);
-#endif
+/**
+ * Displays all movies sorted by title.
+ * Uses the selected sorting algorithm.
+ */
+void ActorMovieDatabase::displayMovies() {
+    auto start = chrono::high_resolution_clock::now();
+
+    SortingAlgorithms::sort(*movies, [](Movie* a, Movie* b) {
+        return a->getTitle() < b->getTitle();
+        });
+
+    for (auto movie : *movies) {
+        cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")\n";
+    }
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Movies displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
+}
+
+/**
+ * Displays all movies released in the past 3 years.
+ * Uses sorting for ordered display.
+ */
+void ActorMovieDatabase::displayRecentMovies() {
+    auto start = chrono::high_resolution_clock::now();
+
+    SortingAlgorithms::sort(*movies, [](Movie* a, Movie* b) {
+        return a->getReleaseYear() > b->getReleaseYear();
+        });
+
+    for (auto movie : *movies) {
+        if (movie->getReleaseYear() >= 2021) {
+            cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")\n";
+        }
+    }
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Recent movies displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
+}
+
+/**
+ * Displays all movies an actor starred in.
+ * Uses sorting for ordered display.
+ */
+void ActorMovieDatabase::displayMoviesForActor(const string& actorName) {
+    auto start = chrono::high_resolution_clock::now();
+
+    Actor* actor = actors->get(actorName);
+    if (!actor) {
+        cout << "Actor not found.\n";
+        return;
+    }
+
+    SortingAlgorithms::sort(actor->getMovies(), [](Movie* a, Movie* b) {
+        return a->getTitle() < b->getTitle();
+        });
+
+    actor->displayMovies();
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Movies displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
+}
+
+/**
+ * Displays all actors in a movie.
+ * Uses sorting for ordered display.
+ */
+void ActorMovieDatabase::displayActorsInMovie(const string& movieTitle) {
+    auto start = chrono::high_resolution_clock::now();
+
+    Movie* movie = movies->get(movieTitle);
+    if (!movie) {
+        cout << "Movie not found.\n";
+        return;
+    }
+
+    SortingAlgorithms::sort(movie->getActors(), [](Actor* a, Actor* b) {
+        return a->getName() < b->getName();
+        });
+
+    movie->displayActors();
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Actors displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
 }
 
 ///**

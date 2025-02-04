@@ -153,6 +153,7 @@
     <ClInclude Include="Queue.h" />
     <ClInclude Include="SearchingAlgorithms.h" />
     <ClInclude Include="SortingAlgorithms.h" />
+    <ClInclude Include="Stack.h" />
     <ClInclude Include="Tree.h" />
   </ItemGroup>
   <ItemGroup>

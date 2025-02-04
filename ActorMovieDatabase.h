@@ -27,49 +27,26 @@ using namespace std;
 
 class ActorMovieDatabase {
 private:
-#if ACTOR_STORAGE == USE_LIST
-    List<Actor*> actorStorage;
-#elif ACTOR_STORAGE == USE_LINKEDLIST
-    LinkedList<Actor*> actorStorage;
-#elif ACTOR_STORAGE == USE_STACK
-    Stack<Actor*> actorStorage;
-#elif ACTOR_STORAGE == USE_QUEUE
-    Queue<Actor*> actorStorage;
-#elif ACTOR_STORAGE == USE_MAP
-    Map<string, Actor*> actorStorage;
-#elif ACTOR_STORAGE == USE_DICTIONARY
-    Dictionary<string, Actor*> actorStorage;
-#elif ACTOR_STORAGE == USE_TREE
-    Tree<string, Actor*> actorStorage;
-#elif ACTOR_STORAGE == USE_AVLTREE
-    AVLTree<string, Actor*> actorStorage;
-#endif
-
-#if MOVIE_STORAGE == USE_LIST
-    List<Movie*> movieStorage;
-#elif MOVIE_STORAGE == USE_MAP
-    Map<string, Movie*> movieStorage;
-#elif MOVIE_STORAGE == USE_TREE
-    Tree<string, Movie*> movieStorage;
-#elif MOVIE_STORAGE == USE_AVLTREE
-    AVLTree<string, Movie*> movieStorage;
-#endif
+    DATA_STRUCTURE<Actor*> actors;
+    DATA_STRUCTURE<Movie*> movies;
 
     Graph actorMovieGraph; // Graph for actor-movie relationships
 
 public:
-    ActorMovieDatabase();
-    ~ActorMovieDatabase();
-
     void addActor(const string& name, int birthYear);
     void addMovie(const string& title, const string& plot, int releaseYear);
     void associateActorWithMovie(const string& actorName, const string& movieTitle);
 
-    void searchActor(const string& name);
-    void searchMovie(const string& title);
+    void updateActorDetails(const string& oldName, const string& newName, int newBirthYear);
+    void updateMovieDetails(const string& oldTitle, const string& newTitle, int newYear);
 
-    void sortActors();
-    void sortMovies();
+    void displayActors() const;
+    void displayMovies() const;
+
+    void displayMoviesForActor(const string& actorName) const;
+    void displayActorsInMovie(const string& movieTitle) const;
+
+    void displayKnownActors(const string& actorName) const;
 
     /*void addActor(const string& name, int birthYear);
     void addMovie(const string& title, const string& plot, int releaseYear);

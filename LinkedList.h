@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Iterator.h"
+#include <stdexcept>
 
 template <typename T>
 class LinkedList {
@@ -11,40 +13,64 @@ private:
     };
 
     Node* head;
-    int size;
+    int listSize;
 
 public:
-    LinkedList() : head(nullptr), size(0) {}
+    LinkedList() : head(nullptr), listSize(0) {}
 
-    LinkedList(const LinkedList& other) : head(nullptr), size(0) {
-        Node* current = other.head;
-        while (current) {
-            add(current->data);
-            current = current->next;
+    // Deep copy constructor
+    LinkedList(const LinkedList& other) : head(nullptr), listSize(0) {
+        Node* temp = other.head;
+        while (temp) {
+            add(temp->data);
+            temp = temp->next;
         }
+    }
+
+    // Assignment operator
+    LinkedList& operator=(const LinkedList& other) {
+        if (this == &other) return *this;
+        clear();
+        Node* temp = other.head;
+        while (temp) {
+            add(temp->data);
+            temp = temp->next;
+        }
+        return *this;
     }
 
     ~LinkedList() { clear(); }
 
     void add(const T& value) {
         Node* newNode = new Node(value);
-        if (!head) head = newNode;
+        if (!head) {
+            head = newNode;
+        }
         else {
             Node* temp = head;
             while (temp->next) temp = temp->next;
             temp->next = newNode;
         }
-        size++;
+        listSize++;
     }
 
     void remove(const T& value) {
-        Node* current = head, * prev = nullptr;
+        if (!head) return;
+        if (head->data == value) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+            listSize--;
+            return;
+        }
+
+        Node* prev = nullptr;
+        Node* current = head;
         while (current) {
             if (current->data == value) {
-                if (prev) prev->next = current->next;
-                else head = current->next;
+                prev->next = current->next;
                 delete current;
-                size--;
+                listSize--;
                 return;
             }
             prev = current;
@@ -53,15 +79,26 @@ public:
     }
 
     bool contains(const T& value) const {
-        Node* current = head;
-        while (current) {
-            if (current->data == value) return true;
-            current = current->next;
+        Node* temp = head;
+        while (temp) {
+            if (temp->data == value) return true;
+            temp = temp->next;
         }
         return false;
     }
 
-    int getSize() const { return size; }
+    void clear() {
+        while (head) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
+        listSize = 0;
+    }
+
+    int getSize() const { return listSize; }
+
+    bool isEmpty() const { return head == nullptr; }
 
     class LinkedListIterator : public Iterator<T> {
     private:
@@ -72,13 +109,14 @@ public:
         bool hasNext() const override { return current != nullptr; }
 
         T next() override {
-            if (!current) throw out_of_range("No more elements");
+            if (!current) throw std::out_of_range("No more elements in list.");
             T value = current->data;
             current = current->next;
             return value;
         }
     };
 
-    Iterator<T>* createIterator() const { return new LinkedListIterator(head); }
+    Iterator<T>* createIterator() const {
+        return new LinkedListIterator(head);
+    }
 };
-

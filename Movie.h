@@ -7,39 +7,36 @@
 */
 
 #pragma once
+
 #include <string>
-#include "List.h"
-#include "Actor.h"
 #include "Config.h"
+#include "Iterator.h"
+#include DATA_STRUCTURE
 
 using namespace std;
-class Actor;
 
-class Movie
-{
+class Movie {
 private:
     string title;
     string plot;
     int releaseYear;
-    DataStructure<Actor*> actors; // Actors in the movie
+    DATA_STRUCTURE<class Actor*> actors;  // Now actors list can be any structure!
 
 public:
     Movie(const string& title, const string& plot, int releaseYear);
 
     string getTitle() const;
-    void setTitle(const std::string& title);
-
-    string getPlot() const;
-    void setPlot(const std::string& plot);
+    void setTitle(const string& title);
 
     int getReleaseYear() const;
     void setReleaseYear(int year);
 
-    //const List<Actor*>& getActors() const;
-    const DataStructure<Actor*> getActors() const;
-
     void addActorToMovie(Actor* actor);
-    void sortActors();
+    void removeActor(Actor* actor);
+    bool hasActor(Actor* actor) const;
+
+    DATA_STRUCTURE<Actor*> getActors() const;
+
     void displayActors() const;
 };
 

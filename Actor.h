@@ -7,20 +7,19 @@
 */
 
 #pragma once
+
 #include <string>
-#include "List.h"
-#include "Movie.h"
 #include "Config.h"
+#include "Iterator.h"
+#include DATA_STRUCTURE
 
 using namespace std;
-class Movie;
 
-class Actor
-{
+class Actor {
 private:
     string name;
     int birthYear;
-    DataStructure<Movie*> movies; // Movies the actor starred in
+    DATA_STRUCTURE<class Movie*> movies;  // Now movies list can be any structure!
 
 public:
     Actor(const string& name, int birthYear);
@@ -31,10 +30,13 @@ public:
     int getBirthYear() const;
     void setBirthYear(int year);
 
-    DataStructure<Movie*> getMovies() const;
-
     void addMovieToActor(Movie* movie);
-    void sortMovies();
+    void removeMovie(Movie* movie);
+    bool hasMovie(Movie* movie) const;
+
+    DATA_STRUCTURE<Movie*> getMovies() const;
+
     void displayMovies() const;
 };
+
 
