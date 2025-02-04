@@ -1,53 +1,26 @@
 #pragma once
 
-// Switch between data structures easily by uncommenting the preferred option
+// Define the Data Structure Options
+#define USE_LIST 1
+#define USE_LINKEDLIST 2
+#define USE_STACK 3
+#define USE_QUEUE 4
+#define USE_MAP 5
+#define USE_DICTIONARY 6
+#define USE_TREE 7
+#define USE_AVLTREE 8
 
-// #define USE_LIST
-#define USE_LINKED_LIST
-// #define USE_STACK
-// #define USE_QUEUE
-// #define USE_TREE
-// #define USE_AVL_TREE
-// #define USE_MAP
+// Define Search Algorithm Options
+#define SEQUENTIAL_SEARCH 1
+#define BINARY_SEARCH 2
 
-#ifdef USE_LIST
-#include "List.h"
-template <typename T>
-using DataStructure = List<T>;
-#endif
+// Define Sorting Algorithm Options
+#define BUBBLE_SORT 1
+#define QUICK_SORT 2
+#define MERGE_SORT 3
 
-#ifdef USE_LINKED_LIST
-#include "LinkedList.h"
-template <typename T>
-using DataStructure = LinkedList<T>;
-#endif
-
-#ifdef USE_STACK
-#include "Stack.h"
-template <typename T>
-using DataStructure = Stack<T>;
-#endif
-
-#ifdef USE_QUEUE
-#include "Queue.h"
-template <typename T>
-using DataStructure = Queue<T>;
-#endif
-
-#ifdef USE_TREE
-#include "Tree.h"
-template <typename T>
-using DataStructure = Tree<T>;
-#endif
-
-#ifdef USE_AVL_TREE
-#include "AVLTree.h"
-template <typename T>
-using DataStructure = AVLTree<T>;
-#endif
-
-#ifdef USE_MAP
-#include "Map.h"
-template <typename K, typename V>
-using DataStructure = Map<K, V>;
-#endif
+// Configure which data structure and algorithms to use
+#define ACTOR_STORAGE USE_LIST
+#define MOVIE_STORAGE USE_MAP
+#define SEARCH_ALGORITHM BINARY_SEARCH
+#define SORT_ALGORITHM QUICK_SORT

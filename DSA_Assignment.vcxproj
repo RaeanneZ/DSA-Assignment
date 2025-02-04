@@ -141,6 +141,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorMovieDatabase.h" />
     <ClInclude Include="AVLTree.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="CSVReader.h" />
     <ClInclude Include="Dictionary.h" />
     <ClInclude Include="Graph.h" />
