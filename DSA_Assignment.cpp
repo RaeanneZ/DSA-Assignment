@@ -207,7 +207,7 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
         cout << "4. Display All Actors In Movie" << endl;
         cout << "5. Display Known Actors for Chosen Actor" << endl;
         cout << "6. Advanced Feature: Explore Connections" << endl;
-        cout << "7. Get Movie Recommendations" << endl;
+        cout << "7. Get Movie Recommendations By Actor" << endl;
         cout << "8. Rate Movies" << endl;
         cout << "9. Add a Watched Movie" << endl;
         cout << "10. Get Personalised Movie Recommendations" << endl;
