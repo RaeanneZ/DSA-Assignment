@@ -18,23 +18,22 @@ class Movie
 {
 private:
     string title;
-    string plot;
     int releaseYear;
+    float rating;
     List<Actor*> actors; // Actors in the movie
 
 public:
-    Movie(const string& title, const string& plot, int releaseYear);
+    Movie(const string& title, int releaseYear);
 
     string getTitle() const;
     void setTitle(const std::string& title);
 
-    string getPlot() const;
-    void setPlot(const std::string& plot);
-
     int getReleaseYear() const;
     void setReleaseYear(int year);
 
-    //const List<Actor*>& getActors() const;
+    float getRating() const;
+    void setRating(float rating);
+
     const List<Actor*> getActors() const;
 
     void addActorToMovie(Actor* actor);
