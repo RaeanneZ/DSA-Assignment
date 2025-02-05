@@ -65,7 +65,7 @@ void ActorMovieDatabase::addActor(const string& name, int birthYear) {
  */
 void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
 
-    Movie* movie = new Movie(title, plot, releaseYear);
+    Movie* movie = new Movie(title, releaseYear);
     if (!movieMap.contains(title)) {
         movieMap.insert(title, movie);
     }
@@ -512,7 +512,7 @@ void ActorMovieDatabase::clearDatabase() {
 
 
 
-// Advanced Features -------------------------------------------------------------------------------------------------------
+// Advanced Feature --------------------------------------------------------------------------------------------------------
 void ActorMovieDatabase::buildGraph() {
     auto actorIt = actorMap.createIterator();
     while (actorIt->hasNext()) {
@@ -640,4 +640,97 @@ void ActorMovieDatabase::renderBranches(const string& node, Graph& graph, List<s
     delete it;
 }
 
+// Advanced Feature 2 ------------------------------------------------------------------------------------------------------
+void ActorMovieDatabase::addUser(const string& username) {
+    if (!userMap.contains(username)) {
+        userMap.insert(username, new User(username));
+    }
+}
+
+void ActorMovieDatabase::rateMovie(const string& username, const string& movieTitle, int rating) {
+    if (userMap.contains(username) && movieMap.contains(movieTitle)) {
+        userMap.get(username)->rateMovie(movieTitle, rating);
+        updateMovieRating(movieTitle);
+    }
+}
+
+void ActorMovieDatabase::updateMovieRating(const string& movieTitle) {
+    auto movie = movieMap.get(movieTitle);
+    float totalRating = 0;
+    int count = 0;
+    auto userIt = userMap.createIterator();
+    while (userIt->hasNext()) {
+        auto user = userIt->next()->value;
+        int rating = user->getMovieRating(movieTitle);
+        if (rating > 0) {
+            totalRating += rating;
+            count++;
+        }
+    }
+    delete userIt;
+    movie->setRating(count > 0 ? totalRating / count : 0.0);
+}
+
+void ActorMovieDatabase::addWatchedMovie(const string& username, const string& movieTitle) {
+    if (!userMap.contains(username)) {
+        std::cout << "User not found.\n";
+        return;
+    }
+    if (!movieMap.contains(movieTitle)) {
+        std::cout << "Movie not found.\n";
+        return;
+    }
+    userMap.get(username)->addWatchedMovie(movieTitle);
+    std::cout << "Movie \"" << movieTitle << "\" added to watched list for " << username << ".\n";
+}
+
+void ActorMovieDatabase::recommendPersonalisedMovies(const string& username) {
+    if (!userMap.contains(username)) {
+        cout << "User not found.\n";
+        return;
+    }
+    User* user = userMap.get(username);
+    List<string> watchedMovies = user->getWatchedMovies();
+    Map<string, float> movieScores;
+
+    auto movieIt = watchedMovies.createIterator();
+    while (movieIt->hasNext()) {
+        string watchedMovie = movieIt->next();
+        if (!movieMap.contains(watchedMovie)) continue;
+        auto movie = movieMap.get(watchedMovie);
+        auto actors = movie->getActors();
+        auto actorIt = actors.createIterator();
+        while (actorIt->hasNext()) {
+            string actorName = actorIt->next()->getName();
+            if (!actorMap.contains(actorName)) continue;
+            auto allMovies = actorMap.get(actorName)->getMovies();
+            auto relatedMovieIt = allMovies.createIterator();
+            while (relatedMovieIt->hasNext()) {
+                string relatedMovie = relatedMovieIt->next()->getTitle();
+                if (!watchedMovies.contains(relatedMovie) && movieMap.contains(relatedMovie)) {
+                    if (!movieScores.contains(relatedMovie)) {
+                        movieScores.insert(relatedMovie, 0.0);
+                    }
+                    movieScores.get(relatedMovie) += movieMap.get(relatedMovie)->getRating();
+                }
+            }
+            delete relatedMovieIt;
+        }
+        delete actorIt;
+    }
+    delete movieIt;
+
+    cout << "Recommended Movies for " << username << ":\n";
+    if (movieScores.getSize() == 0) {
+        cout << "No related movies found based on your watched list.\n";
+        return;
+    }
+
+    auto scoreIt = movieScores.createIterator();
+    while (scoreIt->hasNext()) {
+        auto pair = scoreIt->next();
+        cout << pair->key << " (Score: " << pair->value << ")\n";
+    }
+    delete scoreIt;
+}
 

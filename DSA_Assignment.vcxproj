@@ -131,10 +131,8 @@
     <ClCompile Include="ActorMovieDatabase.cpp" />
     <ClCompile Include="DSA_Assignment.cpp" />
     <ClCompile Include="Graph.cpp" />
-    <ClCompile Include="Iterator.cpp" />
-    <ClCompile Include="List.cpp" />
-    <ClCompile Include="Map.cpp" />
     <ClCompile Include="Movie.cpp" />
+    <ClCompile Include="User.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
@@ -144,6 +142,7 @@
     <ClInclude Include="List.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Movie.h" />
+    <ClInclude Include="User.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\actors.csv" />
