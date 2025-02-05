@@ -726,11 +726,26 @@ void ActorMovieDatabase::recommendPersonalisedMovies(const string& username) {
         return;
     }
 
+    // Store movie scores in a list for sorting
+    List<pair<string, float>> sortedMovies;
     auto scoreIt = movieScores.createIterator();
     while (scoreIt->hasNext()) {
         auto pair = scoreIt->next();
-        cout << pair->key << " (Score: " << pair->value << ")\n";
+        sortedMovies.add({ pair->key, pair->value });
     }
     delete scoreIt;
+
+    // Sort movies by score in descending order
+    sortedMovies.sort([](const pair<string, float>& a, const pair<string, float>& b) {
+        return a.second > b.second;
+        });
+
+    // Print sorted movies
+    auto sortedIt = sortedMovies.createIterator();
+    while (sortedIt->hasNext()) {
+        auto movie = sortedIt->next();
+        cout << movie.first << " (Score: " << movie.second << ")\n";
+    }
+    delete sortedIt;
 }
 
