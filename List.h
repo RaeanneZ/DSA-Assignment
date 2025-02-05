@@ -72,6 +72,17 @@ public:
         size++;
     }
 
+    bool contains(const T& value) const {
+        Node* current = head;
+        while (current) {
+            if (current->data == value) {
+                return true;
+            }
+            current = current->next;
+        }
+        return false;
+    }
+
     /**
  * Removes the first occurrence of the specified value from the list.
  * @param value The value to be removed.

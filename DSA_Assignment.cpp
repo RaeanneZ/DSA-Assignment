@@ -22,30 +22,24 @@ void clearInput() {
 
 // Reads all CSV files into the database
 bool readAllCSV(ActorMovieDatabase& db) {
-    Map<string, string> actorIdToName;   // Maps actor ID to actor name
-    Map<string, string> movieIdToTitle; // Maps movie ID to movie title
-
-    // Reading actors.csv
+    Map<string, string> actorIdToName;
+    Map<string, string> movieIdToTitle;
     ifstream actorsFile("actors.csv");
     if (!actorsFile.is_open()) {
         cerr << "Error: Could not open actors.csv\n";
         return false;
     }
-
     string line;
-    getline(actorsFile, line); // Skip the header
-
+    getline(actorsFile, line);
     while (getline(actorsFile, line)) {
         istringstream ss(line);
         string id, name, birth;
-
         getline(ss, id, ',');
         getline(ss, name, ',');
         if (name.front() == '"' && name.back() == '"') {
-            name = name.substr(1, name.size() - 2); // Remove quotes
+            name = name.substr(1, name.size() - 2);
         }
         getline(ss, birth, ',');
-
         try {
             db.addActor(name, stoi(birth));
         }
@@ -53,32 +47,24 @@ bool readAllCSV(ActorMovieDatabase& db) {
             cerr << "Error adding actor: " << e.what() << endl;
             continue;
         }
-
-        // Insert into map
         actorIdToName.insert(id, name);
     }
     actorsFile.close();
-
-    // Reading movies.csv
     ifstream moviesFile("movies.csv");
     if (!moviesFile.is_open()) {
         cerr << "Error: Could not open movies.csv\n";
         return false;
     }
-
-    getline(moviesFile, line); // Skip the header
-
+    getline(moviesFile, line);
     while (getline(moviesFile, line)) {
         istringstream ss(line);
         string id, title, year;
-
         getline(ss, id, ',');
         getline(ss, title, ',');
         if (title.front() == '"' && title.back() == '"') {
-            title = title.substr(1, title.size() - 2); // Remove quotes
+            title = title.substr(1, title.size() - 2);
         }
         getline(ss, year, ',');
-
         try {
             db.addMovie(title, "", stoi(year));
         }
@@ -86,32 +72,23 @@ bool readAllCSV(ActorMovieDatabase& db) {
             cerr << "Error adding movie: " << e.what() << endl;
             continue;
         }
-
-        // Insert into map
         movieIdToTitle.insert(id, title);
     }
     moviesFile.close();
-
-    // Reading cast.csv
     ifstream castFile("cast.csv");
     if (!castFile.is_open()) {
         cerr << "Error: Could not open cast.csv\n";
         return false;
     }
-
-    string line1;
-    getline(castFile, line1); // Skip header
-
-    while (getline(castFile, line1)) {
-        istringstream ss(line1);
+    getline(castFile, line);
+    while (getline(castFile, line)) {
+        istringstream ss(line);
         string person_id, movie_id;
         getline(ss, person_id, ',');
         getline(ss, movie_id, ',');
-
         if (actorIdToName.contains(person_id) && movieIdToTitle.contains(movie_id)) {
             string actorName = actorIdToName.get(person_id);
             string movieTitle = movieIdToTitle.get(movie_id);
-
             try {
                 db.associateActorWithMovie(actorName, movieTitle);
             }
@@ -124,7 +101,6 @@ bool readAllCSV(ActorMovieDatabase& db) {
         }
     }
     castFile.close();
-
     cout << "\nFinished reading all CSV files.\n";
     return true;
 }
@@ -221,7 +197,7 @@ void adminMenu(ActorMovieDatabase& db) {
 }
 
 // User menu with validation and improvements
-void userMenu(ActorMovieDatabase& db) {
+void userMenu(ActorMovieDatabase& db, const string& username) {
     int choice;
     do {
         cout << "\n=== User Menu ===" << endl;
@@ -231,7 +207,10 @@ void userMenu(ActorMovieDatabase& db) {
         cout << "4. Display All Actors In Movie" << endl;
         cout << "5. Display Known Actors for Chosen Actor" << endl;
         cout << "6. Advanced Feature: Explore Connections" << endl;
-        cout << "7. Get Movie Recommendations" << endl;
+        cout << "7. Get Movie Recommendations By Actor" << endl;
+        cout << "8. Rate Movies" << endl;
+        cout << "9. Add a Watched Movie" << endl;
+        cout << "10. Get Personalised Movie Recommendations" << endl;
         cout << "0. Logout" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
@@ -243,6 +222,7 @@ void userMenu(ActorMovieDatabase& db) {
         }
 
         string name, node;
+        int rating;
         switch (choice) {
         case 1:
             int minAge, maxAge;
@@ -253,6 +233,7 @@ void userMenu(ActorMovieDatabase& db) {
             db.displayActorsByAgeRange(minAge, maxAge);
             break;
         case 2:
+            db.displayMovies();
             db.displayRecentMovies();
             break;
         case 3:
@@ -295,6 +276,23 @@ void userMenu(ActorMovieDatabase& db) {
             getline(cin, name);
             db.recommendMovies(name);
             break;
+        case 8:
+            cout << "Enter movie title: ";
+            clearInput();
+            getline(cin, name);
+            cout << "Enter rating (1-5): ";
+            cin >> rating;
+            db.rateMovie(username, name, rating);
+            break;
+        case 9:
+            cout << "Enter movie title you have watched: ";
+            clearInput();
+            getline(cin, name);
+            db.addWatchedMovie(username, name);
+            cout << "Movie added to watched list.\n";
+        case 10:
+            db.recommendPersonalisedMovies(username);
+            break;
         case 0:
             cout << "Logging out...\n";
             break;
@@ -331,12 +329,16 @@ int main() {
             continue;
         }
 
+        string username;
         switch (roleChoice) {
         case 1:
             adminMenu(db);
             break;
         case 2:
-            userMenu(db);
+            cout << "Enter your username: ";
+            cin >> username;
+            db.addUser(username);
+            userMenu(db, username);
             break;
         case 0:
             cout << "Exiting program. Goodbye!\n";

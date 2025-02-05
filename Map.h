@@ -114,8 +114,6 @@ public:
         throw invalid_argument("Key not found in the map");
     }
 
-
-
     void clear() {
         auto it = data.createIterator();
         while (it->hasNext()) {
@@ -123,6 +121,19 @@ public:
         }
         delete it;
         data.clear();
+    }
+
+    int getSize() const {
+        return data.getSize();
+    }
+
+    void print() const {
+        auto it = data.createIterator();
+        while (it->hasNext()) {
+            Pair* pair = it->next();
+            std::cout << "Key: " << pair->key << " | Value: " << pair->value << std::endl;
+        }
+        delete it;
     }
 
     class MapIterator : public Iterator<Pair*> {
