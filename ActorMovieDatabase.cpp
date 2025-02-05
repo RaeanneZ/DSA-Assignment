@@ -7,7 +7,6 @@
 */
 
 #include "ActorMovieDatabase.h"
-#include "Config.h"  // Enables switching between data structures and algorithms
 #include "SortingAlgorithms.h"
 #include "SearchingAlgorithms.h"
 #include <iostream>
@@ -21,8 +20,13 @@ using namespace std;
  * Initializes the database with configurable data structures.
  */
 ActorMovieDatabase::ActorMovieDatabase() {
-    actors = new Config::ActorContainer();
-    movies = new Config::MovieContainer();
+#if defined(USE_MAP)
+    actorMap = new Map<string, Actor*>();
+    movieMap = new Map<string, Movie*>();
+#elif defined(USE_DICTIONARY)
+    actorMap = new Dictionary<string, Actor*>();
+    movieMap = new Dictionary<string, Movie*>();
+#endif
 }
 
 /**
@@ -30,8 +34,7 @@ ActorMovieDatabase::ActorMovieDatabase() {
  * Cleans up allocated memory for data structures.
  */
 ActorMovieDatabase::~ActorMovieDatabase() {
-    delete actors;
-    delete movies;
+    clearDatabase();
 }
 
 /**
@@ -43,18 +46,11 @@ ActorMovieDatabase::~ActorMovieDatabase() {
  * Postcondition: The actor is stored in the database.
  */
 void ActorMovieDatabase::addActor(const string& name, int birthYear) {
-    auto start = chrono::high_resolution_clock::now();
-
-    if (SearchingAlgorithms::contains(*actors, name)) {
-        cout << "Actor already exists.\n";
+    if (actorMap->contains(name)) {
+        cerr << "Error: Actor already exists!\n";
         return;
     }
-
-    Actor* newActor = new Actor(name, birthYear);
-    actors->insert(name, newActor);
-
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Actor added in " << chrono::duration<double>(end - start).count() << " seconds\n";
+    actorMap->insert(name, new Actor(name, birthYear));
 }
 
 /**
@@ -65,19 +61,12 @@ void ActorMovieDatabase::addActor(const string& name, int birthYear) {
  * Precondition: Title should be non-empty, release year should be valid.
  * Postcondition: The movie is stored in the database.
  */
-void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
-    auto start = chrono::high_resolution_clock::now();
-
-    if (SearchingAlgorithms::contains(*movies, title)) {
-        cout << "Movie already exists.\n";
+void ActorMovieDatabase::addMovie(const string& title, int releaseYear) {
+    if (movieMap->contains(title)) {
+        cerr << "Error: Movie already exists!\n";
         return;
     }
-
-    Movie* newMovie = new Movie(title, plot, releaseYear);
-    movies->insert(title, newMovie);
-
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Movie added in " << chrono::duration<double>(end - start).count() << " seconds\n";
+    movieMap->insert(title, new Movie(title, releaseYear));
 }
 
 /**
@@ -89,126 +78,216 @@ void ActorMovieDatabase::addMovie(const string& title, const string& plot, int r
  * Postcondition: The actor and movie are linked.
  */
 void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const string& movieTitle) {
-    auto start = chrono::high_resolution_clock::now();
-
-    Actor* actor = actors->get(actorName);
-    Movie* movie = movies->get(movieTitle);
-
-    if (!actor || !movie) {
-        cout << "Error: Actor or movie not found.\n";
+    if (!actorMap->contains(actorName) || !movieMap->contains(movieTitle)) {
+        cerr << "Error: Actor or Movie not found!\n";
         return;
     }
-
+    Actor* actor = actorMap->get(actorName);
+    Movie* movie = movieMap->get(movieTitle);
     actor->addMovieToActor(movie);
     movie->addActorToMovie(actor);
-
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Association added in " << chrono::duration<double>(end - start).count() << " seconds\n";
 }
 
 /**
- * Displays all actors sorted by name.
- * Uses the selected sorting algorithm.
+ * Updates the details of an actor.
+ * @param actorName The name of the actor to update.
+ * @param newName The new name for the actor.
+ * @param newBirthYear The new birth year for the actor.
+ * Process: Finds the actor in the database, updates their details, and ensures the changes propagate in related movies.
+ * Precondition: The actor must exist in the database.
+ * Postcondition: The actor's details are updated, and the references in related movies remain valid.
  */
-void ActorMovieDatabase::displayActors() {
-    auto start = chrono::high_resolution_clock::now();
-
-    SortingAlgorithms::sort(*actors, [](Actor* a, Actor* b) {
-        return a->getName() < b->getName();
-        });
-
-    for (auto actor : *actors) {
-        cout << actor->getName() << " (" << actor->getBirthYear() << ")\n";
+void ActorMovieDatabase::updateActorDetails(const string& actorName, const string& newName, int newBirthYear) {
+    if(!actorMap->contains(actorName)) {
+        cerr << "Error: Actor not found!\n";
+        return;
     }
-
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Actors displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
+    Actor* actor = actorMap->get(actorName);
+    if (!newName.empty()) actor->setName(newName);
+    if (newBirthYear > 0) actor->setBirthYear(newBirthYear);
 }
 
 /**
- * Displays all movies sorted by title.
- * Uses the selected sorting algorithm.
+ * Updates the details of a movie.
+ * @param movieTitle The title of the movie to update.
+ * @param newTitle The new title for the movie.
+ * @param newYear The new release year for the movie.
+ * Process: Finds the movie in the database, updates its details, and ensures references in related actors remain valid.
+ * Precondition: The movie must exist in the database.
+ * Postcondition: The movie's details are updated, and the references in related actors remain valid.
  */
-void ActorMovieDatabase::displayMovies() {
-    auto start = chrono::high_resolution_clock::now();
-
-    SortingAlgorithms::sort(*movies, [](Movie* a, Movie* b) {
-        return a->getTitle() < b->getTitle();
-        });
-
-    for (auto movie : *movies) {
-        cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")\n";
+void ActorMovieDatabase::updateMovieDetails(const string& movieTitle, const string& newTitle, int newYear) {
+    if (!movieMap->contains(movieTitle)) {
+        cerr << "Error: Movie not found!\n";
+        return;
     }
-
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Movies displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
+    Movie* movie = movieMap->get(movieTitle);
+    if (!newTitle.empty()) movie->setTitle(newTitle);
+    if (newYear > 0) movie->setReleaseYear(newYear);
 }
 
-/**
- * Displays all movies released in the past 3 years.
- * Uses sorting for ordered display.
- */
-void ActorMovieDatabase::displayRecentMovies() {
-    auto start = chrono::high_resolution_clock::now();
+// Display Actors By Age Range
+void ActorMovieDatabase::displayActorsByAgeRange(int x, int y) const {
+    List<Actor*> actorList;
+    auto it = actorMap->createIterator();
+    int currentYear = 2024;
 
-    SortingAlgorithms::sort(*movies, [](Movie* a, Movie* b) {
-        return a->getReleaseYear() > b->getReleaseYear();
-        });
-
-    for (auto movie : *movies) {
-        if (movie->getReleaseYear() >= 2021) {
-            cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")\n";
+    while (it->hasNext()) {
+        Actor* actor = it->next();
+        int age = currentYear - actor->getBirthYear();
+        if (age >= minAge && age <= maxAge) {
+            actorList.add(actor);
         }
     }
+    delete it;
 
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Recent movies displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
+    quickSort(actorList, 0, actorList.getSize() - 1, [](Actor* a, Actor* b) { return a->getBirthYear() < b->getBirthYear(); });
+
+    for (auto actor : actorList) {
+        cout << actor->getName() << " (" << currentYear - actor->getBirthYear() << " years old)\n";
+    }
+}
+
+/**
+ * Displays movies made within the past 3 years in ascending order.
+ * Process: Iterates through all movies, checks their release year, and displays those within the past 3 years.
+ * Precondition: The database must be populated with movies and the current year must be available.
+ * Postcondition: Movies from the past 3 years are displayed in ascending order of year.
+ */
+void ActorMovieDatabase::displayRecentMovies(int currentYear) const {
+    List<Movie*> recentMovies;
+    auto it = movieMap->createIterator();
+
+    while (it->hasNext()) {
+        Movie* movie = it->next();
+        if (movie->getReleaseYear() >= currentYear - 3) {
+            recentMovies.add(movie);
+        }
+    }
+    delete it;
+
+    quickSort(recentMovies, 0, recentMovies.getSize() - 1, [](Movie* a, Movie* b) { return a->getReleaseYear() < b->getReleaseYear(); });
+
+    for (auto movie : recentMovies) {
+        cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")\n";
+    }
 }
 
 /**
  * Displays all movies an actor starred in.
  * Uses sorting for ordered display.
  */
-void ActorMovieDatabase::displayMoviesForActor(const string& actorName) {
-    auto start = chrono::high_resolution_clock::now();
-
-    Actor* actor = actors->get(actorName);
-    if (!actor) {
-        cout << "Actor not found.\n";
+void ActorMovieDatabase::displayMoviesForActor(const string& actorName) const {
+    if(!actorMap->contains(actorName)) {
+        cerr << "Error: Actor not found!\n";
         return;
     }
-
-    SortingAlgorithms::sort(actor->getMovies(), [](Movie* a, Movie* b) {
-        return a->getTitle() < b->getTitle();
-        });
-
-    actor->displayMovies();
-
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Movies displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
+    actorMap->get(actorName)->displayMovies();
 }
 
 /**
  * Displays all actors in a movie.
  * Uses sorting for ordered display.
  */
-void ActorMovieDatabase::displayActorsInMovie(const string& movieTitle) {
-    auto start = chrono::high_resolution_clock::now();
+void ActorMovieDatabase::displayActorsInMovie(const string& movieTitle) const {
+    if (!movieMap->contains(movieTitle)) {
+        cerr << "Error: Movie not found!\n";
+        return;
+    }
+    movieMap->get(movieTitle)->displayActors();
+}
 
-    Movie* movie = movies->get(movieTitle);
-    if (!movie) {
-        cout << "Movie not found.\n";
+// Display Known Actors (One Level Deep)
+void ActorMovieDatabase::displayKnownActors(const string& actorName) const {
+    if (!actorMap->contains(actorName)) {
+        cerr << "Error: Actor not found!\n";
         return;
     }
 
-    SortingAlgorithms::sort(movie->getActors(), [](Actor* a, Actor* b) {
-        return a->getName() < b->getName();
-        });
+    Actor* targetActor = actorMap->get(actorName);
+    List<Actor*> knownActors;
 
-    movie->displayActors();
+    auto movieIterator = targetActor->getMovies().createIterator();
+    while (movieIterator->hasNext()) {
+        Movie* movie = movieIterator->next();
+        auto actorIterator = movie->getActors().createIterator();
+        while (actorIterator->hasNext()) {
+            Actor* coActor = actorIterator->next();
+            if (coActor != targetActor) {
+                knownActors.add(coActor);
+            }
+        }
+        delete actorIterator;
+    }
+    delete movieIterator;
 
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Actors displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
+    quickSort(knownActors, 0, knownActors.getSize() - 1, [](Actor* a, Actor* b) { return a->getName() < b->getName(); });
+
+    for (auto actor : knownActors) {
+        cout << actor->getName() << "\n";
+    }
+}
+
+/**
+ * Displays all actors sorted by name.
+ * Uses the selected sorting algorithm.
+ */
+ void ActorMovieDatabase::displayActors() const {
+     auto it = actorMap->createIterator();
+     while (it->hasNext()) {
+         cout << it->next()->getName() << endl;
+     }
+     delete it;;
+ }
+ 
+ /**
+  * Displays all movies sorted by title.
+  * Uses the selected sorting algorithm.
+  */
+ void ActorMovieDatabase::displayMovies() const {
+     auto it = movieMap->createIterator();
+     while (it->hasNext()) {
+         cout << it->next()->getTitle() << endl;
+     }
+     delete it;
+ }
+ 
+ /**
+  * Clears the database.
+  */
+ void ActorMovieDatabase::clearDatabase() {
+     delete actorMap;
+     delete movieMap;
+
+#if defined(USE_MAP)
+     actorMap = new Map<string, Actor*>();
+     movieMap = new Map<string, Movie*>();
+#elif defined(USE_DICTIONARY)
+     actorMap = new Dictionary<string, Actor*>();
+     movieMap = new Dictionary<string, Movie*>();
+#endif
+ }
+
+// Incorrect Stuff ---------------------------------------------------------------------------------------------------------------------
+///**
+// * Displays all movies released in the past 3 years.
+// * Uses sorting for ordered display.
+// */
+//void ActorMovieDatabase::displayRecentMovies() {
+//    auto start = chrono::high_resolution_clock::now();
+//
+//    SortingAlgorithms::sort(*movies, [](Movie* a, Movie* b) {
+//        return a->getReleaseYear() > b->getReleaseYear();
+//        });
+//
+//    for (auto movie : *movies) {
+//        if (movie->getReleaseYear() >= 2021) {
+//            cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")\n";
+//        }
+//    }
+//
+//    auto end = chrono::high_resolution_clock::now();
+//    cout << "Recent movies displayed in " << chrono::duration<double>(end - start).count() << " seconds\n";
 }
 
 ///**
@@ -267,86 +346,11 @@ void ActorMovieDatabase::displayActorsInMovie(const string& movieTitle) {
 //    }
 //}
 //
-///**
-// * Updates the details of an actor.
-// * @param actorName The name of the actor to update.
-// * @param newName The new name for the actor.
-// * @param newBirthYear The new birth year for the actor.
-// * Process: Finds the actor in the database, updates their details, and ensures the changes propagate in related movies.
-// * Precondition: The actor must exist in the database.
-// * Postcondition: The actor's details are updated, and the references in related movies remain valid.
-// */
-//void ActorMovieDatabase::updateActorDetails(const string& actorName, const string& newName, int newBirthYear) {
-//    Actor* actor = findActor(actorName);
-//    if (!actor) {
-//        cout << "Actor not found.\n";
-//        return;
-//    }
+
 //
-//    actorMap.remove(actorName); // Remove old reference
-//    actor->setName(newName);
-//    if (newBirthYear > 0) {
-//        actor->setBirthYear(newBirthYear);
-//    }
-//    actorMap.insert(newName, actor); // Reinsert with the updated name
-//}
+
 //
-///**
-// * Updates the details of a movie.
-// * @param movieTitle The title of the movie to update.
-// * @param newTitle The new title for the movie.
-// * @param newYear The new release year for the movie.
-// * Process: Finds the movie in the database, updates its details, and ensures references in related actors remain valid.
-// * Precondition: The movie must exist in the database.
-// * Postcondition: The movie's details are updated, and the references in related actors remain valid.
-// */
-//void ActorMovieDatabase::updateMovieDetails(const string& movieTitle, const string& newTitle, int newYear) {
-//    Movie* movie = findMovie(movieTitle);
-//    if (!movie) {
-//        cout << "Movie not found.\n";
-//        return;
-//    }
-//
-//    movieMap.remove(movieTitle); // Remove old reference
-//    movie->setTitle(newTitle);
-//    if (newYear > 0) {
-//        movie->setReleaseYear(newYear);
-//    }
-//    movieMap.insert(newTitle, movie); // Reinsert with the updated title
-//}
-//
-///**
-// * Displays movies made within the past 3 years in ascending order.
-// * Process: Iterates through all movies, checks their release year, and displays those within the past 3 years.
-// * Precondition: The database must be populated with movies and the current year must be available.
-// * Postcondition: Movies from the past 3 years are displayed in ascending order of year.
-// */
-//void ActorMovieDatabase::displayRecentMovies() const {
-//    int currentYear = time(nullptr) / (60 * 60 * 24 * 365.25) + 1970; // Approximate current year
-//
-//    List<Movie*> recentMovies;
-//    auto it = movieMap.createIterator();
-//    while (it->hasNext()) {
-//        Movie* movie = it->next()->value;
-//        if (movie->getReleaseYear() >= currentYear - 3) {
-//            recentMovies.add(movie);
-//        }
-//    }
-//    delete it;
-//
-//    // Sort movies by release year
-//    recentMovies.sort([](Movie* a, Movie* b) {
-//        return a->getReleaseYear() < b->getReleaseYear();
-//        });
-//
-//    cout << "Movies from the past 3 years:\n";
-//    auto recentIt = recentMovies.createIterator();
-//    while (recentIt->hasNext()) {
-//        Movie* movie = recentIt->next();
-//        cout << movie->getTitle() << " (" << movie->getReleaseYear() << ")\n";
-//    }
-//    delete recentIt;
-//}
+
 //
 ///**
 // * Displays all movies an actor starred in, sorted alphabetically.

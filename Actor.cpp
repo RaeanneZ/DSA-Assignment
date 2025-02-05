@@ -51,27 +51,27 @@ void Actor::setBirthYear(int year) {
     birthYear = year;
 }
 
-DataStructure<Movie*> Actor::getMovies() const {
-    return movies;
-}
+//DataStructure<Movie*> Actor::getMovies() const {
+//    return movies;
+//}
 
 /**
  * Add Movie to Actor Method
  * Adds a movie title to the actor's list of movies.
  */
-void Actor::addMovieToActor(Movie* movie) {
-    movies.add(movie);
-}
+//void Actor::addMovieToActor(Movie* movie) {
+//    movies.add(movie);
+//}
 
 /**
  * Sort Movies Method
  * Sorts the actor's movies alphabetically.
  */
-void Actor::sortMovies() {
-    movies.sort([](const Movie* a, const Movie* b) -> bool {
-        return a->getTitle() < b->getTitle();
-        });
-}
+//void Actor::sortMovies() {
+//    movies.sort([](const Movie* a, const Movie* b) -> bool {
+//        return a->getTitle() < b->getTitle();
+//        });
+//}
 
 /**
  * Display Movies Method

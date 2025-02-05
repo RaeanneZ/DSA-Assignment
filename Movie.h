@@ -10,20 +10,27 @@
 
 #include <string>
 #include "Config.h"
-#include "Iterator.h"
-#include DATA_STRUCTURE
+#include "List.h"
+#include "AVLTree.h"
+#include "Actor.h"
+
+class Actor;
 
 using namespace std;
 
 class Movie {
 private:
     string title;
-    string plot;
     int releaseYear;
-    DATA_STRUCTURE<class Actor*> actors;  // Now actors list can be any structure!
+
+#if defined(USE_LIST)
+    List<Actor*> actors;
+#elif defined(USE_AVL_TREE)
+    AVLTree<Actor*> actors;
+#endif
 
 public:
-    Movie(const string& title, const string& plot, int releaseYear);
+    Movie(const string& title, int releaseYear);
 
     string getTitle() const;
     void setTitle(const string& title);
@@ -32,11 +39,11 @@ public:
     void setReleaseYear(int year);
 
     void addActorToMovie(Actor* actor);
-    void removeActor(Actor* actor);
+    void displayActors() const;
+
+    /*void removeActor(Actor* actor);
     bool hasActor(Actor* actor) const;
 
-    DATA_STRUCTURE<Actor*> getActors() const;
-
-    void displayActors() const;
+    DATA_STRUCTURE<Actor*> getActors() const;*/
 };
 

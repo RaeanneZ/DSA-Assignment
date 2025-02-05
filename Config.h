@@ -1,8 +1,11 @@
 #pragma once
 
-#pragma once
+// Choose Data Structures
+#define USE_LIST // Switch between: USE_LIST, USE_LINKED_LIST, USE_STACK, USE_QUEUE, USE_AVL_TREE, USE_DICTIONARY
 
-// Switch between different data structures easily
-#define DATA_STRUCTURE LinkedList  // Change to List, Stack, Queue, AVLTree, Dictionary, etc.
-#define SEARCH_ALGORITHM BinarySearch  // Change to SequentialSearch, RecursiveBinarySearch, etc.
-#define SORT_ALGORITHM QuickSort  // Change to MergeSort, BubbleSort, SelectionSort
+// Choose Sorting Algorithm
+#define USE_QUICK_SORT // Switch between: USE_MERGE_SORT, USE_BUBBLE_SORT, USE_QUICK_SORT, USE_SELECTION_SORT
+
+// Choose Searching Algorithm
+#define USE_BINARY_SEARCH // Switch between: USE_BINARY_SEARCH, USE_SEQUENTIAL_SEARCH
+

@@ -10,8 +10,12 @@
 
 #include <string>
 #include "Config.h"
-#include "Iterator.h"
-#include DATA_STRUCTURE
+#include "List.h"
+#include "LinkedList.h"
+#include "Queue.h"
+#include "Movie.h"
+
+class Movie;
 
 using namespace std;
 
@@ -19,7 +23,15 @@ class Actor {
 private:
     string name;
     int birthYear;
-    DATA_STRUCTURE<class Movie*> movies;  // Now movies list can be any structure!
+
+    // Swap Between the different Data Structures
+#if defined(USE_LIST)
+    List<Movie*> movies;
+#elif defined(USE_LINKED_LIST)
+    LinkedList<Movie*> movies;
+#elif defined(USE_QUEUE)
+    Queue<Movie*> movies;
+#endif
 
 public:
     Actor(const string& name, int birthYear);
@@ -31,12 +43,12 @@ public:
     void setBirthYear(int year);
 
     void addMovieToActor(Movie* movie);
-    void removeMovie(Movie* movie);
-    bool hasMovie(Movie* movie) const;
-
-    DATA_STRUCTURE<Movie*> getMovies() const;
-
     void displayMovies() const;
+    //void displayMovies() const;
+    //void removeMovie(Movie* movie);
+    //bool hasMovie(Movie* movie) const;
+
+    //DATA_STRUCTURE<Movie*> getMovies() const;
 };
 
 

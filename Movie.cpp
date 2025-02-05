@@ -14,7 +14,7 @@ using namespace std;
  * Constructor
  * Initializes a Movie with a title, plot, and release year.
  */
-Movie::Movie(const string& title, const string& plot, int releaseYear) : title(title), plot(plot), releaseYear(releaseYear) {}
+Movie::Movie(const string& title, int releaseYear) : title(title), releaseYear(releaseYear) {}
 
 /**
  * Get Title Method
@@ -30,22 +30,6 @@ string Movie::getTitle() const {
  */
 void Movie::setTitle(const string& title) {
     this->title = title;
-}
-
-/**
- * Get Plot Method
- * Returns the movie's plot.
- */
-string Movie::getPlot() const {
-    return plot;
-}
-
-/**
- * Set Plot Method
- * Updates the movie's plot.
- */
-void Movie::setPlot(const string& plot) {
-    this->plot = plot;
 }
 
 /**
@@ -65,9 +49,9 @@ void Movie::setReleaseYear(int year) {
 }
 
 //const List<Actor*>& Movie::getActors() const {
-const List<Actor*> Movie::getActors() const {
-    return actors; // This now returns a deep copy, thanks to the updated List copy constructor
-}
+//const List<Actor*> Movie::getActors() const {
+//    return actors; // This now returns a deep copy, thanks to the updated List copy constructor
+//}
 
 /**
  * Add Actor to Movie Method
@@ -89,11 +73,11 @@ void Movie::addActorToMovie(Actor* actor) {
  * Sort Actors Method
  * Sorts the movie's actors alphabetically by name.
  */
-void Movie::sortActors() {
-    actors.sort([](Actor* a, Actor* b) -> bool {
-        return a->getName() < b->getName();
-        });
-}
+//void Movie::sortActors() {
+//    actors.sort([](Actor* a, Actor* b) -> bool {
+//        return a->getName() < b->getName();
+//        });
+//}
 
 /**
  * Display Actors Method
