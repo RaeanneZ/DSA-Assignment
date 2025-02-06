@@ -28,7 +28,7 @@ private:
 
 public:
     List() : head(nullptr), size(0) {}
-    
+
     // Copy constructor for deep copy
     List(const List& other) : head(nullptr), size(0) {
         Node* current = other.head;
@@ -136,6 +136,14 @@ public:
         size = 0;
     }
 
+    void sort(function<bool(const T&, const T&)> comparator) {
+        //bubbleSort(comparator);
+        //selectionSort(comparator);
+        //insertionSort(comparator);
+        //mergeSort(comparator);
+        quickSort(comparator);
+    }
+
     void bubbleSort(function<bool(const T&, const T&)> comparator) {
         if (!head || !head->next) return; // Empty or single-element list
 
@@ -146,6 +154,122 @@ public:
                 }
             }
         }
+    }
+
+    // Sorting Algorithms for AVLTree
+    void selectionSort(function<bool(const T&, const T&)> comparator) {
+        for (Node* i = head; i && i->next; i = i->next) {
+            Node* minNode = i;
+            for (Node* j = i->next; j; j = j->next) {
+                if (comparator(j->data, minNode->data)) {
+                    minNode = j;
+                }
+            }
+            if (minNode != i) {
+                swap(i->data, minNode->data);
+            }
+        }
+    }
+
+    void insertionSort(function<bool(const T&, const T&)> comparator) {
+        if (!head || !head->next) return;
+        Node* sorted = nullptr;
+        Node* current = head;
+        while (current) {
+            Node* next = current->next;
+            if (!sorted || comparator(current->data, sorted->data)) {
+                current->next = sorted;
+                sorted = current;
+            }
+            else {
+                Node* temp = sorted;
+                while (temp->next && !comparator(current->data, temp->next->data)) {
+                    temp = temp->next;
+                }
+                current->next = temp->next;
+                temp->next = current;
+            }
+            current = next;
+        }
+        head = sorted;
+    }
+
+    Node* merge(Node* left, Node* right, function<bool(const T&, const T&)> comparator) {
+        if (!left) return right;
+        if (!right) return left;
+        if (comparator(left->data, right->data)) {
+            left->next = merge(left->next, right, comparator);
+            return left;
+        }
+        else {
+            right->next = merge(left, right->next, comparator);
+            return right;
+        }
+    }
+
+    Node* mergeSortHelper(Node* start, function<bool(const T&, const T&)> comparator) {
+        if (!start || !start->next) return start;
+        Node* slow = start, * fast = start->next;
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        Node* mid = slow->next;
+        slow->next = nullptr;
+        Node* left = mergeSortHelper(start, comparator);
+        Node* right = mergeSortHelper(mid, comparator);
+        return merge(left, right, comparator);
+    }
+
+    void mergeSort(function<bool(const T&, const T&)> comparator) {
+        head = mergeSortHelper(head, comparator);
+    }
+
+    Node* partition(Node* low, Node* high, function<bool(const T&, const T&)> comparator) {
+        T pivot = high->data;
+        Node* i = low;
+        for (Node* j = low; j != high; j = j->next) {
+            if (comparator(j->data, pivot)) {
+                swap(i->data, j->data);
+                i = i->next;
+            }
+        }
+        swap(i->data, high->data);
+        return i;
+    }
+
+    void quickSortHelper(Node* low, Node* high, function<bool(const T&, const T&)> comparator) {
+        if (!low || !high || low == high || low == high->next) return;
+
+        Node* pivot = partition(low, high, comparator);
+
+        // Find the node just before the pivot
+        Node* temp = low;
+        Node* prev = nullptr;
+        while (temp != pivot && temp != nullptr) {
+            prev = temp;
+            temp = temp->next;
+        }
+
+        // Disconnect the left part from the pivot
+        if (prev) prev->next = nullptr;
+
+        // Recurse on the left part
+        if (temp != low) {
+            quickSortHelper(low, prev, comparator);
+            if (prev) prev->next = pivot;  // Reconnect after sorting
+        }
+
+        // Recurse on the right part
+        quickSortHelper(pivot->next, high, comparator);
+    }
+
+
+    void quickSort(function<bool(const T&, const T&)> comparator) {
+        if (!head) return;
+        Node* high = head;
+        while (high->next) high = high->next;
+        quickSortHelper(head, high, comparator);
     }
 
     int getSize() const {
@@ -196,10 +320,10 @@ public:
             if (!current) {
                 throw out_of_range("No more elements");
             }
-      
-            T value = current->data; 
+
+            T value = current->data;
             current = current->next;
-           
+
             return value;
         }
     };

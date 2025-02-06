@@ -139,7 +139,7 @@ void ActorMovieDatabase::displayRecentMovies() const {
     delete it;
 
     // Sort movies by release year
-    recentMovies.bubbleSort([](Movie* a, Movie* b) {
+    recentMovies.sort([](Movie* a, Movie* b) {
         return a->getReleaseYear() < b->getReleaseYear();
         });
 
@@ -167,7 +167,7 @@ void ActorMovieDatabase::displayMoviesForActor(const string& actorName) const {
     }
 
     List<Movie*> movies = actor->getMovies();
-    movies.bubbleSort([](Movie* a, Movie* b) {
+    movies.sort([](Movie* a, Movie* b) {
         return a->getTitle() < b->getTitle();
         });
 
@@ -195,7 +195,7 @@ void ActorMovieDatabase::displayActorsInMovie(const string& movieTitle) const {
     }
 
     List<Actor*> actors = movie->getActors();
-    actors.bubbleSort([](Actor* a, Actor* b) {
+    actors.sort([](Actor* a, Actor* b) {
         return a->getName() < b->getName();
         });
 
@@ -736,7 +736,7 @@ void ActorMovieDatabase::recommendPersonalisedMovies(const string& username) {
     delete scoreIt;
 
     // Sort movies by score in descending order
-    sortedMovies.bubbleSort([](const pair<string, float>& a, const pair<string, float>& b) {
+    sortedMovies.sort([](const pair<string, float>& a, const pair<string, float>& b) {
         return a.second > b.second;
         });
 

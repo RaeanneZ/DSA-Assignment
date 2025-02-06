@@ -68,7 +68,7 @@ void Actor::addMovieToActor(Movie* movie) {
  * Sorts the actor's movies alphabetically.
  */
 void Actor::sortMovies() {
-    movies.bubbleSort([](const Movie* a, const Movie* b) -> bool {
+    movies.sort([](const Movie* a, const Movie* b) -> bool {
         return a->getTitle() < b->getTitle();
         });
 }
