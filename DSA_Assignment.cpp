@@ -10,6 +10,7 @@
 #include <string>
 #include "ActorMovieDatabase.h"
 #include "CSVReader.h"
+#include "CSVBatchReader.h"
 
 using namespace std;
 
@@ -222,6 +223,7 @@ int main() {
     ActorMovieDatabase db;
     int roleChoice;
 
+    // File sys 2: readBatchCSV(db), File sys 1: readAllCSV(db)
     if (!readAllCSV(db)) {
         cerr << "Error loading CSV files. Exiting program.\n";
         return 1;
