@@ -1,16 +1,13 @@
 #pragma once
 #include "Iterator.h"
+#include "List.h" 
 #include <stdexcept>
 
-using namespace std;
-
 /**
- * Template class for an AVL Tree
- * Supports insertion, searching, deletion, and iteration.
+ * AVLTree: A self-balancing binary search tree.
  */
 template <typename K, typename V>
-class AVLTree
-{
+class AVLTree {
 private:
     struct Node {
         K key;
@@ -24,26 +21,10 @@ private:
 
     Node* root;
 
-    // Copy helper
-    Node* copy(Node* node) {
-        if (!node) return nullptr;
-        Node* newNode = new Node(node->key, node->value);
-        newNode->left = copy(node->left);
-        newNode->right = copy(node->right);
-        return newNode;
-    }
+    int height(Node* node) { return node ? node->height : 0; }
 
-    // Get height of a node
-    int height(Node* node) {
-        return node ? node->height : 0;
-    }
+    int getBalance(Node* node) { return node ? height(node->left) - height(node->right) : 0; }
 
-    // Get balance factor of a node
-    int getBalance(Node* node) {
-        return node ? height(node->left) - height(node->right) : 0;
-    }
-
-    // Right rotation
     Node* rotateRight(Node* y) {
         Node* x = y->left;
         y->left = x->right;
@@ -53,7 +34,6 @@ private:
         return x;
     }
 
-    // Left rotation
     Node* rotateLeft(Node* x) {
         Node* y = x->right;
         x->right = y->left;
@@ -63,7 +43,6 @@ private:
         return y;
     }
 
-    // Insert node
     Node* insert(Node* node, const K& key, const V& value) {
         if (!node) return new Node(key, value);
         if (key < node->key) node->left = insert(node->left, key, value);
@@ -74,26 +53,34 @@ private:
         return balance(node);
     }
 
-    // Balance the tree
-    Node* balance(Node* node) {
-        int balanceFactor = getBalance(node);
-        if (balanceFactor > 1 && getBalance(node->left) >= 0) return rotateRight(node);
-        if (balanceFactor < -1 && getBalance(node->right) <= 0) return rotateLeft(node);
-        if (balanceFactor > 1 && getBalance(node->left) < 0) {
-            node->left = rotateLeft(node->left);
-            return rotateRight(node);
+    Node* remove(Node* node, const K& key) {
+        if (!node) return nullptr;
+        if (key < node->key) node->left = remove(node->left, key);
+        else if (key > node->key) node->right = remove(node->right, key);
+        else {
+            if (!node->left || !node->right) {
+                Node* temp = node->left ? node->left : node->right;
+                delete node;
+                return temp;
+            }
+            Node* successor = getMinValueNode(node->right);
+            node->key = successor->key;
+            node->value = successor->value;
+            node->right = remove(node->right, successor->key);
         }
-        if (balanceFactor < -1 && getBalance(node->right) > 0) {
-            node->right = rotateRight(node->right);
-            return rotateLeft(node);
-        }
-        return node;
+
+        updateHeight(node);
+        return balance(node);
     }
 
-    // Search for a key
     Node* search(Node* node, const K& key) const {
         if (!node || node->key == key) return node;
         return key < node->key ? search(node->left, key) : search(node->right, key);
+    }
+
+    Node* getMinValueNode(Node* node) {
+        while (node->left) node = node->left;
+        return node;
     }
 
     void clear(Node* node) {
@@ -104,82 +91,69 @@ private:
     }
 
     void updateHeight(Node* node) {
-        node->height = 1 + max(height(node->left), height(node->right));
+        node->height = 1 + std::max(height(node->left), height(node->right));
     }
 
 public:
     AVLTree() : root(nullptr) {}
 
-    // Deep copy constructor
-    AVLTree(const AVLTree& other) { root = copy(other.root); }
-
     ~AVLTree() { clear(root); }
 
-    void insert(const K& key, const V& value) {
-        root = insert(root, key, value);
-    }
+    void insert(const K& key, const V& value) { root = insert(root, key, value); }
+
+    void remove(const K& key) { root = remove(root, key); }
+
+    bool contains(const K& key) const { return search(root, key) != nullptr; }
 
     V& get(const K& key) {
         Node* node = search(root, key);
-        if (!node) throw invalid_argument("Key not found");
+        if (!node) throw std::invalid_argument("Key not found");
         return node->value;
     }
 
-    bool contains(const K& key) const {
-        return search(root, key) != nullptr;
+    const V& get(const K& key) const {  // Const version
+        Node* node = search(root, key);
+        if (!node) throw std::invalid_argument("Key not found");
+        return node->value;
     }
 
-    void clear(Node* node) {
-        if (!node) return;
-        clear(node->left);
-        clear(node->right);
-        delete node;
+    void clear() {
+        clear(root);
+        root = nullptr;
     }
 
-    class AVLTreeIterator : public Iterator<pair<K, V>> {
+    /**
+     * In-order iterator for AVLTree using a List-based stack.
+     */
+    class AVLTreeIterator : public Iterator<std::pair<K, V>> {
     private:
-        struct StackNode {
-            Node* node;
-            StackNode* next;
-        };
-        StackNode* stackTop;
+        List<Node*> nodeStack;
 
         void pushLeft(Node* node) {
             while (node) {
-                stackTop = new StackNode{ node, stackTop };
+                nodeStack.add(node);
                 node = node->left;
             }
         }
 
     public:
-        explicit AVLTreeIterator(Node* root) : stackTop(nullptr) {
-            pushLeft(root);
-        }
+        explicit AVLTreeIterator(Node* root) { pushLeft(root); }
 
-        ~AVLTreeIterator() {
-            while (stackTop) {
-                StackNode* temp = stackTop;
-                stackTop = stackTop->next;
-                delete temp;
-            }
-        }
+        bool hasNext() const override { return !nodeStack.isEmpty(); }
 
-        bool hasNext() const override {
-            return stackTop != nullptr;
-        }
+        std::pair<K, V> next() override {
+            if (!hasNext()) throw std::out_of_range("No more elements in AVLTree");
 
-        pair<K, V> next() override {
-            if (!hasNext()) throw out_of_range("No more elements");
+            Node* node = nodeStack.getHead()->data;
+            nodeStack.remove(node);
 
-            Node* node = stackTop->node;
-            stackTop = stackTop->next;
             pushLeft(node->right);
+
             return { node->key, node->value };
         }
     };
 
-    Iterator<pair<K, V>>* createIterator() const {
+    Iterator<std::pair<K, V>>* createIterator() const {
         return new AVLTreeIterator(root);
     }
 };
-

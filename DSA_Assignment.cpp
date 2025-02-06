@@ -19,7 +19,6 @@ void clearInput() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-
 // Admin menu with validation and improvements
 void adminMenu(ActorMovieDatabase& db) {
     int choice;
