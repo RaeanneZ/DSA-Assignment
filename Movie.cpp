@@ -89,7 +89,7 @@ void Movie::addActorToMovie(Actor* actor) {
  * Sorts the movie's actors alphabetically by name.
  */
 void Movie::sortActors() {
-    actors.sort([](Actor* a, Actor* b) -> bool {
+    actors.bubbleSort([](Actor* a, Actor* b) -> bool {
         return a->getName() < b->getName();
         });
 }

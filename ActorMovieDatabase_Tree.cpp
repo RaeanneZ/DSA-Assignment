@@ -87,7 +87,7 @@ void ActorMovieDatabase_Tree::displayRecentMovies() const {
     delete it;
 
     // Sort movies by release year
-    recentMovies.sort([](Movie* a, Movie* b) { return a->getReleaseYear() < b->getReleaseYear(); });
+    recentMovies.bubbleSort([](Movie* a, Movie* b) { return a->getReleaseYear() < b->getReleaseYear(); });
 
     // Display movies
     auto movieIt = recentMovies.createIterator();
@@ -111,7 +111,7 @@ void ActorMovieDatabase_Tree::displayMoviesForActor(const string& actorName) con
     List<Movie*> movies = actor->getMovies();
 
     // Sort alphabetically
-    movies.sort([](Movie* a, Movie* b) { return a->getTitle() < b->getTitle(); });
+    movies.bubbleSort([](Movie* a, Movie* b) { return a->getTitle() < b->getTitle(); });
 
     auto it = movies.createIterator();
     while (it->hasNext()) {
@@ -133,7 +133,7 @@ void ActorMovieDatabase_Tree::displayActorsInMovie(const string& movieTitle) con
     List<Actor*> actors = movie->getActors();
 
     // Sort alphabetically
-    actors.sort([](Actor* a, Actor* b) { return a->getName() < b->getName(); });
+    actors.bubbleSort([](Actor* a, Actor* b) { return a->getName() < b->getName(); });
 
     auto it = actors.createIterator();
     while (it->hasNext()) {
@@ -187,7 +187,7 @@ void ActorMovieDatabase_Tree::displayActorsByAgeRange(int x, int y) const {
     delete it;
 
     // Sort actors by age
-    actorsInRange.sort([currentYear](Actor* a, Actor* b) {
+    actorsInRange.bubbleSort([currentYear](Actor* a, Actor* b) {
         return (currentYear - a->getBirthYear()) < (currentYear - b->getBirthYear());
         });
 

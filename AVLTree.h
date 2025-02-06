@@ -23,6 +23,28 @@ private:
 
     int height(Node* node) { return node ? node->height : 0; }
 
+    Node* balance(Node* node) {
+        int balanceFactor = getBalance(node);
+
+        // Left Heavy
+        if (balanceFactor > 1) {
+            if (getBalance(node->left) < 0) {
+                node->left = rotateLeft(node->left);
+            }
+            return rotateRight(node);
+        }
+
+        // Right Heavy
+        if (balanceFactor < -1) {
+            if (getBalance(node->right) > 0) {
+                node->right = rotateRight(node->right);
+            }
+            return rotateLeft(node);
+        }
+
+        return node;
+    }
+
     int getBalance(Node* node) { return node ? height(node->left) - height(node->right) : 0; }
 
     Node* rotateRight(Node* y) {
@@ -104,6 +126,21 @@ public:
     void remove(const K& key) { root = remove(root, key); }
 
     bool contains(const K& key) const { return search(root, key) != nullptr; }
+
+    /**
+    * Returns the number of nodes in the AVLTree.
+    */
+    int getSize() const {
+        return countNodes(root);
+    }
+
+    /**
+     * Helper function to count nodes.
+     */
+    int countNodes(Node* node) const {
+        if (!node) return 0;
+        return 1 + countNodes(node->left) + countNodes(node->right);
+    }
 
     V& get(const K& key) {
         Node* node = search(root, key);

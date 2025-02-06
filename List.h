@@ -136,7 +136,7 @@ public:
         size = 0;
     }
 
-    void sort(function<bool(const T&, const T&)> comparator) {
+    void bubbleSort(function<bool(const T&, const T&)> comparator) {
         if (!head || !head->next) return; // Empty or single-element list
 
         for (Node* i = head; i != nullptr; i = i->next) {
