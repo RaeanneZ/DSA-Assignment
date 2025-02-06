@@ -242,14 +242,14 @@ void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const 
 Actor* ActorMovieDatabase::findActor(const string& name) const {
     // Check if the actor exists in the map
     if (!actorMap.contains(name)) {
-        std::cerr << "Error: Actor \"" << name << "\" not found in actorMap.\n";
+        cerr << "Error: Actor \"" << name << "\" not found in actorMap.\n";
         return nullptr;
     }
 
     // Retrieve the actor from the map
     Actor* actor = actorMap.get(name);
     if (!actor) {
-        std::cerr << "Error: Retrieved actor for \"" << name << "\" is nullptr.\n";
+        cerr << "Error: Retrieved actor for \"" << name << "\" is nullptr.\n";
         return nullptr;
     }
 
@@ -293,7 +293,7 @@ void ActorMovieDatabase::displayActors() const {
  * Postcondition: Outputs all actors within the specified age range in ascending order of age.
  */
 void ActorMovieDatabase::displayActorsByAgeRange(int x, int y) const {
-    int currentYear = std::time(nullptr) / (60 * 60 * 24 * 365.25) + 1970; // Approximate current year
+    int currentYear = time(nullptr) / (60 * 60 * 24 * 365.25) + 1970; // Approximate current year
 
     List<Actor*> actorsInRange;
     auto it = actorMap.createIterator();
@@ -673,15 +673,15 @@ void ActorMovieDatabase::updateMovieRating(const string& movieTitle) {
 
 void ActorMovieDatabase::addWatchedMovie(const string& username, const string& movieTitle) {
     if (!userMap.contains(username)) {
-        std::cout << "User not found.\n";
+        cout << "User not found.\n";
         return;
     }
     if (!movieMap.contains(movieTitle)) {
-        std::cout << "Movie not found.\n";
+        cout << "Movie not found.\n";
         return;
     }
     userMap.get(username)->addWatchedMovie(movieTitle);
-    std::cout << "Movie \"" << movieTitle << "\" added to watched list for " << username << ".\n";
+    cout << "Movie \"" << movieTitle << "\" added to watched list for " << username << ".\n";
 }
 
 void ActorMovieDatabase::recommendPersonalisedMovies(const string& username) {

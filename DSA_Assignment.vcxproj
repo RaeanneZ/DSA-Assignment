@@ -139,6 +139,7 @@
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorMovieDatabase.h" />
+    <ClInclude Include="AVLTree.h" />
     <ClInclude Include="CSVReader.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Iterator.h" />

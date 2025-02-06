@@ -54,7 +54,7 @@ public:
     ~List() { clear(); }
 
     void add(const T& value) {
-        if constexpr (std::is_pointer<T>::value) { // Only check for nullptr if T is a pointer
+        if constexpr (is_pointer<T>::value) { // Only check for nullptr if T is a pointer
             if (value == nullptr) return; // Skip if value is nullptr
         }
 
