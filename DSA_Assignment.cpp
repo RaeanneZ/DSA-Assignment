@@ -7,18 +7,11 @@
 */
 
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <limits>
-#include <filesystem> // C++17
-#include <algorithm> // For std::remove_if
-#include <direct.h>  // Windows-specific (For _getcwd)
-#define GetCurrentDir _getcwd
 #include "ActorMovieDatabase.h"
+#include "CSVReader.h"
 
 using namespace std;
-namespace fs = filesystem;
 
 // Function to clear input buffer and handle invalid inputs
 void clearInput() {
@@ -26,146 +19,6 @@ void clearInput() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-// Helper function to trim leading and trailing spaces
-string trim(const string& str) {
-    size_t first = str.find_first_not_of(" \t");
-    size_t last = str.find_last_not_of(" \t");
-    return (first == string::npos || last == string::npos) ? "" : str.substr(first, last - first + 1);
-}
-// Helper function to correctly extract CSV fields with quotes
-string extractQuotedField(istringstream& ss) {
-    string field;
-    if (ss.peek() == '"') {  // If field starts with a quote
-        ss.get(); // Remove first quote
-        getline(ss, field, '"'); // Extract until next quote
-        ss.get(); // Remove the comma after closing quote
-    }
-    else {
-        getline(ss, field, ','); // Extract normally
-    }
-    return trim(field);
-}
-
-// Reads all CSV files into the database with improved parsing for quotes and special characters
-bool readAllCSV(ActorMovieDatabase& db) {
-    Map<string, string> actorIdToName;
-    Map<string, string> movieIdToTitle;
-
-    // Read actors.csv
-    ifstream actorsFile("actors.csv");
-    if (!actorsFile.is_open()) {
-        cerr << "Error: Could not open actors.csv\n";
-        return false;
-    }
-
-    string line;
-    getline(actorsFile, line); // Skip the header
-    while (getline(actorsFile, line)) {
-        istringstream ss(line);
-        string id, name, birth;
-
-        // Extract ID
-        getline(ss, id, ',');
-
-        // Extract name (handling quotes)
-        name = extractQuotedField(ss);
-
-        // Extract birth year
-        getline(ss, birth, ',');
-
-        try {
-            db.addActor(name, stoi(birth));
-        }
-        catch (const exception& e) {
-            cerr << "Error adding actor: " << e.what() << endl;
-            continue;
-        }
-
-        // Store ID-to-Name mapping
-        actorIdToName.insert(id, name);
-    }
-    actorsFile.close();
-
-    // Read movies.csv
-    ifstream moviesFile("movies.csv");
-    if (!moviesFile.is_open()) {
-        cerr << "Error: Could not open movies.csv\n";
-        return false;
-    }
-
-    getline(moviesFile, line); // Skip the header
-    while (getline(moviesFile, line)) {
-        istringstream ss(line);
-        string id, title, plot, year;
-
-        // Extract fields correctly
-        getline(ss, id, ',');       // Read Movie ID
-        title = extractQuotedField(ss);  // Read Title (handles commas)
-        plot = extractQuotedField(ss);   // Read Plot
-        getline(ss, year, ',');      // Read Year
-        year = trim(year);
-
-        if (year.empty() || !isdigit(year[0])) {
-            cerr << "Error: Invalid year for movie '" << title << "' | Raw input: " << year << "\n";
-            continue;
-        }
-
-        try {
-            db.addMovie(title, plot, stoi(year));
-        }
-        catch (const exception& e) {
-            cerr << "Error adding movie: " << e.what() << " | Raw input: " << year << "\n";
-            continue;
-        }
-
-        // Store ID-to-Title mapping
-        movieIdToTitle.insert(id, title);
-    }
-    moviesFile.close();
-
-    cout << "Finished reading movies.csv successfully.\n";
-
-    // Read cast.csv
-    ifstream castFile("cast.csv");
-    if (!castFile.is_open()) {
-        cerr << "Error: Could not open cast.csv\n";
-        return false;
-    }
-
-    getline(castFile, line); // Skip the header
-    while (getline(castFile, line)) {
-        istringstream ss(line);
-        string person_id, movie_id;
-        getline(ss, person_id, ',');
-        getline(ss, movie_id, ',');
-
-        // Ensure both IDs are mapped correctly
-        if (!actorIdToName.contains(person_id) || !movieIdToTitle.contains(movie_id)) {
-            cerr << "Error: Could not resolve ID " << person_id << " or " << movie_id << "\n";
-            continue;
-        }
-
-        string actorName = actorIdToName.get(person_id);
-        string movieTitle = movieIdToTitle.get(movie_id);
-
-        // Retrieve actual Actor and Movie objects
-        Actor* actor = db.findActor(actorName);
-        Movie* movie = db.findMovie(movieTitle);
-
-        if (!actor || !movie) {
-            cerr << "Error: Actor or Movie not found in database for association.\n";
-            continue;
-        }
-
-        // Associate actor with movie
-        actor->addMovieToActor(movie);
-        movie->addActorToMovie(actor);
-    }
-    castFile.close();
-
-    cout << "\nFinished reading all CSV files and associating actors with movies.\n";
-    return true;
-}
 
 // Admin menu with validation and improvements
 void adminMenu(ActorMovieDatabase& db) {
@@ -295,7 +148,6 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
             db.displayActorsByAgeRange(minAge, maxAge);
             break;
         case 2:
-            db.displayMovies();
             db.displayRecentMovies();
             break;
         case 3:
@@ -352,6 +204,7 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
             getline(cin, name);
             db.addWatchedMovie(username, name);
             cout << "Movie added to watched list.\n";
+            break;
         case 10:
             db.recommendPersonalisedMovies(username);
             break;

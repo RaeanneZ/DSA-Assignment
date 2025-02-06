@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="ActorMovieDatabase.cpp" />
+    <ClCompile Include="CSVReader.cpp" />
     <ClCompile Include="DSA_Assignment.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="Movie.cpp" />
@@ -138,6 +139,7 @@
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorMovieDatabase.h" />
+    <ClInclude Include="CSVReader.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Iterator.h" />
     <ClInclude Include="List.h" />
@@ -146,9 +148,9 @@
     <ClInclude Include="User.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\DSA_Demo\actors.csv" />
-    <None Include="..\DSA_Demo\cast.csv" />
-    <None Include="..\DSA_Demo\movies.csv" />
+    <None Include="actors.csv" />
+    <None Include="cast.csv" />
+    <None Include="movies.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

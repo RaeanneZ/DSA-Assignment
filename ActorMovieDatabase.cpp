@@ -481,7 +481,7 @@ void ActorMovieDatabase::displayMovies() const {
     while (it->hasNext()) {
         Movie* movie = it->next()->value;
         cout << "Movie: " << movie->getTitle() << endl;
-        movie->displayActors();
+        /*movie->displayActors();*/
     }
     delete it;
 }
