@@ -65,7 +65,12 @@ int User::getMovieRating(const string& movieTitle) const {
     return movieRatings.contains(movieTitle) ? movieRatings.get(movieTitle) : 0;
 }
 
-
+/**
+ * Display Ratings
+ * Process: Prints all rated movies and actors by the user.
+ * Precondition: None.
+ * Postcondition: The ratings are displayed in the console output.
+ */
 void User::displayRatings() const {
     cout << "Ratings by " << username << ":\n";
     cout << "Movies:\n";
