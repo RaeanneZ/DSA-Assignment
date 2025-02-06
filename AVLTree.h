@@ -24,6 +24,15 @@ private:
 
     Node* root;
 
+    // Copy helper
+    Node* copy(Node* node) {
+        if (!node) return nullptr;
+        Node* newNode = new Node(node->key, node->value);
+        newNode->left = copy(node->left);
+        newNode->right = copy(node->right);
+        return newNode;
+    }
+
     // Get height of a node
     int height(Node* node) {
         return node ? node->height : 0;
@@ -37,43 +46,44 @@ private:
     // Right rotation
     Node* rotateRight(Node* y) {
         Node* x = y->left;
-        Node* T2 = x->right;
+        y->left = x->right;
         x->right = y;
-        y->left = T2;
-        y->height = max(height(y->left), height(y->right)) + 1;
-        x->height = max(height(x->left), height(x->right)) + 1;
+        updateHeight(y);
+        updateHeight(x);
         return x;
     }
 
     // Left rotation
     Node* rotateLeft(Node* x) {
         Node* y = x->right;
-        Node* T2 = y->left;
+        x->right = y->left;
         y->left = x;
-        x->right = T2;
-        x->height = max(height(x->left), height(x->right)) + 1;
-        y->height = max(height(y->left), height(y->right)) + 1;
+        updateHeight(x);
+        updateHeight(y);
         return y;
     }
 
-    // Insert a node
+    // Insert node
     Node* insert(Node* node, const K& key, const V& value) {
         if (!node) return new Node(key, value);
-
         if (key < node->key) node->left = insert(node->left, key, value);
         else if (key > node->key) node->right = insert(node->right, key, value);
         else return node;
 
-        node->height = 1 + max(height(node->left), height(node->right));
+        updateHeight(node);
+        return balance(node);
+    }
 
-        int balance = getBalance(node);
-        if (balance > 1 && key < node->left->key) return rotateRight(node);
-        if (balance < -1 && key > node->right->key) return rotateLeft(node);
-        if (balance > 1 && key > node->left->key) {
+    // Balance the tree
+    Node* balance(Node* node) {
+        int balanceFactor = getBalance(node);
+        if (balanceFactor > 1 && getBalance(node->left) >= 0) return rotateRight(node);
+        if (balanceFactor < -1 && getBalance(node->right) <= 0) return rotateLeft(node);
+        if (balanceFactor > 1 && getBalance(node->left) < 0) {
             node->left = rotateLeft(node->left);
             return rotateRight(node);
         }
-        if (balance < -1 && key < node->right->key) {
+        if (balanceFactor < -1 && getBalance(node->right) > 0) {
             node->right = rotateRight(node->right);
             return rotateLeft(node);
         }
@@ -83,12 +93,25 @@ private:
     // Search for a key
     Node* search(Node* node, const K& key) const {
         if (!node || node->key == key) return node;
-        if (key < node->key) return search(node->left, key);
-        return search(node->right, key);
+        return key < node->key ? search(node->left, key) : search(node->right, key);
+    }
+
+    void clear(Node* node) {
+        if (!node) return;
+        clear(node->left);
+        clear(node->right);
+        delete node;
+    }
+
+    void updateHeight(Node* node) {
+        node->height = 1 + max(height(node->left), height(node->right));
     }
 
 public:
     AVLTree() : root(nullptr) {}
+
+    // Deep copy constructor
+    AVLTree(const AVLTree& other) { root = copy(other.root); }
 
     ~AVLTree() { clear(root); }
 
