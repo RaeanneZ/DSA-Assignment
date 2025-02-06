@@ -14,7 +14,7 @@ using namespace std;
  * Constructor
  * Initializes a Movie with a title, plot, and release year.
  */
-Movie::Movie(const string& title, int releaseYear) : title(title), releaseYear(releaseYear) {}
+Movie::Movie(const string& title, string plot, int releaseYear) : title(title), plot(plot), releaseYear(releaseYear), rating(0.0) {}
 
 /**
  * Get Title Method
@@ -46,6 +46,13 @@ int Movie::getReleaseYear() const {
  */
 void Movie::setReleaseYear(int year) {
     releaseYear = year;
+}
+
+string Movie::getPlot() const {
+    return plot;
+}
+void Movie::setPlot(string plot) {
+    this->plot = plot;
 }
 
 float Movie::getRating() const {

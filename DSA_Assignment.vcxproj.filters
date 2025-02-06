@@ -61,8 +61,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\data\actors.csv" />
-    <None Include="..\data\cast.csv" />
-    <None Include="..\data\movies.csv" />
+    <None Include="..\DSA_Demo\actorsDemo.csv" />
+    <None Include="..\DSA_Demo\cast.csv" />
+    <None Include="..\DSA_Demo\movies.csv" />
   </ItemGroup>
 </Project>

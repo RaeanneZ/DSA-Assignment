@@ -65,7 +65,7 @@ void ActorMovieDatabase::addActor(const string& name, int birthYear) {
  */
 void ActorMovieDatabase::addMovie(const string& title, const string& plot, int releaseYear) {
 
-    Movie* movie = new Movie(title, releaseYear);
+    Movie* movie = new Movie(title, plot, releaseYear);
     if (!movieMap.contains(title)) {
         movieMap.insert(title, movie);
     }
