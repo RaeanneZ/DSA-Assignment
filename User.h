@@ -17,10 +17,8 @@ public:
     User(const string& name);
     string getUsername() const;
     void rateMovie(const string& movieTitle, int rating);
-    void rateActor(const string& actorName, int rating);
     void addWatchedMovie(const string& movieTitle);
     List<string> getWatchedMovies() const;
     int getMovieRating(const string& movieTitle) const;
-    int getActorRating(const string& actorName) const;
     void displayRatings() const;
 };
