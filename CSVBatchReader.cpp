@@ -104,7 +104,7 @@ bool readBatchCSV(ActorMovieDatabase& db) {
 
         // Skip completely empty lines
         if (line.empty()) {
-            /*cerr << "Skipping empty line in movies.csv\n";*/
+            cerr << "Skipping empty line in movies.csv\n";
             continue;
         }
 
@@ -155,7 +155,13 @@ bool readBatchCSV(ActorMovieDatabase& db) {
         getline(ss, movie_id, ',');
 
         if (!actorIdToName.contains(person_id) || !movieIdToTitle.contains(movie_id)) {
-            /*cerr << "Error: Could not resolve ID " << person_id << " or " << movie_id << "\n";*/
+            if (!actorIdToName.contains(person_id)) {
+                /*cerr << "Error: Could not resolve Actor ID " << person_id << endl;*/
+            }
+            if (!movieIdToTitle.contains(movie_id)) {
+                /*cerr << "Error: Could not resolve Movie ID " << movie_id << endl;*/
+            }
+            
             continue;
         }
 
