@@ -152,7 +152,7 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
             db.displayKnownActors(getValidStringInput("Enter actor name: "));
             break;
         case 6:
-            db.exploreConnections(getValidStringInput("Enter an actor or movie to explore: "));
+            db.displayMindMap(getValidStringInput("Enter an actor or movie to explore: "));
             break;
         case 7:
             db.recommendMovies(getValidStringInput("Enter actor name for recommendations: "));
