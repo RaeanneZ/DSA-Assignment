@@ -11,8 +11,8 @@ string trimWhitespace(const string& str) {
 }
 
 // Function to correctly extract CSV fields with quotes
-std::string extractQuotes(std::istringstream& ss) {
-    std::string field;
+string extractQuotes(istringstream& ss) {
+    string field;
     if (ss.peek() == '"') {  // If field starts with a quote
         ss.get(); // Remove first quote
         getline(ss, field, '"'); // Extract until next quote
@@ -76,7 +76,7 @@ bool readBatchCSV(ActorMovieDatabase& db) {
         birth = trimWhitespace(birth);
 
         // Skip if any of the fields are empty or invalid
-        if (id.empty() || name.empty() || birth.empty() || !std::all_of(birth.begin(), birth.end(), ::isdigit)) {
+        if (id.empty() || name.empty() || birth.empty() || !all_of(birth.begin(), birth.end(), ::isdigit)) {
             /*cerr << "Skipping invalid actor entry: " << line << "\n";*/
             continue;
         }
@@ -123,7 +123,7 @@ bool readBatchCSV(ActorMovieDatabase& db) {
         year = trimWhitespace(year);
 
         // Skip if any of the fields are empty or invalid
-        if (id.empty() || title.empty() || year.empty() || !std::all_of(year.begin(), year.end(), ::isdigit)) {
+        if (id.empty() || title.empty() || year.empty() || !all_of(year.begin(), year.end(), ::isdigit)) {
             /*cerr << "Skipping invalid movie entry: " << line << "\n";*/
             continue;
         }
