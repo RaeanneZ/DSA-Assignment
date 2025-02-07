@@ -24,7 +24,9 @@ private:
     Map<string, Actor*> actorMap; // Maps actor names to Actor objects
     Map<string, Movie*> movieMap; // Maps movie titles to Movie objects
     Map<string, User*> userMap; // Store user profiles
+
     Graph actorMovieGraph; // Graph for actor-movie relationships
+    Map<string, List<string>*> actorMovieConnections; // For testing
 
 public:
     ActorMovieDatabase();
@@ -53,7 +55,10 @@ public:
 
     void clearDatabase();
 
-
+    // Map and List Version of Advanced ------------------------------
+    void testRenderBranches(const string& node, Map<string, List<string>*>& connections, List<string>& visited, const string& prefix, bool isActor);
+    void testDisplayMindMap(const string& startNode);
+    void buildConnections();
 
     // Advanced Features ---------------------------------------------
     Graph& getGraph();

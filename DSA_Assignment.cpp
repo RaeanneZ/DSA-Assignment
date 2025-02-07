@@ -126,6 +126,7 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
         cout << "8. Rate Movies" << endl;
         cout << "9. Add a Watched Movie" << endl;
         cout << "10. Get Personalized Movie Recommendations" << endl;
+        cout << "12. Test Actor/Movie Connections" << endl;
         cout << "0. Logout" << endl;
         choice = getValidIntInput("Enter your choice: ");
 
@@ -166,6 +167,9 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
         case 10:
             db.recommendPersonalisedMovies(username);
             break;
+        case 12:
+            db.testDisplayMindMap(getValidStringInput("Enter an actor or movie to explore: "));
+            break;
         case 0:
             cout << "Logging out...\n";
             break;
@@ -186,6 +190,7 @@ int main() {
     }
 
     db.buildGraph();
+    db.buildConnections(); // For testing
 
     do {
         cout << "\n=== Welcome to the Actor-Movie Database ===" << endl;

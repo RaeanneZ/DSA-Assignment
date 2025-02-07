@@ -509,7 +509,72 @@ void ActorMovieDatabase::clearDatabase() {
     movieMap.clear();
 }
 
+// Map and List Version of Advanced ------------------------------
+bool testIsVisited(const string& node, List<string>& visited) {
+    auto it = visited.createIterator();
+    while (it->hasNext()) {
+        if (it->next() == node) {
+            delete it;
+            return true; // Node already visited
+        }
+    }
+    delete it;
+    return false; // Node not found in visited list
+}
+void ActorMovieDatabase::testRenderBranches(const string& node, Map<string, List<string>*>& connections, List<string>& visited, const string& prefix, bool isActor) {
+    if (testIsVisited(node, visited)) {
+        return;
+    }
+    visited.add(node);
 
+    cout << prefix << (isActor ? "[Actor] " : "[Movie] ") << node << endl;
+
+    if (!connections.contains(node)) return;
+
+    List<string>* relatedNodes = connections.get(node);
+    auto it = relatedNodes->createIterator();
+    int count = 0;
+    int totalConnections = relatedNodes->getSize();
+
+    while (it->hasNext()) {
+        string connection = it->next();
+        bool isLast = (++count == totalConnections);
+
+        string newPrefix = prefix + (isLast ? "    " : "|   ");
+        string branch = isLast ? "|__" : "|-- ";
+
+        testRenderBranches(connection, connections, visited, prefix + branch, !isActor);
+    }
+    delete it;
+}
+void ActorMovieDatabase::testDisplayMindMap(const string& startNode) {
+    List<string> visited;
+    cout << "Mind Map for \"" << startNode << "\":\n";
+    testRenderBranches(startNode, actorMovieConnections, visited, "", true);
+    cout << endl;
+}
+void ActorMovieDatabase::buildConnections() {
+    auto actorIt = actorMap.createIterator();
+    while (actorIt->hasNext()) {
+        Actor* actor = actorIt->next()->value;
+        List<Movie*> movies = actor->getMovies();
+        auto movieIt = movies.createIterator();
+        while (movieIt->hasNext()) {
+            Movie* movie = movieIt->next();
+            if (!actorMovieConnections.contains(actor->getName())) {
+                actorMovieConnections.insert(actor->getName(), new List<string>());
+            }
+            actorMovieConnections.get(actor->getName())->add(movie->getTitle());
+
+            if (!actorMovieConnections.contains(movie->getTitle())) {
+                actorMovieConnections.insert(movie->getTitle(), new List<string>());
+            }
+            actorMovieConnections.get(movie->getTitle())->add(actor->getName());
+        }
+        delete movieIt;
+    }
+    delete actorIt;
+}
 
 
 // Advanced Feature --------------------------------------------------------------------------------------------------------
