@@ -113,7 +113,7 @@ private:
     }
 
     void updateHeight(Node* node) {
-        node->height = 1 + std::max(height(node->left), height(node->right));
+        node->height = 1 + max(height(node->left), height(node->right));
     }
 
 public:
@@ -144,13 +144,13 @@ public:
 
     V& get(const K& key) {
         Node* node = search(root, key);
-        if (!node) throw std::invalid_argument("Key not found");
+        if (!node) throw invalid_argument("Key not found");
         return node->value;
     }
 
     const V& get(const K& key) const {  // Const version
         Node* node = search(root, key);
-        if (!node) throw std::invalid_argument("Key not found");
+        if (!node) throw invalid_argument("Key not found");
         return node->value;
     }
 
@@ -162,7 +162,7 @@ public:
     /**
      * In-order iterator for AVLTree using a List-based stack.
      */
-    class AVLTreeIterator : public Iterator<std::pair<K, V>> {
+    class AVLTreeIterator : public Iterator<pair<K, V>> {
     private:
         List<Node*> nodeStack;
 
@@ -178,8 +178,8 @@ public:
 
         bool hasNext() const override { return !nodeStack.isEmpty(); }
 
-        std::pair<K, V> next() override {
-            if (!hasNext()) throw std::out_of_range("No more elements in AVLTree");
+        pair<K, V> next() override {
+            if (!hasNext()) throw out_of_range("No more elements in AVLTree");
 
             Node* node = nodeStack.getHead()->data;
             nodeStack.remove(node);
@@ -190,7 +190,7 @@ public:
         }
     };
 
-    Iterator<std::pair<K, V>>* createIterator() const {
+    Iterator<pair<K, V>>* createIterator() const {
         return new AVLTreeIterator(root);
     }
 };
