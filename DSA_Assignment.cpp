@@ -120,6 +120,12 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
         cout << "2. Display All Movies Within Past 3 Years" << endl;
         cout << "3. Display All Movies Actor Starred In" << endl;
         cout << "4. Display All Actors In Movie" << endl;
+        cout << "5. Display Known Actors for Chosen Actor" << endl;
+        cout << "6. Explore Actor/Movie Connections" << endl;
+        cout << "7. Get Movie Recommendations By Actor" << endl;
+        cout << "8. Rate Movies" << endl;
+        cout << "9. Add a Watched Movie" << endl;
+        cout << "10. Get Personalized Movie Recommendations" << endl;
         cout << "0. Logout" << endl;
         choice = getValidIntInput("Enter your choice: ");
 
@@ -141,6 +147,24 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
         case 4:
             name = getValidStringInput("Enter movie title: ");
             db.displayActorsInMovie(name);
+            break;
+        case 5:
+            db.displayKnownActors(getValidStringInput("Enter actor name: "));
+            break;
+        case 6:
+            db.exploreConnections(getValidStringInput("Enter an actor or movie to explore: "));
+            break;
+        case 7:
+            db.recommendMovies(getValidStringInput("Enter actor name for recommendations: "));
+            break;
+        case 8:
+            db.rateMovie(username, getValidStringInput("Enter movie title: "), getValidIntInput("Enter rating (1-5): "));
+            break;
+        case 9:
+            db.addWatchedMovie(username, getValidStringInput("Enter movie title you have watched: "));
+            break;
+        case 10:
+            db.recommendPersonalisedMovies(username);
             break;
         case 0:
             cout << "Logging out...\n";
