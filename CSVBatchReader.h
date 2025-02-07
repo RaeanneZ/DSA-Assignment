@@ -7,6 +7,7 @@
 #include <string>
 #include <limits>
 #include "ActorMovieDatabase_Tree.h"
+#include "ActorMovieDatabase.h"
 
 using namespace std;
 
@@ -20,6 +21,6 @@ string extractQuotes(istringstream& ss);
 string readFileIntoString(const string& filename);
 
 // Function to read all CSV files into the database
-bool readBatchCSV(ActorMovieDatabase_Tree& db);
+bool readBatchCSV(ActorMovieDatabase& db);
 
 #endif

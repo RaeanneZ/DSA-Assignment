@@ -1,4 +1,5 @@
 #include "CSVBatchReader.h"
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -40,7 +41,8 @@ string readFileIntoString(const string& filename) {
 }
 
 // Optimized readAllCSV function using custom Map and List
-bool readBatchCSV(ActorMovieDatabase_Tree& db) {
+// ActorMovieDatabase_Tree& db for Tree, ActorMovieDatabase& db for List
+bool readBatchCSV(ActorMovieDatabase& db) {
     Map<string, string> actorIdToName;  // Custom AVL-based map for actor ID -> name
     Map<string, string> movieIdToTitle; // Custom AVL-based map for movie ID -> title
 
@@ -53,21 +55,41 @@ bool readBatchCSV(ActorMovieDatabase_Tree& db) {
     getline(actorStream, line); // Skip header
 
     while (getline(actorStream, line)) {
+        line = trimWhitespace(line); // Trim any leading/trailing whitespace from the line
+
+        // Skip completely empty lines
+        if (line.empty()) {
+            /*cerr << "Skipping empty line in actors.csv\n";*/
+            continue;
+        }
+
         istringstream ss(line);
         string id, name, birth;
 
-        getline(ss, id, ','); // Extract ID
-        name = extractQuotes(ss); // Extract name (handles commas)
-        getline(ss, birth, ','); // Extract birth year
+        getline(ss, id, ',');        // Extract ID
+        name = extractQuotes(ss);    // Extract Name
+        getline(ss, birth, ',');     // Extract Birth Year
 
-        try {
-            db.addActor(name, stoi(birth)); // Add actor to AVL tree
-        }
-        catch (const exception& e) {
-            cerr << "Error adding actor: " << e.what() << endl;
+        // Trim individual fields
+        id = trimWhitespace(id);
+        name = trimWhitespace(name);
+        birth = trimWhitespace(birth);
+
+        // Skip if any of the fields are empty or invalid
+        if (id.empty() || name.empty() || birth.empty() || !std::all_of(birth.begin(), birth.end(), ::isdigit)) {
+            /*cerr << "Skipping invalid actor entry: " << line << "\n";*/
             continue;
         }
-        actorIdToName.insert(id, name); // Store mapping for cast.csv
+
+        try {
+            db.addActor(name, stoi(birth)); // Add valid actor
+        }
+        catch (const exception& e) {
+            cerr << "Error adding actor: " << e.what() << " | Raw input: " << birth << "\n";
+            continue;
+        }
+
+        actorIdToName.insert(id, name); // Map ID to Name for cast.csv processing
     }
 
     // === Read movies.csv ===
@@ -78,29 +100,43 @@ bool readBatchCSV(ActorMovieDatabase_Tree& db) {
     getline(movieStream, line); // Skip header
 
     while (getline(movieStream, line)) {
+        line = trimWhitespace(line); // Trim line
+
+        // Skip completely empty lines
+        if (line.empty()) {
+            /*cerr << "Skipping empty line in movies.csv\n";*/
+            continue;
+        }
+
         istringstream ss(line);
         string id, title, plot, year;
 
-        getline(ss, id, ','); // Read Movie ID
-        title = extractQuotes(ss);
-        plot = extractQuotes(ss);
-        getline(ss, year, ','); // Read Year
+        getline(ss, id, ',');        // Extract Movie ID
+        title = extractQuotes(ss);   // Extract Title
+        plot = extractQuotes(ss);    // Extract Plot
+        getline(ss, year, ',');      // Extract Year
+
+        // Trim individual fields
+        id = trimWhitespace(id);
+        title = trimWhitespace(title);
+        plot = trimWhitespace(plot);
         year = trimWhitespace(year);
 
-        if (year.empty() || !isdigit(year[0])) {
-            cerr << "Error: Invalid year for movie '" << title << "' | Raw input: " << year << "\n";
+        // Skip if any of the fields are empty or invalid
+        if (id.empty() || title.empty() || year.empty() || !std::all_of(year.begin(), year.end(), ::isdigit)) {
+            /*cerr << "Skipping invalid movie entry: " << line << "\n";*/
             continue;
         }
 
         try {
-            db.addMovie(title, plot, stoi(year)); // Add movie to AVL tree
+            db.addMovie(title, plot, stoi(year)); // Add valid movie
         }
         catch (const exception& e) {
             cerr << "Error adding movie: " << e.what() << " | Raw input: " << year << "\n";
             continue;
         }
 
-        movieIdToTitle.insert(id, title); // Store mapping for cast.csv
+        movieIdToTitle.insert(id, title); // Map ID to Title for cast.csv processing
     }
 
     cout << "Finished reading movies.csv successfully.\n";
@@ -119,7 +155,7 @@ bool readBatchCSV(ActorMovieDatabase_Tree& db) {
         getline(ss, movie_id, ',');
 
         if (!actorIdToName.contains(person_id) || !movieIdToTitle.contains(movie_id)) {
-            cerr << "Error: Could not resolve ID " << person_id << " or " << movie_id << "\n";
+            /*cerr << "Error: Could not resolve ID " << person_id << " or " << movie_id << "\n";*/
             continue;
         }
 
@@ -142,4 +178,3 @@ bool readBatchCSV(ActorMovieDatabase_Tree& db) {
     cout << "\nFinished reading all CSV files and associating actors with movies.\n";
     return true;
 }
-

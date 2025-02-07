@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <string>
+#include <limits>
 #include "ActorMovieDatabase.h"
 #include "CSVReader.h"
 #include "CSVBatchReader.h"
@@ -18,6 +19,36 @@ using namespace std;
 void clearInput() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+// Function to safely get integer input with validation
+int getValidIntInput(const string& prompt) {
+    int value;
+    while (true) {
+        cout << prompt;
+        cin >> value;
+        if (cin.fail()) {
+            cout << "Invalid input. Please enter a valid number.\n";
+            clearInput();
+        }
+        else {
+            break;
+        }
+    }
+    return value;
+}
+
+// Function to safely get string input with validation
+string getValidStringInput(const string& prompt) {
+    string value;
+    cout << prompt;
+    clearInput();
+    getline(cin, value);
+    while (value.empty()) {
+        cout << "Input cannot be empty. Please try again: ";
+        getline(cin, value);
+    }
+    return value;
 }
 
 // Admin menu with validation and improvements
@@ -31,74 +62,43 @@ void adminMenu(ActorMovieDatabase& db) {
         cout << "4. Update Actor Details" << endl;
         cout << "5. Update Movie Details" << endl;
         cout << "0. Logout" << endl;
-        cout << "Enter your choice: ";
-        cin >> choice;
-
-        if (cin.fail()) {
-            clearInput();
-            cout << "Invalid input. Please enter a valid choice.\n";
-            continue;
-        }
+        choice = getValidIntInput("Enter your choice: ");
 
         string name, title, plot, modifiedName;
         int year, modifiedYear;
         switch (choice) {
         case 1:
-            cout << "Enter actor name: ";
-            clearInput();
-            getline(cin, name);
-            cout << "Enter actor birth year: ";
-            cin >> year;
+            name = getValidStringInput("Enter actor name: ");
+            year = getValidIntInput("Enter actor birth year: ");
             db.addActor(name, year);
             cout << "Actor added successfully." << endl;
             break;
         case 2:
-            cout << "Enter movie title: ";
-            clearInput();
-            getline(cin, title);
-            cout << "Enter movie plot: ";
-            getline(cin, plot);
-            cout << "Enter movie release year: ";
-            cin >> year;
+            title = getValidStringInput("Enter movie title: ");
+            plot = getValidStringInput("Enter movie plot: ");
+            year = getValidIntInput("Enter movie release year: ");
             db.addMovie(title, plot, year);
             cout << "Movie added successfully." << endl;
             break;
         case 3:
-            cout << "Enter actor name: ";
-            clearInput();
-            getline(cin, name);
-            cout << "Enter movie title: ";
-            getline(cin, title);
+            name = getValidStringInput("Enter actor name: ");
+            title = getValidStringInput("Enter movie title: ");
             db.associateActorWithMovie(name, title);
             cout << "Actor and movie associated successfully." << endl;
             break;
         case 4:
             db.displayActors();
-            cout << "Please enter the actor name you would like to modify: ";
-            clearInput();
-            getline(cin, name);
-
-            cout << "Please enter new name (Press Enter to skip): ";
-            getline(cin, modifiedName);
-
-            cout << "Please enter new birth year (Press 0 to skip): ";
-            cin >> modifiedYear;
-            clearInput(); // Clear buffer after numeric input
-
+            name = getValidStringInput("Please enter the actor name you would like to modify: ");
+            modifiedName = getValidStringInput("Please enter new name (Press Enter to skip): ");
+            modifiedYear = getValidIntInput("Please enter new birth year (Press 0 to skip): ");
             db.updateActorDetails(name, modifiedName.empty() ? name : modifiedName, modifiedYear);
             cout << "Actor details updated successfully.\n";
             break;
         case 5:
             db.displayMovies();
-            cout << "Please enter the movie title you would like to modify: ";
-            clearInput();
-            getline(cin, title);
-
-            cout << "Please enter new title (Press Enter to skip): ";
-            getline(cin, modifiedName);
-
-            cout << "Please enter new release year (Press 0 to skip): ";
-            cin >> modifiedYear;
+            title = getValidStringInput("Please enter the movie title you would like to modify: ");
+            modifiedName = getValidStringInput("Please enter new title (Press Enter to skip): ");
+            modifiedYear = getValidIntInput("Please enter new release year (Press 0 to skip): ");
             db.updateMovieDetails(title, modifiedName.empty() ? title : modifiedName, modifiedYear);
             cout << "Movie details updated successfully.\n";
             break;
@@ -120,93 +120,27 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
         cout << "2. Display All Movies Within Past 3 Years" << endl;
         cout << "3. Display All Movies Actor Starred In" << endl;
         cout << "4. Display All Actors In Movie" << endl;
-        cout << "5. Display Known Actors for Chosen Actor" << endl;
-        cout << "6. Advanced Feature: Explore Connections" << endl;
-        cout << "7. Get Movie Recommendations By Actor" << endl;
-        cout << "8. Rate Movies" << endl;
-        cout << "9. Add a Watched Movie" << endl;
-        cout << "10. Get Personalised Movie Recommendations" << endl;
         cout << "0. Logout" << endl;
-        cout << "Enter your choice: ";
-        cin >> choice;
+        choice = getValidIntInput("Enter your choice: ");
 
-        if (cin.fail()) {
-            clearInput();
-            cout << "Invalid input. Please enter a valid choice.\n";
-            continue;
-        }
-
-        string name, node;
-        int rating;
+        string name;
+        int minAge, maxAge;
         switch (choice) {
         case 1:
-            int minAge, maxAge;
-            cout << "Enter minimum age: ";
-            cin >> minAge;
-            cout << "Enter maximum age: ";
-            cin >> maxAge;
+            minAge = getValidIntInput("Enter minimum age: ");
+            maxAge = getValidIntInput("Enter maximum age: ");
             db.displayActorsByAgeRange(minAge, maxAge);
             break;
         case 2:
             db.displayRecentMovies();
             break;
         case 3:
-            db.displayActors();
-            cout << "Enter actor name: ";
-            clearInput();
-            getline(cin, name);
+            name = getValidStringInput("Enter actor name: ");
             db.displayMoviesForActor(name);
             break;
         case 4:
-            db.displayMovies();
-            cout << "Enter movie title: ";
-            clearInput();
-            getline(cin, name);
+            name = getValidStringInput("Enter movie title: ");
             db.displayActorsInMovie(name);
-            break;
-        case 5:
-            cout << "Enter actor name: ";
-            clearInput();
-            getline(cin, name);
-            db.displayKnownActors(name);
-            break;
-        case 6:
-            cout << "Enter an actor or movie to explore: ";
-            clearInput();
-            getline(cin, node);
-            //db.exploreConnections(node);
-            cout << "\n" << endl;
-
-            if (db.getGraph().getConnections(node)) { // Check if the node exists
-                db.displayMindMap(node);
-            }
-            else {
-                cout << "Node \"" << node << "\" does not exist in the graph.\n";
-            }
-            break;
-        case 7:
-            cout << "Enter actor name for recommendations: ";
-            clearInput();
-            getline(cin, name);
-            db.recommendMovies(name);
-            break;
-        case 8:
-            cout << "Enter movie title: ";
-            clearInput();
-            getline(cin, name);
-            cout << "Enter rating (1-5): ";
-            cin >> rating;
-            db.rateMovie(username, name, rating);
-            break;
-        case 9:
-            cout << "Enter movie title you have watched: ";
-            clearInput();
-            getline(cin, name);
-            db.addWatchedMovie(username, name);
-            cout << "Movie added to watched list.\n";
-            break;
-        case 10:
-            db.recommendPersonalisedMovies(username);
             break;
         case 0:
             cout << "Logging out...\n";
@@ -217,33 +151,24 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
     } while (choice != 0);
 }
 
-
 // Main function
 int main() {
     ActorMovieDatabase db;
     int roleChoice;
 
-    // File sys 2: readBatchCSV(db), File sys 1: readAllCSV(db)
-    if (!readAllCSV(db)) {
+    if (!readBatchCSV(db)) {
         cerr << "Error loading CSV files. Exiting program.\n";
         return 1;
     }
 
-    db.buildGraph(); // Build graph for advanced feature
+    db.buildGraph();
 
     do {
         cout << "\n=== Welcome to the Actor-Movie Database ===" << endl;
         cout << "1. Login as Admin" << endl;
         cout << "2. Login as User" << endl;
         cout << "0. Exit" << endl;
-        cout << "Enter your choice: ";
-        cin >> roleChoice;
-
-        if (cin.fail()) {
-            clearInput();
-            cout << "Invalid input. Please enter a valid choice.\n";
-            continue;
-        }
+        roleChoice = getValidIntInput("Enter your choice: ");
 
         string username;
         switch (roleChoice) {
@@ -251,8 +176,7 @@ int main() {
             adminMenu(db);
             break;
         case 2:
-            cout << "Enter your username: ";
-            cin >> username;
+            username = getValidStringInput("Enter your username: ");
             db.addUser(username);
             userMenu(db, username);
             break;
