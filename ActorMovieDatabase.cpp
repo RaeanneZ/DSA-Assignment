@@ -593,21 +593,6 @@ void ActorMovieDatabase::buildGraph() {
     delete actorIt;
 }
 
-void ActorMovieDatabase::exploreConnections(const string& node) {
-    List<string>* connections = actorMovieGraph.getConnections(node);
-    if (connections) {
-        cout << "Connections for " << node << ":\n";
-        auto it = connections->createIterator();
-        while (it->hasNext()) {
-            cout << "- " << it->next() << endl;
-        }
-        delete it;
-    }
-    else {
-        cout << "No connections found for " << node << ".\n";
-    }
-}
-
 void ActorMovieDatabase::recommendMovies(const string& actorName) {
     Actor* actor = findActor(actorName);
     if (!actor) {

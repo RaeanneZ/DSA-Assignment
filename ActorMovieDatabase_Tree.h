@@ -15,7 +15,10 @@ private:
     AVLTree<string, Actor*> actorMap;
     AVLTree<string, Movie*> movieMap;
     AVLTree<string, User*> userMap;
+
+    // For advanced feature
     Graph actorMovieGraph;
+    AVLTree<string, AVLTree<string, bool>*> actorMovieConnections; // Replaces Graph
 
 public:
     ActorMovieDatabase_Tree();
@@ -44,11 +47,32 @@ public:
 
     void clearDatabase();
 
+    // Tree Test Advanced Features ---------------------------------------------
+    void testRenderBranches(const string& node,
+        AVLTree<string, AVLTree<string, bool>*>& connections,
+        AVLTree<string, bool>& visited,
+        const string& prefix,
+        bool isActor);
+    void buildConnections();
+    void testDisplayMindMap(const string& startNode);
+
+    // Advanced Features ---------------------------------------------
+    Graph& getGraph();
+    void buildGraph();
+    void recommendMovies(const string& actorName);
+    void displayMindMap(const string& startNode);
+    void renderBranches(const string& node, Graph& graph, List<string>& visited, const string& prefix);
+
     // Advanced Function 2 ---------------------------------------------------------------------------
     void addUser(const string& username);
     void rateMovie(const string& username, const string& movieTitle, int rating);
     void updateMovieRating(const string& movieTitle);
     void addWatchedMovie(const string& username, const string& movieTitle);
     void recommendPersonalisedMovies(const string& username);
+
+    // Advanced Function 3 ---------------------------------------------------------------------------
+    void displayMostInfluentialActor();
+    string findMostInfluentialActorWithMap();
+    string findMostInfluentialActorWithList();
 };
 

@@ -81,6 +81,10 @@ string Graph::findMostInfluentialActor() {
     }
     delete it;
 
+    // Remove "Actor:" prefix from result before returning
+    if (!mostInfluentialActor.empty()) {
+        return mostInfluentialActor.substr(6);
+    }
     return mostInfluentialActor;
 }
 

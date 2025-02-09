@@ -10,16 +10,11 @@
 #include <string>
 #include <limits>
 #include "ActorMovieDatabase.h"
+#include "ActorMovieDatabase_Tree.h"
 #include "CSVReader.h"
 #include "CSVBatchReader.h"
 
 using namespace std;
-
-// Function to clear input buffer and handle invalid inputs
-void clearInput() {
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-}
 
 // Function to safely get integer input with validation
 int getValidIntInput(const string& prompt) {
@@ -55,7 +50,7 @@ string getValidStringInput(const string& prompt) {
 
 
 // Admin menu with validation and improvements
-void adminMenu(ActorMovieDatabase& db) {
+void adminMenu(ActorMovieDatabase_Tree& db) {
     int choice;
     do {
         cout << "\n=== Admin Menu ===" << endl;
@@ -115,7 +110,7 @@ void adminMenu(ActorMovieDatabase& db) {
 }
 
 // User menu with validation and improvements
-void userMenu(ActorMovieDatabase& db, const string& username) {
+void userMenu(ActorMovieDatabase_Tree& db, const string& username) {
     int choice;
     do {
         cout << "\n=== User Menu ===" << endl;
@@ -126,11 +121,10 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
         cout << "5. Display Known Actors for Chosen Actor" << endl;
         cout << "6. Explore Actor/Movie Connections" << endl;
         cout << "7. Get Movie Recommendations By Actor" << endl;
-        cout << "8. Rate Movies" << endl;
-        cout << "9. Add a Watched Movie" << endl;
-        cout << "10. Get Personalized Movie Recommendations" << endl;
-        cout << "11. Find Most Influential Actor" << endl;
-        cout << "12. Test Actor/Movie Connections" << endl;
+        cout << "8. Find Most Influential Actor" << endl;
+        cout << "9. Rate Movies" << endl;
+        cout << "10. Add a Watched Movie" << endl;
+        cout << "11. Get Personalized Movie Recommendations" << endl;
         cout << "0. Logout" << endl;
         choice = getValidIntInput("Enter your choice: ");
 
@@ -157,25 +151,22 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
             db.displayKnownActors(getValidStringInput("Enter actor name: "));
             break;
         case 6:
-            db.displayMindMap(getValidStringInput("Enter an actor or movie to explore: "));
+            db.displayMindMap(getValidStringInput("Enter an actor or movie to explore by graph: "));
             break;
         case 7:
             db.recommendMovies(getValidStringInput("Enter actor name for recommendations: "));
             break;
         case 8:
-            db.rateMovie(username, getValidStringInput("Enter movie title: "), getValidIntInput("Enter rating (1-5): "));
-            break;
-        case 9:
-            db.addWatchedMovie(username, getValidStringInput("Enter movie title you have watched: "));
-            break;
-        case 10:
-            db.recommendPersonalisedMovies(username);
-            break;
-        case 11:
             db.displayMostInfluentialActor();
             break;
-        case 12:
-            db.testDisplayMindMap(getValidStringInput("Enter an actor or movie to explore: "));
+        case 9:
+            db.rateMovie(username, getValidStringInput("Enter movie title: "), getValidIntInput("Enter rating (1-5): "));
+            break;
+        case 10:
+            db.addWatchedMovie(username, getValidStringInput("Enter movie title you have watched: "));
+            break;
+        case 11:
+            db.recommendPersonalisedMovies(username);
             break;
         case 0:
             cout << "Logging out...\n";
@@ -188,7 +179,7 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
 
 // Main function
 int main() {
-    ActorMovieDatabase db;
+    ActorMovieDatabase_Tree db;
     int roleChoice;
 
     if (!readBatchCSV(db)) {

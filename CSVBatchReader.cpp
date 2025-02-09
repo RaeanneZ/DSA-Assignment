@@ -42,7 +42,7 @@ string readFileIntoString(const string& filename) {
 
 // Optimized readAllCSV function using custom Map and List
 // ActorMovieDatabase_Tree& db for Tree, ActorMovieDatabase& db for List
-bool readBatchCSV(ActorMovieDatabase& db) {
+bool readBatchCSV(ActorMovieDatabase_Tree& db) {
     Map<string, string> actorIdToName;  // Custom AVL-based map for actor ID -> name
     Map<string, string> movieIdToTitle; // Custom AVL-based map for movie ID -> title
 

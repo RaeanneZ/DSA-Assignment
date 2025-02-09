@@ -331,6 +331,281 @@ void ActorMovieDatabase_Tree::clearDatabase() {
     userMap.clear();
 }
 
+// Advanced Test Feature ---------------------------------------------------------------------------------------------------
+bool testIsVisited(const string& node, AVLTree<string, bool>& visited) {
+    return visited.contains(node);
+}
+
+void ActorMovieDatabase_Tree::buildConnections() {
+    auto actorIt = actorMap.createIterator();
+    while (actorIt->hasNext()) {
+        Actor* actor = actorIt->next().second;
+        List<Movie*> movies = actor->getMovies();
+        auto movieIt = movies.createIterator();
+
+        while (movieIt->hasNext()) {
+            Movie* movie = movieIt->next();
+
+            // Ensure actor entry exists
+            if (!actorMovieConnections.contains(actor->getName())) {
+                actorMovieConnections.insert(actor->getName(), new AVLTree<string, bool>());
+            }
+            actorMovieConnections.get(actor->getName())->insert(movie->getTitle(), true);
+
+            // Ensure movie entry exists
+            if (!actorMovieConnections.contains(movie->getTitle())) {
+                actorMovieConnections.insert(movie->getTitle(), new AVLTree<string, bool>());
+            }
+            actorMovieConnections.get(movie->getTitle())->insert(actor->getName(), true);
+        }
+        delete movieIt;
+    }
+    delete actorIt;
+}
+void ActorMovieDatabase_Tree::testRenderBranches(const string& node,
+    AVLTree<string, AVLTree<string, bool>*>& connections,
+    AVLTree<string, bool>& visited,
+    const string& prefix,
+    bool isActor) {
+    if (testIsVisited(node, visited)) return;
+
+    visited.insert(node, true); // Mark node as visited
+    cout << prefix << (isActor ? "[Actor] " : "[Movie] ") << node << endl;
+
+    if (!connections.contains(node)) return;
+
+    AVLTree<string, bool>* relatedNodes = connections.get(node);
+    auto it = relatedNodes->createIterator();
+    int count = 0;
+    int totalConnections = relatedNodes->getSize();
+
+    while (it->hasNext()) {
+        string connection = it->next().first;
+        bool isLast = (++count == totalConnections);
+
+        string newPrefix = prefix + (isLast ? "    " : "|   ");
+        string branch = isLast ? "|__ " : "|-- ";
+
+        testRenderBranches(connection, connections, visited, prefix + branch, !isActor);
+    }
+    delete it;
+}
+
+void ActorMovieDatabase_Tree::testDisplayMindMap(const string& startNode) {
+    AVLTree<string, bool> visited; // Custom AVLTree to track visited nodes
+    cout << "Mind Map for \"" << startNode << "\":\n";
+    testRenderBranches(startNode, actorMovieConnections, visited, "", true);
+    cout << endl;
+}
+
+
+// Advanced Feature --------------------------------------------------------------------------------------------------------
+void ActorMovieDatabase_Tree::buildGraph() {
+    auto actorIt = actorMap.createIterator();
+    while (actorIt->hasNext()) {
+        auto pair = actorIt->next();  // Get pair<string, Actor*>
+        Actor* actor = pair.second;   // Extract Actor* correctly
+        List<Movie*> movies = actor->getMovies();
+
+
+        auto movieIt = movies.createIterator();
+        while (movieIt->hasNext()) {
+            Movie* movie = movieIt->next();
+            cout << "Adding edge: " << actor->getName() << " -> " << movie->getTitle() << endl;
+            actorMovieGraph.addEdge("Actor:" + actor->getName(), "Movie:" + movie->getTitle());
+            actorMovieGraph.addEdge("Movie:" + movie->getTitle(), "Actor:" + actor->getName());
+        }
+        delete movieIt;
+    }
+    delete actorIt;
+}
+
+void ActorMovieDatabase_Tree::recommendMovies(const string& actorName) {
+    Actor* actor = findActor(actorName);
+    if (!actor) {
+        cout << "Actor not found.\n";
+        return;
+    }
+
+    List<Movie*> movies = actor->getMovies();
+    Map<string, int> movieFrequency;
+
+    auto movieIt = movies.createIterator();
+    while (movieIt->hasNext()) {
+        Movie* movie = movieIt->next();
+        List<Actor*> actors = movie->getActors();
+        auto actorIt = actors.createIterator();
+        while (actorIt->hasNext()) {
+            Actor* coActor = actorIt->next();
+            if (coActor != actor) {
+                List<Movie*> coActorMovies = coActor->getMovies();
+                auto coMovieIt = coActorMovies.createIterator();
+                while (coMovieIt->hasNext()) {
+                    string title = coMovieIt->next()->getTitle();
+                    if (!movieFrequency.contains(title)) {
+                        movieFrequency.insert(title, 0);
+                    }
+                    movieFrequency.get(title)++;
+                }
+                delete coMovieIt;
+            }
+        }
+        delete actorIt;
+    }
+    delete movieIt;
+
+    cout << "Recommended Movies:\n";
+    auto freqIt = movieFrequency.createIterator();
+    while (freqIt->hasNext()) {
+        auto pair = freqIt->next();
+        cout << pair->key << " (" << pair->value << " co-actor connections)\n";
+    }
+    delete freqIt;
+}
+
+Graph& ActorMovieDatabase_Tree::getGraph() {
+    return actorMovieGraph;
+}
+
+void ActorMovieDatabase_Tree::displayMindMap(const string& startNode) {
+    // Add prefix to match how nodes are stored in the graph
+    string prefixedNode;
+    if (actorMap.contains(startNode)) {
+        prefixedNode = "Actor:" + startNode;
+    }
+    else if (movieMap.contains(startNode)) {
+        prefixedNode = "Movie:" + startNode;
+    }
+    else {
+        cout << "No such actor or movie found.\n";
+        return;
+    }
+
+    List<string> visited;
+    cout << "Mind Map for \"" << startNode << "\":\n";
+    renderBranches(prefixedNode, actorMovieGraph, visited, "");
+    cout << endl;
+}
+
+// Helper function
+static bool isVisited(const string& node, List<string>& visited) {
+    auto it = visited.createIterator();
+    while (it->hasNext()) {
+        if (it->next() == node) {
+            delete it;
+            return true; // Node already visited
+        }
+    }
+    delete it;
+    return false; // Node not found in visited list
+}
+void ActorMovieDatabase_Tree::renderBranches(const string& node, Graph& graph, List<string>& visited, const string& prefix) {
+    // Check if the node has already been visited
+    if (isVisited(node, visited)) {
+        return;
+    }
+    visited.add(node); // Mark the node as visited
+
+    // Determine if it's an actor or movie based on prefix
+    bool isActor = node.find("Actor:") == 0;
+    string cleanNodeName = isActor ? node.substr(6) : node.substr(6);
+
+    // Print the current node with proper indentation
+    cout << prefix << (isActor ? "[Actor] " : "[Movie] ") << cleanNodeName << endl;
+
+    // Get connections for the current node
+    List<string>* connections = graph.getConnections(node);
+    if (!connections) return;
+
+    // Prepare for rendering children
+    auto it = connections->createIterator();
+    int count = 0;
+    int totalConnections = connections->getSize();
+    while (it->hasNext()) {
+        string connection = it->next();
+        bool isLast = (++count == totalConnections);
+
+        // Branch formatting
+        string newPrefix = prefix + (isLast ? "    " : "|   ");
+        string branch = isLast ? " |__ " : "|-- ";
+
+        // Recursive call
+        renderBranches(connection, graph, visited, prefix + branch);
+    }
+    delete it;
+}
+
+
+// Advanced Feature: Find Most Popular Actor ----------------------------------------------------------------------------------------------
+void ActorMovieDatabase_Tree::displayMostInfluentialActor() {
+    string actor = actorMovieGraph.findMostInfluentialActor();
+    cout << "The Most Influential Actor is: " << actor << endl;
+}
+
+// Testing
+string ActorMovieDatabase_Tree::findMostInfluentialActorWithMap() {
+    Map<string, int> actorConnections;
+
+    // Populate map with degree centrality (connections)
+    auto actorIt = actorMap.createIterator();
+    while (actorIt->hasNext()) {
+        auto actorPair = actorIt->next();
+        Actor* actor = actorPair.second;
+        string actorName = actor->getName();
+
+        actorConnections.insert(actorName, actor->getMovies().getSize());
+    }
+    delete actorIt;
+
+    // Find the actor with the highest connections
+    string mostInfluentialActor;
+    int maxConnections = -1;
+    auto connIt = actorConnections.createIterator();
+    while (connIt->hasNext()) {
+        auto pair = connIt->next();
+        if (pair->value > maxConnections) {
+            maxConnections = pair->value;
+            mostInfluentialActor = pair->key;
+        }
+    }
+    delete connIt;
+
+    return mostInfluentialActor;
+}
+
+string ActorMovieDatabase_Tree::findMostInfluentialActorWithList() {
+    List<pair<string, int>> actorConnections;
+
+    // Populate list with degree centrality (connections)
+    auto actorIt = actorMap.createIterator();
+    while (actorIt->hasNext()) {
+        auto actorPair = actorIt->next();
+        Actor* actor = actorPair.second;
+        string actorName = actor->getName();
+
+        // Add actor and their connection count to the list
+        actorConnections.add(make_pair(actorName, actor->getMovies().getSize()));
+    }
+    delete actorIt;
+
+    // Find the actor with the highest connections
+    string mostInfluentialActor;
+    int maxConnections = -1;
+
+    auto connIt = actorConnections.createIterator();
+    while (connIt->hasNext()) {
+        auto pair = connIt->next();
+        if (pair.second > maxConnections) {
+            maxConnections = pair.second;
+            mostInfluentialActor = pair.first;
+        }
+    }
+    delete connIt;
+
+    return mostInfluentialActor;
+}
+
+// Advanced Feature: Personalized Movie Recommendation & Rating System --------------------------------------------------
 /**
  * Adds a user.
  */
@@ -358,3 +633,91 @@ void ActorMovieDatabase_Tree::addWatchedMovie(const string& username, const stri
     }
 }
 
+/**
+ * Updates a movie's average rating.
+ */
+void ActorMovieDatabase_Tree::updateMovieRating(const string& movieTitle) {
+    if (!movieMap.contains(movieTitle)) return;
+    auto movie = movieMap.get(movieTitle);
+    float totalRating = 0;
+    int count = 0;
+    auto userIt = userMap.createIterator();
+    while (userIt->hasNext()) {
+        auto user = userIt->next().second;
+        int rating = user->getMovieRating(movieTitle);
+        if (rating > 0) {
+            totalRating += rating;
+            count++;
+        }
+    }
+    delete userIt;
+    movie->setRating(count > 0 ? totalRating / count : 0.0);
+}
+
+/**
+ * Recommends personalized movies based on watched history.
+ */
+void ActorMovieDatabase_Tree::recommendPersonalisedMovies(const string& username) {
+    if (!userMap.contains(username)) {
+        cout << "User not found.\n";
+        return;
+    }
+    User* user = userMap.get(username);
+    List<string> watchedMovies = user->getWatchedMovies();
+    AVLTree<string, float> movieScores;
+
+    auto movieIt = watchedMovies.createIterator();
+    while (movieIt->hasNext()) {
+        string watchedMovie = movieIt->next();
+        if (!movieMap.contains(watchedMovie)) continue;
+        auto movie = movieMap.get(watchedMovie);
+        auto actors = movie->getActors();
+        auto actorIt = actors.createIterator();
+        while (actorIt->hasNext()) {
+            string actorName = actorIt->next()->getName();
+            if (!actorMap.contains(actorName)) continue;
+            auto allMovies = actorMap.get(actorName)->getMovies();
+            auto relatedMovieIt = allMovies.createIterator();
+            while (relatedMovieIt->hasNext()) {
+                string relatedMovie = relatedMovieIt->next()->getTitle();
+                if (!watchedMovies.contains(relatedMovie) && movieMap.contains(relatedMovie)) {
+                    if (!movieScores.contains(relatedMovie)) {
+                        movieScores.insert(relatedMovie, 0.0);
+                    }
+                    movieScores.get(relatedMovie) += movieMap.get(relatedMovie)->getRating();
+                }
+            }
+            delete relatedMovieIt;
+        }
+        delete actorIt;
+    }
+    delete movieIt;
+
+    cout << "Recommended Movies for " << username << ":\n";
+    if (movieScores.getSize() == 0) {
+        cout << "No related movies found based on your watched list.\n";
+        return;
+    }
+
+    // Store movie scores in a list for sorting
+    List<pair<string, float>> sortedMovies;
+    auto scoreIt = movieScores.createIterator();
+    while (scoreIt->hasNext()) {
+        auto pair = scoreIt->next();
+        sortedMovies.add({ pair.first, pair.second }); // Use std::pair
+    }
+    delete scoreIt;
+
+    // Sort movies by score in descending order
+    sortedMovies.quickSort([](const pair<string, float>& a, const pair<string, float>& b) {
+        return a.second > b.second;
+        });
+
+    // Print sorted movies
+    auto sortedIt = sortedMovies.createIterator();
+    while (sortedIt->hasNext()) {
+        auto movie = sortedIt->next();
+        cout << movie.first << " (Score: " << movie.second << ")\n";
+    }
+    delete sortedIt;
+}

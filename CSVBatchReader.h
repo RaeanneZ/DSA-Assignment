@@ -21,6 +21,6 @@ string extractQuotes(istringstream& ss);
 string readFileIntoString(const string& filename);
 
 // Function to read all CSV files into the database
-bool readBatchCSV(ActorMovieDatabase& db);
+bool readBatchCSV(ActorMovieDatabase_Tree& db);
 
 #endif
