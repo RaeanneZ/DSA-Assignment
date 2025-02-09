@@ -187,8 +187,6 @@ bool readBatchCSV(ActorMovieDatabase_Tree& db) {
         movieIdToTitle.insert(id, title); // Map ID to Title for cast.csv processing
     }
 
-    cout << "Finished reading movies.csv successfully.\n";
-
 
     // === Read cast.csv ===
     /**

@@ -420,7 +420,6 @@ void ActorMovieDatabase_Tree::buildGraph() {
         auto movieIt = movies.createIterator();
         while (movieIt->hasNext()) {
             Movie* movie = movieIt->next();
-            cout << "Adding edge: " << actor->getName() << " -> " << movie->getTitle() << endl;
             actorMovieGraph.addEdge("Actor:" + actor->getName(), "Movie:" + movie->getTitle());
             actorMovieGraph.addEdge("Movie:" + movie->getTitle(), "Actor:" + actor->getName());
         }

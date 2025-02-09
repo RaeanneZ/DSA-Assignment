@@ -141,7 +141,6 @@ bool readAllCSV(ActorMovieDatabase& db) {
         movieIdToTitle.insert(id, title);
     }
     moviesFile.close();
-    cout << "Finished reading movies.csv successfully.\n";
 
 
     // ======================= Read cast.csv ======================= 
