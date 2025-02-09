@@ -1,3 +1,12 @@
+/*
+* Member 1 Name: Zou Ruining, Raeanne
+* Member 1 ID: S10258772G
+* Member 2 Name: Cing Sian Kim
+* Member 2 ID: S10257716F
+* Group: 1
+*/
+
+
 #pragma once
 #include "Actor.h"
 #include "Movie.h"
@@ -47,15 +56,6 @@ public:
 
     void clearDatabase();
 
-    // Tree Test Advanced Features ---------------------------------------------
-    void testRenderBranches(const string& node,
-        AVLTree<string, AVLTree<string, bool>*>& connections,
-        AVLTree<string, bool>& visited,
-        const string& prefix,
-        bool isActor);
-    void buildConnections();
-    void testDisplayMindMap(const string& startNode);
-
     // Advanced Features ---------------------------------------------
     Graph& getGraph();
     void buildGraph();
@@ -72,7 +72,5 @@ public:
 
     // Advanced Function 3 ---------------------------------------------------------------------------
     void displayMostInfluentialActor();
-    string findMostInfluentialActorWithMap();
-    string findMostInfluentialActorWithList();
 };
 

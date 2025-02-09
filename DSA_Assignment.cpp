@@ -188,8 +188,7 @@ int main() {
     }
 
     db.buildGraph();
-    db.buildConnections(); // For testing
-
+  
     do {
         cout << "\n=== Welcome to the Actor-Movie Database ===" << endl;
         cout << "1. Login as Admin" << endl;
