@@ -12,60 +12,87 @@ using namespace std;
 
 /**
  * Constructor
- * Initializes an Actor with a name and birth year.
+ * Process: Initializes an Actor object with a name and birth year.
+ * Precondition: `name` must be a valid non-empty string. `birthYear` must be a positive integer.
+ * Postcondition: A new Actor object is created with the given details.
  */
 Actor::Actor(const string& name, int birthYear) {
     this->name = name;
     this->birthYear = birthYear;
 }
 
+
 /**
- * Get Name Method
- * Returns the actor's name.
+ * Retrieves the name of the actor.
+ * Process: Returns the actor's name as a string.
+ * Precondition: The Actor object must be initialized with a name.
+ * Postcondition: Returns the name of the actor.
  */
 string Actor::getName() const {
     return name;
 }
 
+
 /**
- * Set Name Method
- * Updates the actor's name.
+ * Updates the name of the actor.
+ * Process: Assigns a new name to the actor.
+ * Precondition: `name` must be a valid non-empty string.
+ * Postcondition: The actor's name is updated.
  */
 void Actor::setName(const string& name) {
     this->name = name;
 }
 
+
 /**
- * Get Birth Year Method
- * Returns the actor's birth year.
+ * Retrieves the birth year of the actor.
+ * Process: Returns the actor's birth year as an integer.
+ * Precondition: The Actor object must have been initialized with a birth year.
+ * Postcondition: Returns the actor's birth year.
  */
 int Actor::getBirthYear() const {
     return birthYear;
 }
 
+
 /**
- * Set Birth Year Method
- * Updates the actor's birth year.
+ * Updates the birth year of the actor.
+ * Process: Assigns a new birth year to the actor.
+ * Precondition: `year` must be a positive integer.
+ * Postcondition: The actor's birth year is updated.
  */
 void Actor::setBirthYear(int year) {
     birthYear = year;
 }
 
+
+/**
+ * Retrieves the list of movies the actor has starred in.
+ * Process: Returns a deep copy of the list of movies associated with the actor.
+ * Precondition: The Actor object must have a movie list.
+ * Postcondition: Returns a list of movies in which the actor has appeared.
+ */
 List<Movie*> Actor::getMovies() const {
     return movies;
 }
 
+
 /**
- * Add Movie to Actor Method
- * Adds a movie title to the actor's list of movies.
+ * Adds a movie to the actor's list of movies.
+ * Process: Adds a `Movie*` to the `movies` list of the actor.
+ * Precondition: `movie` must be a valid `Movie*` object.
+ * Postcondition: The movie is added to the actor's list of movies.
  */
 void Actor::addMovieToActor(Movie* movie) {
     movies.add(movie);
 }
 
+
 /**
- * Sort Movies Method
- * Sorts the actor's movies alphabetically.
+ * Sorts the movies associated with the actor.
+ * Process: Uses the `sort` method to arrange movies alphabetically by title.
+ * Precondition: The actor must have a list of movies.
+ * Postcondition: The movies are sorted alphabetically.
  */
 void Actor::sortMovies() {
     movies.sort([](const Movie* a, const Movie* b) -> bool {
@@ -73,9 +100,12 @@ void Actor::sortMovies() {
         });
 }
 
+
 /**
- * Display Movies Method
- * Prints the actor's movies to the console.
+ * Displays the movies in which the actor has appeared.
+ * Process: Iterates through the list of movies and prints each movie's title and release year.
+ * Precondition: The actor must have a movie list.
+ * Postcondition: The list of movies is displayed in the console.
  */
 void Actor::displayMovies() const {
 
