@@ -74,6 +74,9 @@ public:
     void updateMovieRating(const string& movieTitle);
     void addWatchedMovie(const string& username, const string& movieTitle);
     void recommendPersonalisedMovies(const string& username);
+
+    // Advanced feature 3 --------------------------------------------
+    void displayMostInfluentialActor();
 };
 
 

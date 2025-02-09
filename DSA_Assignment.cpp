@@ -29,27 +29,30 @@ int getValidIntInput(const string& prompt) {
         cin >> value;
         if (cin.fail()) {
             cout << "Invalid input. Please enter a valid number.\n";
-            clearInput();
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
         else {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer only after a valid integer input
             break;
         }
     }
     return value;
 }
 
-// Function to safely get string input with validation
+// Function to safely get string input
 string getValidStringInput(const string& prompt) {
     string value;
     cout << prompt;
-    clearInput();
     getline(cin, value);
+
     while (value.empty()) {
         cout << "Input cannot be empty. Please try again: ";
         getline(cin, value);
     }
     return value;
 }
+
 
 // Admin menu with validation and improvements
 void adminMenu(ActorMovieDatabase& db) {
@@ -126,6 +129,7 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
         cout << "8. Rate Movies" << endl;
         cout << "9. Add a Watched Movie" << endl;
         cout << "10. Get Personalized Movie Recommendations" << endl;
+        cout << "11. Find Most Influential Actor" << endl;
         cout << "12. Test Actor/Movie Connections" << endl;
         cout << "0. Logout" << endl;
         choice = getValidIntInput("Enter your choice: ");
@@ -166,6 +170,9 @@ void userMenu(ActorMovieDatabase& db, const string& username) {
             break;
         case 10:
             db.recommendPersonalisedMovies(username);
+            break;
+        case 11:
+            db.displayMostInfluentialActor();
             break;
         case 12:
             db.testDisplayMindMap(getValidStringInput("Enter an actor or movie to explore: "));

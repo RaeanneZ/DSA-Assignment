@@ -586,7 +586,7 @@ void ActorMovieDatabase::buildGraph() {
         auto movieIt = movies.createIterator();
         while (movieIt->hasNext()) {
             Movie* movie = movieIt->next();
-            actorMovieGraph.addEdge(actor->getName(), movie->getTitle());
+            actorMovieGraph.addEdge("Actor:" + actor->getName(), "Movie:" + movie->getTitle());
         }
         delete movieIt;
     }
@@ -814,3 +814,8 @@ void ActorMovieDatabase::recommendPersonalisedMovies(const string& username) {
     delete sortedIt;
 }
 
+// Advanced Feature: Find Most Popular Actor ----------------------------------------------------------------------------------------------
+void ActorMovieDatabase::displayMostInfluentialActor() {
+    string actor = actorMovieGraph.findMostInfluentialActor();
+    cout << "The Most Influential Actor is: " << actor << endl;
+}

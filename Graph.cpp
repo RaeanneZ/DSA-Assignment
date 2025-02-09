@@ -52,3 +52,35 @@ void Graph::clearGraph() {
     delete it;
     adjacencyList.clear();
 }
+
+// **Find Most Influential Actor**
+bool Graph::isActor(const string& node) const {
+    return adjacencyList.contains(node) && node.find("Actor:") == 0; // Adjust based on your data format
+}
+
+string Graph::findMostInfluentialActor() {
+    string mostInfluentialActor;
+    int maxConnections = -1;
+
+    auto it = adjacencyList.createIterator();
+    while (it->hasNext()) {
+        auto pair = it->next();
+        string node = pair->key;
+
+        // Skip non-actor nodes
+        if (!isActor(node)) {
+            continue;
+        }
+
+        // Calculate degree centrality
+        int connections = pair->value->getSize();
+        if (connections > maxConnections) {
+            maxConnections = connections;
+            mostInfluentialActor = node;
+        }
+    }
+    delete it;
+
+    return mostInfluentialActor;
+}
+
