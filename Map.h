@@ -57,7 +57,7 @@ public:
             }
         }
         delete it;
-        throw std::invalid_argument("Key not found");
+        throw invalid_argument("Key not found");
     }
 
     const V& get(const K& key) const { // Const version
@@ -70,7 +70,7 @@ public:
             }
         }
         delete it;
-        throw std::invalid_argument("Key not found");
+        throw invalid_argument("Key not found");
     }
 
 
@@ -131,7 +131,7 @@ public:
         auto it = data.createIterator();
         while (it->hasNext()) {
             Pair* pair = it->next();
-            std::cout << "Key: " << pair->key << " | Value: " << pair->value << std::endl;
+            cout << "Key: " << pair->key << " | Value: " << pair->value << endl;
         }
         delete it;
     }

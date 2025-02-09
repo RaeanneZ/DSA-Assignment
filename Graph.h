@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "Map.h"
 #include "List.h"
 #include <string>
@@ -20,5 +19,8 @@ public:
     List<string>* getConnections(const string& node) const;
     void displayGraph() const;
     void clearGraph();
+
+    bool isActor(const string& node) const;
+    string findMostInfluentialActor(); // New function
 };
 

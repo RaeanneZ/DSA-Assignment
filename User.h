@@ -8,7 +8,7 @@ using namespace std;
 
 class User {
 private:
-    std::string username;
+    string username;
     Map<string, int> movieRatings; // Movie title -> Rating
     Map<string, int> actorRatings; // Actor name -> Rating
     List<string> watchedMovies; // Movies watched by user

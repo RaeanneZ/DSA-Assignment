@@ -242,14 +242,14 @@ void ActorMovieDatabase::associateActorWithMovie(const string& actorName, const 
 Actor* ActorMovieDatabase::findActor(const string& name) const {
     // Check if the actor exists in the map
     if (!actorMap.contains(name)) {
-        std::cerr << "Error: Actor \"" << name << "\" not found in actorMap.\n";
+        cerr << "Error: Actor \"" << name << "\" not found in actorMap.\n";
         return nullptr;
     }
 
     // Retrieve the actor from the map
     Actor* actor = actorMap.get(name);
     if (!actor) {
-        std::cerr << "Error: Retrieved actor for \"" << name << "\" is nullptr.\n";
+        cerr << "Error: Retrieved actor for \"" << name << "\" is nullptr.\n";
         return nullptr;
     }
 
@@ -293,7 +293,7 @@ void ActorMovieDatabase::displayActors() const {
  * Postcondition: Outputs all actors within the specified age range in ascending order of age.
  */
 void ActorMovieDatabase::displayActorsByAgeRange(int x, int y) const {
-    int currentYear = std::time(nullptr) / (60 * 60 * 24 * 365.25) + 1970; // Approximate current year
+    int currentYear = time(nullptr) / (60 * 60 * 24 * 365.25) + 1970; // Approximate current year
 
     List<Actor*> actorsInRange;
     auto it = actorMap.createIterator();
@@ -509,7 +509,72 @@ void ActorMovieDatabase::clearDatabase() {
     movieMap.clear();
 }
 
+// Map and List Version of Advanced ------------------------------
+bool testIsVisited(const string& node, List<string>& visited) {
+    auto it = visited.createIterator();
+    while (it->hasNext()) {
+        if (it->next() == node) {
+            delete it;
+            return true; // Node already visited
+        }
+    }
+    delete it;
+    return false; // Node not found in visited list
+}
+void ActorMovieDatabase::testRenderBranches(const string& node, Map<string, List<string>*>& connections, List<string>& visited, const string& prefix, bool isActor) {
+    if (testIsVisited(node, visited)) {
+        return;
+    }
+    visited.add(node);
 
+    cout << prefix << (isActor ? "[Actor] " : "[Movie] ") << node << endl;
+
+    if (!connections.contains(node)) return;
+
+    List<string>* relatedNodes = connections.get(node);
+    auto it = relatedNodes->createIterator();
+    int count = 0;
+    int totalConnections = relatedNodes->getSize();
+
+    while (it->hasNext()) {
+        string connection = it->next();
+        bool isLast = (++count == totalConnections);
+
+        string newPrefix = prefix + (isLast ? "    " : "|   ");
+        string branch = isLast ? "|__" : "|-- ";
+
+        testRenderBranches(connection, connections, visited, prefix + branch, !isActor);
+    }
+    delete it;
+}
+void ActorMovieDatabase::testDisplayMindMap(const string& startNode) {
+    List<string> visited;
+    cout << "Mind Map for \"" << startNode << "\":\n";
+    testRenderBranches(startNode, actorMovieConnections, visited, "", true);
+    cout << endl;
+}
+void ActorMovieDatabase::buildConnections() {
+    auto actorIt = actorMap.createIterator();
+    while (actorIt->hasNext()) {
+        Actor* actor = actorIt->next()->value;
+        List<Movie*> movies = actor->getMovies();
+        auto movieIt = movies.createIterator();
+        while (movieIt->hasNext()) {
+            Movie* movie = movieIt->next();
+            if (!actorMovieConnections.contains(actor->getName())) {
+                actorMovieConnections.insert(actor->getName(), new List<string>());
+            }
+            actorMovieConnections.get(actor->getName())->add(movie->getTitle());
+
+            if (!actorMovieConnections.contains(movie->getTitle())) {
+                actorMovieConnections.insert(movie->getTitle(), new List<string>());
+            }
+            actorMovieConnections.get(movie->getTitle())->add(actor->getName());
+        }
+        delete movieIt;
+    }
+    delete actorIt;
+}
 
 
 // Advanced Feature --------------------------------------------------------------------------------------------------------
@@ -521,7 +586,7 @@ void ActorMovieDatabase::buildGraph() {
         auto movieIt = movies.createIterator();
         while (movieIt->hasNext()) {
             Movie* movie = movieIt->next();
-            actorMovieGraph.addEdge(actor->getName(), movie->getTitle());
+            actorMovieGraph.addEdge("Actor:" + actor->getName(), "Movie:" + movie->getTitle());
         }
         delete movieIt;
     }
@@ -673,15 +738,15 @@ void ActorMovieDatabase::updateMovieRating(const string& movieTitle) {
 
 void ActorMovieDatabase::addWatchedMovie(const string& username, const string& movieTitle) {
     if (!userMap.contains(username)) {
-        std::cout << "User not found.\n";
+        cout << "User not found.\n";
         return;
     }
     if (!movieMap.contains(movieTitle)) {
-        std::cout << "Movie not found.\n";
+        cout << "Movie not found.\n";
         return;
     }
     userMap.get(username)->addWatchedMovie(movieTitle);
-    std::cout << "Movie \"" << movieTitle << "\" added to watched list for " << username << ".\n";
+    cout << "Movie \"" << movieTitle << "\" added to watched list for " << username << ".\n";
 }
 
 void ActorMovieDatabase::recommendPersonalisedMovies(const string& username) {
@@ -749,3 +814,8 @@ void ActorMovieDatabase::recommendPersonalisedMovies(const string& username) {
     delete sortedIt;
 }
 
+// Advanced Feature: Find Most Popular Actor ----------------------------------------------------------------------------------------------
+void ActorMovieDatabase::displayMostInfluentialActor() {
+    string actor = actorMovieGraph.findMostInfluentialActor();
+    cout << "The Most Influential Actor is: " << actor << endl;
+}

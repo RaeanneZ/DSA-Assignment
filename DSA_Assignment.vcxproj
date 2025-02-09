@@ -130,6 +130,8 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="ActorMovieDatabase.cpp" />
+    <ClCompile Include="ActorMovieDatabase_Tree.cpp" />
+    <ClCompile Include="CSVBatchReader.cpp" />
     <ClCompile Include="CSVReader.cpp" />
     <ClCompile Include="DSA_Assignment.cpp" />
     <ClCompile Include="Graph.cpp" />
@@ -139,6 +141,9 @@
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorMovieDatabase.h" />
+    <ClInclude Include="ActorMovieDatabase_Tree.h" />
+    <ClInclude Include="AVLTree.h" />
+    <ClInclude Include="CSVBatchReader.h" />
     <ClInclude Include="CSVReader.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Iterator.h" />

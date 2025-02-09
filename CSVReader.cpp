@@ -43,11 +43,22 @@ bool readAllCSV(ActorMovieDatabase& db) {
         name = extractQuotedField(ss); // Extract name
         getline(ss, birth, ','); // Extract birth year
 
+        // Ensure values are valid
+        id = trim(id);
+        name = trim(name);
+        birth = trim(birth);
+
+        if (id.empty() || name.empty() || birth.empty()) {
+            cerr << "Skipping invalid actor entry: " << line << "\n";
+            continue;
+        }
+
         try {
-            db.addActor(name, stoi(birth));
+            int birthYear = stoi(birth);
+            db.addActor(name, birthYear);
         }
         catch (const exception& e) {
-            cerr << "Error adding actor: " << e.what() << endl;
+            cerr << "Error adding actor: " << e.what() << " | Raw input: " << birth << "\n";
             continue;
         }
 
@@ -74,7 +85,7 @@ bool readAllCSV(ActorMovieDatabase& db) {
         year = trim(year);
 
         if (year.empty() || !isdigit(year[0])) {
-            cerr << "Error: Invalid year for movie '" << title << "' | Raw input: " << year << "\n";
+            cerr << "Skipping invalid movie entry: " << line << "\n";
             continue;
         }
 
@@ -106,7 +117,7 @@ bool readAllCSV(ActorMovieDatabase& db) {
         getline(ss, movie_id, ',');
 
         if (!actorIdToName.contains(person_id) || !movieIdToTitle.contains(movie_id)) {
-            cerr << "Error: Could not resolve ID " << person_id << " or " << movie_id << "\n";
+            cerr << "Skipping unresolved cast entry: " << person_id << ", " << movie_id << "\n";
             continue;
         }
 
@@ -129,3 +140,4 @@ bool readAllCSV(ActorMovieDatabase& db) {
     cout << "\nFinished reading all CSV files and associating actors with movies.\n";
     return true;
 }
+
