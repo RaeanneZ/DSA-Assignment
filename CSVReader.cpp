@@ -1,13 +1,23 @@
 #include "CSVReader.h"
 
-// Function to trim leading and trailing spaces
+/**
+ * Trims leading and trailing whitespace from a string.
+ * Process: Finds the first and last non-whitespace characters and extracts the substring.
+ * Precondition: `str` must be a valid string.
+ * Postcondition: Returns a new string with whitespace removed.
+ */
 string trim(const string& str) {
     size_t first = str.find_first_not_of(" \t");
     size_t last = str.find_last_not_of(" \t");
     return (first == string::npos || last == string::npos) ? "" : str.substr(first, last - first + 1);
 }
 
-// Function to correctly extract CSV fields with quotes
+/**
+ * Extracts a CSV field, handling quoted values properly.
+ * Process: If the field starts with a quote, extracts until the next quote; otherwise, extracts normally.
+ * Precondition: `ss` must be a valid input string stream.
+ * Postcondition: Returns the extracted and trimmed field.
+ */
 string extractQuotedField(istringstream& ss) {
     string field;
     if (ss.peek() == '"') {  // If field starts with a quote
@@ -21,12 +31,26 @@ string extractQuotedField(istringstream& ss) {
     return trim(field);
 }
 
-// Function to read all CSV files into the database
+/**
+ * Reads actor, movie, and cast data from CSV files and stores them in the database.
+ * Process: Reads actors.csv, movies.csv, and cast.csv. Maps actor and movie IDs to their respective names/titles.
+            Associates actors with movies based on cast.csv.
+ * Precondition: The CSV files must be present in the working directory.
+ * Postcondition: The database is populated with actors, movies, and their associations.
+ */
 bool readAllCSV(ActorMovieDatabase& db) {
     Map<string, string> actorIdToName;
     Map<string, string> movieIdToTitle;
 
-    // Read actors.csv
+    // ======================= Read actors.csv ======================= 
+    /**
+    * Reads actors from actors.csv and stores them in the database.
+    * Process: Reads the file line by line, extract actor ID, name, and birth year.
+               Validates input before adding it to the database and maps actor ID to name for later use in cast.csv.
+    * Precondition: actors.csv must be available in the correct format.
+    * Postcondition: Actors are added to the database, and their IDs are stored in a map.
+    */
+
     ifstream actorsFile("actors.csv");
     if (!actorsFile.is_open()) {
         cerr << "Error: Could not open actors.csv\n";
@@ -66,7 +90,16 @@ bool readAllCSV(ActorMovieDatabase& db) {
     }
     actorsFile.close();
 
-    // Read movies.csv
+
+    // ======================= Read movies.csv ======================= 
+    /**
+    * Reads movies from movies.csv and stores them in the database.
+    * Process: Reads the file line by line,then extracts movie ID, title, plot, and release year.
+               Validates input before adding it to the database and maps movie ID to title for later use in cast.csv.
+    * Precondition: movies.csv must be available in the correct format.
+    * Postcondition: Movies are added to the database, and their IDs are stored in a map.
+    */
+
     ifstream moviesFile("movies.csv");
     if (!moviesFile.is_open()) {
         cerr << "Error: Could not open movies.csv\n";
@@ -102,7 +135,16 @@ bool readAllCSV(ActorMovieDatabase& db) {
     moviesFile.close();
     cout << "Finished reading movies.csv successfully.\n";
 
-    // Read cast.csv
+
+    // ======================= Read cast.csv ======================= 
+    /**
+    * Reads cast information from cast.csv and associates actors with movies.
+    * Process: Reads the file line by line, matches actor and movie IDs to previously stored names and titles, then
+               associates each actor with their respective movies.
+    * Precondition: cast.csv must be available, and actor and movie mappings must be loaded.
+    * Postcondition: Actors are correctly linked to their movies in the database.
+    */
+
     ifstream castFile("cast.csv");
     if (!castFile.is_open()) {
         cerr << "Error: Could not open cast.csv\n";

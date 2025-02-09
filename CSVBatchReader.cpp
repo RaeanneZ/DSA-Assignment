@@ -3,14 +3,25 @@
 #include <fstream>
 #include <sstream>
 
-// Function to trim leading and trailing spaces
+/**
+ * Trims leading and trailing whitespace from a string.
+ * Process: Finds the first and last non-whitespace characters and extracts the substring.
+ * Precondition: `str` must be a valid string.
+ * Postcondition: Returns a new string with whitespace removed.
+ */
 string trimWhitespace(const string& str) {
     size_t first = str.find_first_not_of(" \t");
     size_t last = str.find_last_not_of(" \t");
     return (first == string::npos || last == string::npos) ? "" : str.substr(first, last - first + 1);
 }
 
-// Function to correctly extract CSV fields with quotes
+
+/**
+ * Extracts a CSV field, handling quoted values properly.
+ * Process: If the field starts with a quote, it extracts until the next quote; otherwise, it extracts normally.
+ * Precondition: `ss` must be a valid input string stream.
+ * Postcondition: Returns the extracted and trimmed field.
+ */
 string extractQuotes(istringstream& ss) {
     string field;
     if (ss.peek() == '"') {  // If field starts with a quote
@@ -24,7 +35,13 @@ string extractQuotes(istringstream& ss) {
     return trimWhitespace(field);
 }
 
-// Function to read the entire file into a string for batch processing
+
+/**
+ * Reads the entire contents of a file into a string.
+ * Process: Opens the file, reads its contents, and stores them in a string.
+ * Precondition: `filename` must be a valid file path.
+ * Postcondition: Returns the file content as a string. If the file cannot be opened, returns an empty string.
+ */
 string readFileIntoString(const string& filename) {
     ifstream file(filename, ios::in | ios::ate); // Open at the end for fast size check
     if (!file.is_open()) {
@@ -40,13 +57,28 @@ string readFileIntoString(const string& filename) {
     return content;
 }
 
-// Optimized readAllCSV function using custom Map and List
+
+/**
+ * Reads actor, movie, and cast data from CSV files and stores them in the database.
+ * Process: Reads actors.csv, movies.csv, and cast.csv. Maps actor and movie IDs to their respective names/titles and then 
+            associates actors with movies based on cast.csv.
+ * Precondition: The CSV files must be present in the working directory.
+ * Postcondition: The database is populated with actors, movies, and their associations.
+ */
 // ActorMovieDatabase_Tree& db for Tree, ActorMovieDatabase& db for List
 bool readBatchCSV(ActorMovieDatabase_Tree& db) {
     Map<string, string> actorIdToName;  // Custom AVL-based map for actor ID -> name
     Map<string, string> movieIdToTitle; // Custom AVL-based map for movie ID -> title
 
+
     // === Read actors.csv ===
+    /**
+    * Reads actors from actors.csv and stores them in the database.
+    * Process: Reads the entire file into memory, then parses each line to extract actor ID, name, and birth year. The input 
+               data is then validated and trimmed before storing it. Then maps actor ID to name for later use in cast.csv.
+    * Precondition: actors.csv must be available in the correct format.
+    * Postcondition: Actors are added to the database, and their IDs are stored in a map.
+    */
     string actorData = readFileIntoString("actors.csv");
     if (actorData.empty()) return false; // Ensure file was read
 
@@ -92,7 +124,15 @@ bool readBatchCSV(ActorMovieDatabase_Tree& db) {
         actorIdToName.insert(id, name); // Map ID to Name for cast.csv processing
     }
 
+
     // === Read movies.csv ===
+    /**
+    * Reads movies from movies.csv and stores them in the database.
+    * Process: Reads the entire file into memory, then parses each line to extract movie ID, title, plot, and release year.
+               The input data are then validated and trimmed before storing it. Maps movie ID to title for later use in cast.csv.
+    * Precondition: movies.csv must be available in the correct format.
+    * Postcondition: Movies are added to the database, and their IDs are stored in a map.
+    */
     string movieData = readFileIntoString("movies.csv");
     if (movieData.empty()) return false;
 
@@ -141,7 +181,15 @@ bool readBatchCSV(ActorMovieDatabase_Tree& db) {
 
     cout << "Finished reading movies.csv successfully.\n";
 
+
     // === Read cast.csv ===
+    /**
+    * Reads cast information from cast.csv and associates actors with movies.
+    * Process: Reads the entire file into memory, matches actor and movie IDs to previously stored names and titles, then
+               associates each actor with their respective movies.
+    * Precondition: cast.csv must be available, and actor and movie mappings must be loaded.
+    * Postcondition: Actors are correctly linked to their movies in the database.
+    */
     string castData = readFileIntoString("cast.csv");
     if (castData.empty()) return false;
 

@@ -16,7 +16,12 @@
 
 using namespace std;
 
-// Function to safely get integer input with validation
+/**
+ * Gets a valid integer input from the user.
+ * Process: Repeatedly prompts the user until a valid integer is entered.
+ * Precondition: The input must be an integer.
+ * Postcondition: Returns a valid integer input.
+ */
 int getValidIntInput(const string& prompt) {
     int value;
     while (true) {
@@ -35,7 +40,13 @@ int getValidIntInput(const string& prompt) {
     return value;
 }
 
-// Function to safely get string input
+
+/**
+ * Gets a valid string input from the user.
+ * Process: Prompts the user for input and ensures it is not empty.
+ * Precondition: None.
+ * Postcondition: Returns a valid non-empty string.
+ */
 string getValidStringInput(const string& prompt) {
     string value;
     cout << prompt;
@@ -49,7 +60,12 @@ string getValidStringInput(const string& prompt) {
 }
 
 
-// Admin menu with validation and improvements
+/**
+ * Displays the admin menu and handles administrative operations.
+ * Process: Allows the admin to add actors, add movies, update details, and associate actors with movies.
+ * Precondition: The `db` object must be initialized and contain valid movie and actor data.
+ * Postcondition: The database is updated based on the admin's choices.
+ */
 void adminMenu(ActorMovieDatabase_Tree& db) {
     int choice;
     do {
@@ -109,7 +125,13 @@ void adminMenu(ActorMovieDatabase_Tree& db) {
     } while (choice != 0);
 }
 
-// User menu with validation and improvements
+
+/**
+ * Displays the user menu and handles user interactions.
+ * Process: Allows users to explore actors, movies, connections, and get recommendations.
+ * Precondition: The `db` object must be initialized, and the user must be logged in.
+ * Postcondition: Displays requested information or updates user-specific data.
+ */
 void userMenu(ActorMovieDatabase_Tree& db, const string& username) {
     int choice;
     do {
@@ -177,7 +199,13 @@ void userMenu(ActorMovieDatabase_Tree& db, const string& username) {
     } while (choice != 0);
 }
 
-// Main function
+
+/**
+ * Main function - Entry point of the program.
+ * Process: Loads CSV data, initializes the graph, and provides a menu for Admin or User login.
+ * Precondition: CSV files must be present for batch processing.
+ * Postcondition: Runs the application until the user exits.
+ */
 int main() {
     ActorMovieDatabase_Tree db;
     int roleChoice;
